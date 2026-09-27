@@ -43,3 +43,29 @@ export async function setTaskStatus(taskId, status) {
     throw err;
   }
 }
+
+// 링크 뷰에서 노드의 점을 끌어 새 연결을 만들 때 씁니다(PRD P0-7: 할 일은 계획 0개 이상에 연결). 이미 있는 연결이면 아무 일도 하지 않습니다.
+export async function addLink(taskId, planId) {
+  if (state.links.some((l) => l.task_id === taskId && l.plan_id === planId)) return false;
+  commit({ ...state, links: [...state.links, { task_id: taskId, plan_id: planId }] });
+  try {
+    await api.addLink(taskId, planId);
+    return true;
+  } catch (err) {
+    commit({ ...state, links: state.links.filter((l) => !(l.task_id === taskId && l.plan_id === planId)) });
+    throw err;
+  }
+}
+
+// 연결선을 클릭해 삭제할 때 씁니다. 삭제 후 그 계획과의 연결이 하나도 없으면 할 일은 독립 상태가 됩니다(DESIGN.md 6-6).
+export async function removeLink(taskId, planId) {
+  const before = state.links;
+  commit({ ...state, links: state.links.filter((l) => !(l.task_id === taskId && l.plan_id === planId)) });
+  try {
+    await api.removeLink(taskId, planId);
+    return true;
+  } catch (err) {
+    commit({ ...state, links: before });
+    throw err;
+  }
+}

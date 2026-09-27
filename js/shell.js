@@ -106,12 +106,17 @@ export function renderShell(app) {
       <section class="chain only-board" id="chain" aria-label="이번 주 계획이 이어지는 목표"></section>
       <section class="content" aria-label="본문">
         <div class="board only-board" id="board"></div>
-        <!-- 링크 뷰 본문은 Phase 3 에서 만듭니다. -->
-        <div class="empty only-link">
-          <div class="empty-ic">${icon('inbox', 28)}</div>
-          <p class="empty-title">링크 뷰는 준비 중이에요</p>
-          <p class="empty-text">보드 뷰에서 할 일을 옮겨 볼 수 있어요.</p>
+        <div class="linkview only-link" id="linkview">
+          <div class="link-graph" id="link-graph">
+            <svg class="link-svg" id="link-svg" aria-hidden="true"></svg>
+            <div class="link-nodes" id="link-nodes"></div>
+          </div>
+          <div class="tray-wrap">
+            <div class="tray-hint">${icon('sparkles', 15)}<span>노드의 점을 다른 계획으로 끌어다 놓으면 새로 이어져요</span></div>
+            <div class="tray" id="tray" aria-label="상태 트레이"></div>
+          </div>
         </div>
+        <p class="link-disabled-msg only-link" id="link-disabled-msg" hidden>화면 폭이 좁아서 링크 뷰를 쓸 수 없어요. 보드 뷰로 볼게요.</p>
       </section>
       <section class="banner only-board" id="banner" aria-label="이번 주 응원"></section>
     </main>
@@ -126,17 +131,28 @@ function syncPressed() {
   document.querySelectorAll('[data-period-btn]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.periodBtn === period)));
 }
 
+// 화면 폭 1024px 미만이면 링크 뷰를 쓸 수 없습니다(PRD P0-12). 버튼을 비활성화하고, 링크 뷰를 보던 중이면 보드 뷰로 돌려보냅니다.
+const MIN_LINK_WIDTH = 1024;
+function enforceLinkAvailability() {
+  const allowed = window.innerWidth >= MIN_LINK_WIDTH;
+  document.querySelectorAll('[data-view-btn="link"]').forEach((b) => { b.disabled = !allowed; });
+  document.getElementById('link-disabled-msg').hidden = allowed || getView() !== 'link';
+  if (!allowed && getView() === 'link') setView('board');
+}
+
 export function bindShell() {
   root.dataset.period = root.dataset.period || 'week';
   document.addEventListener('click', (e) => {
     const viewBtn = e.target.closest('[data-view-btn]');
-    if (viewBtn) return setView(viewBtn.dataset.viewBtn);
+    if (viewBtn && !viewBtn.disabled) return setView(viewBtn.dataset.viewBtn);
     const periodBtn = e.target.closest('[data-period-btn]');
     if (periodBtn) {
       root.dataset.period = periodBtn.dataset.periodBtn;
       syncPressed();
     }
   });
-  document.addEventListener('linkplan:change', syncPressed);
+  document.addEventListener('linkplan:change', () => { syncPressed(); enforceLinkAvailability(); });
+  window.addEventListener('resize', enforceLinkAvailability);
   syncPressed();
+  enforceLinkAvailability();
 }

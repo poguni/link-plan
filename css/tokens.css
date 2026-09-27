@@ -237,3 +237,35 @@
   --goal-ink: #5B47B8; --goal-sub: #6B5A8F; --goal-corner: #8E7FC4;
   --banner-bg: #FFF0B8; --banner-border: #F2D97A; --banner-done: #8FDDAF; --banner-star: #B58500;
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+ * Phase 3 보충 토큰 — 링크 뷰(연결선 직접 연결 색, 끝점, 트레이). 시안·DESIGN.md 6-5 값입니다.
+ * ══════════════════════════════════════════════════════════════════════ */
+
+:root, :root[data-theme="clean"] {
+  --line-direct: #2557D6; --line-direct-opacity: .85;
+  --line-width: 2; --line-opacity: .6; --line-dash: 5 6; --line-dash-opacity: .6;
+  --dot-r: 4;                              /* 끝점 원 반지름(지름 8px) */
+  --tray-bg: var(--surface); --tray-border: var(--border);
+  --tray-drop-border: var(--border); --tray-drop-bg: transparent;
+  --node-shadow: var(--shadow-card);
+  --edge-hover-dim: .4;
+}
+:root[data-theme="night"] {
+  --line-direct: #7FB2FF; --line-direct-opacity: 1;
+  --line-width: 2; --line-opacity: .65; --line-dash: 5 6; --line-dash-opacity: .6;
+  --dot-r: 4;
+  --tray-bg: var(--panel-bg); --tray-border: var(--panel-border);
+  --tray-drop-border: #3A455C; --tray-drop-bg: transparent;
+  --node-shadow: none;
+  --edge-hover-dim: .4;
+}
+:root[data-theme="pastel"] {
+  --line-direct: #3F7FBF; --line-direct-opacity: 1;
+  --line-width: 3; --line-opacity: 1; --line-dash: 2 8; --line-dash-opacity: 1;
+  --dot-r: 5;
+  --tray-bg: #FFFFFF; --tray-border: #F0E0D2;
+  --tray-drop-border: #E9A9BF; --tray-drop-bg: rgba(255,255,255,.55);
+  --node-shadow: var(--shadow-card);
+  --edge-hover-dim: .4;
+}

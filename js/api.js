@@ -39,3 +39,11 @@ export async function updateTaskStatus(taskId, status, completedAt) {
     throw new Error('저장에 실패했어요(모의 실패).');
   }
 }
+
+// 링크 뷰의 점 끌기(할 일 ↔ 계획 연결)가 씁니다. Supabase 어댑터에서는 task_plan_links 행을 추가·삭제합니다.
+export async function addLink(taskId, planId) {
+  if (failNextWrite) { failNextWrite = false; throw new Error('저장에 실패했어요(모의 실패).'); }
+}
+export async function removeLink(taskId, planId) {
+  if (failNextWrite) { failNextWrite = false; throw new Error('저장에 실패했어요(모의 실패).'); }
+}

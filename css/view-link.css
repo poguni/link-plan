@@ -1,1 +1,127 @@
-/* view-link.css — 이후 Phase 에서 작성합니다. */
+/* 링크 뷰: 노드 그래프, SVG 연결선, 상태 트레이(DESIGN.md 6절). 좌표는 js/layout.js 가 계산합니다. */
+
+.linkview { display: flex; flex-direction: column; gap: 12px; height: 100%; min-height: 0; }
+.link-disabled-msg { padding: 24px; color: var(--muted); text-align: center; }
+
+/* 그래프 영역만 스크롤합니다(트레이는 고정, DESIGN 6-6). */
+.link-graph { position: relative; flex: 1; min-height: 0; overflow: auto; }
+.link-nodes, .link-svg { position: absolute; top: 0; left: 0; width: var(--graph-w, 100%); height: var(--graph-h, 100%); }
+.link-svg { pointer-events: none; overflow: visible; }
+.link-nodes { pointer-events: none; }   /* 자식 노드에서 개별적으로 다시 켭니다(빈 공간 클릭은 통과) */
+
+/* ── 열 머리 ─────────────────────────────────────── */
+.lhead { position: absolute; display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; font-weight: var(--fw-strong); white-space: nowrap; }
+[data-theme="night"] .lhead:nth-child(1) { color: var(--lv-year-fg); }
+[data-theme="night"] .lhead:nth-child(2) { color: var(--lv-month-fg); }
+[data-theme="night"] .lhead:nth-child(3) { color: var(--lv-week-fg); }
+
+/* ── 노드 공통 ───────────────────────────────────── */
+.lnode {
+  position: absolute; box-sizing: border-box;
+  display: flex; align-items: center; gap: 10px; padding: 0 14px;
+  background: var(--surface); border: var(--card-bw) solid var(--border); border-radius: var(--card-radius);
+  box-shadow: var(--node-shadow);
+  pointer-events: auto;
+}
+.lnode:focus-visible { outline: none; box-shadow: var(--focus-ring); z-index: 2; }
+.lnode.is-link-target { box-shadow: 0 0 0 2px var(--primary); }
+
+/* 계획 노드(연간·월간·주간) */
+.lnode-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.lnode-label { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; }
+.lnode-title { overflow: hidden; font-family: var(--font-display); font-size: 14.5px; font-weight: var(--fw-bold); white-space: nowrap; text-overflow: ellipsis; }
+.lnode-count { color: var(--muted); font-size: 12px; }
+.lnode--year .lnode-label { color: var(--lv-year-fg); }
+.lnode--month .lnode-label { color: var(--lv-month-fg); }
+.lnode--week .lnode-label { color: var(--lv-week-fg); }
+.lnode--plan .ring { flex-shrink: 0; }
+
+/* 할 일 노드 */
+.lnode--task { gap: 8px; padding: 0 12px; cursor: grab; }
+.lnode--task.is-dragging { cursor: grabbing; box-shadow: var(--shadow-drag); z-index: 5; }
+.lstatus-ic { display: flex; flex-shrink: 0; color: var(--muted); }
+.lnode--task[data-status="doing"] .lstatus-ic { color: var(--st-doing); }
+.lnode--task[data-status="done"] .lstatus-ic { color: var(--st-done); }
+.ltask-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ltask-title { overflow: hidden; font-size: 13.5px; font-weight: var(--fw-strong); white-space: nowrap; text-overflow: ellipsis; }
+.lnode--task[data-status="done"] .ltask-title { color: var(--muted); }
+.ltask-sub { color: var(--muted); font-size: 11.5px; }
+.lnode-badge { display: flex; align-items: center; gap: 3px; flex-shrink: 0; color: var(--muted); font-size: 11.5px; font-weight: 600; }
+.lnode--task .grip { flex-shrink: 0; color: var(--grip); }
+
+/* 점(연결 핸들). 시각 지름 ~10px, 터치 영역은 22px 로 넉넉하게(PRD 6-6). */
+.dot {
+  position: absolute; top: 50%; width: 22px; height: 22px; margin-top: -11px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.dot::before { content: ""; width: 9px; height: 9px; border-radius: 999px; background: var(--surface); border: 2px solid var(--muted); }
+.dot-left { left: -11px; }
+.dot-right { right: -11px; cursor: grab; }
+.dot-left { cursor: grab; }
+
+/* ── 독립 할 일 머리글 ───────────────────────────── */
+.lsolo-head { position: absolute; display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; font-weight: var(--fw-strong); }
+
+/* ── 연결선 ──────────────────────────────────────── */
+.edge { fill: none; stroke-width: var(--line-width); }
+.edge--year, .edge--month, .edge--week { opacity: var(--line-opacity); }
+.edge--year { stroke: var(--lv-year-bar); }
+.edge--month { stroke: var(--lv-month-bar); }
+.edge--week { stroke: var(--lv-week-bar); }
+.edge--direct-solid, .edge--direct-dashed { stroke: var(--line-direct); opacity: var(--line-direct-opacity); }
+.edge--direct-dashed { stroke-dasharray: var(--line-dash); opacity: var(--line-dash-opacity); }
+[data-theme="pastel"] .edge { stroke-linecap: round; }
+.edge.is-dim { opacity: var(--edge-hover-dim) !important; }
+.edge.is-active { opacity: 1 !important; }
+.edge-hit { fill: none; stroke: transparent; stroke-width: 16; pointer-events: stroke; cursor: pointer; }
+.edge-dot { fill: var(--surface); stroke-width: 1.5; }
+.edge--year ~ .edge-dot, .edge-dot { stroke: var(--border); }
+.edge-draft { stroke: var(--primary); stroke-width: 2; stroke-dasharray: 4 4; }
+
+.edge-delete {
+  position: absolute; z-index: 10; width: 26px; height: 26px; margin: -13px 0 0 -13px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--danger);
+  box-shadow: var(--shadow-drag);
+}
+
+/* ── 상태 트레이(고정) ───────────────────────────── */
+.tray-wrap { flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
+.tray-hint { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12.5px; }
+.tray { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.tray-cell {
+  position: relative; box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 10px; padding: 14px;
+  background: var(--tray-bg); border: 1px solid var(--tray-border); border-radius: var(--card-radius);
+}
+.tray-cell-head { display: flex; align-items: center; gap: 8px; }
+.tray-ic { display: flex; color: var(--muted); }
+.tray-cell[data-tray-status="doing"] .tray-ic { color: var(--st-doing); }
+.tray-cell[data-tray-status="done"] .tray-ic { color: var(--st-done); }
+.tray-name { font-family: var(--font-display); font-size: 14px; font-weight: var(--fw-strong); }
+.tray-count { margin-left: auto; font-size: 22px; font-weight: var(--fw-bold); }
+.tray-drop {
+  display: flex; align-items: center; justify-content: center; flex: 1; min-height: 48px;
+  border: 1.5px dashed var(--tray-drop-border); border-radius: var(--radius);
+  background: var(--tray-drop-bg); color: var(--muted); font-size: 12.5px;
+}
+.tray-cell.is-drop-target { box-shadow: inset 0 0 0 2px var(--drop-border); }
+.tray-cell[data-tray-status="done"].is-drop-target { background: var(--drop-bg); }
+.tray-cell[data-tray-status="done"].is-drop-target .tray-drop { border-color: var(--drop-border); color: var(--drop-fg); }
+.tray-preview {
+  position: absolute; right: 12px; top: 12px;
+  padding: 3px 10px; border-radius: var(--radius-pill);
+  background: var(--drop-bg); color: var(--drop-fg);
+  font-size: 12px; font-weight: var(--fw-strong);
+}
+
+/* ── 반응형: 1024px 미만은 링크 뷰를 쓰지 않습니다(PRD P0-12) ─ */
+@media (max-width: 1023px) {
+  .only-link { display: none !important; }
+}
+:root[data-view="link"] .link-disabled-msg { display: none; }
+@media (max-width: 1023px) {
+  :root[data-view="link"] .link-disabled-msg { display: block; }
+}

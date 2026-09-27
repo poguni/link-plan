@@ -4,6 +4,7 @@ import { loadState } from './state.js';
 import { initTheme } from './theme.js';
 import { renderShell, bindShell } from './shell.js';
 import { mountBoard } from './board.js';
+import { mountLink } from './link.js';
 
 async function start() {
   await Promise.all([loadIcons(), loadState()]);
@@ -11,6 +12,7 @@ async function start() {
   renderShell(document.getElementById('app'));
   bindShell();
   mountBoard();
+  mountLink();
 }
 
 start().catch((err) => {

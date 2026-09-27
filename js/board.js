@@ -245,7 +245,8 @@ function lowestPlan(taskId, s) {
 }
 
 // 마우스·터치·키보드 모두 이 함수를 지납니다. 화면은 먼저 바뀌고(낙관적), 저장이 실패하면 원래 열로 돌아갑니다.
-async function moveTask(taskId, status) {
+// 링크 뷰(link.js)의 상태 트레이도 이 함수를 그대로 씁니다(같은 규칙, 같은 토스트 문구).
+export async function moveTask(taskId, status) {
   const before = getState();
   const task = before.tasks.find((t) => t.id === taskId);
   const plan = task && lowestPlan(taskId, before);
@@ -264,7 +265,8 @@ async function moveTask(taskId, status) {
 }
 
 // ── 키보드 대안: 카드에서 Enter → 상태 변경 메뉴 ─────
-function closeStatusMenu(returnFocusTo) {
+// 링크 뷰의 할 일 노드도 같은 메뉴를 씁니다(openStatusMenu export).
+export function closeStatusMenu(returnFocusTo) {
   if (!openMenu) return;
   const { menu, onOutside } = openMenu;
   document.removeEventListener('pointerdown', onOutside, true);
@@ -273,7 +275,7 @@ function closeStatusMenu(returnFocusTo) {
   returnFocusTo?.focus();
 }
 
-function openStatusMenu(card) {
+export function openStatusMenu(card) {
   closeStatusMenu();
   const task = getState().tasks.find((t) => t.id === card.dataset.taskId);
   if (!task) return;

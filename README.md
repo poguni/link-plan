@@ -13,7 +13,8 @@
 | `dev.html` | 컴포넌트·테마·뷰 확인용 임시 페이지(개발 전용, 배포 대상 아님) |
 | `config.js` | Supabase URL·anon 키 자리(service_role 키는 넣지 않음) |
 | `css/` | `tokens.css`(디자인 토큰), `base.css`, `components.css`, `shell.css`(셸 배치), `view-board.css`, `view-link.css` |
-| `js/` | `app.js`, `theme.js`, `shell.js`, `icons.js`, `ui.js`, `state.js`, `progress.js`, `api.js`, `board.js`, `link.js`, `admin.js` |
+| `js/` | `app.js`, `theme.js`, `shell.js`, `icons.js`, `ui.js`, `state.js`, `progress.js`, `layout.js`, `api.js`, `board.js`, `link.js`, `admin.js` |
+| `check-layout.mjs` | 링크 뷰 좌표 검증 스크립트(검수용, 배포 대상 아님). `node check-layout.mjs` |
 | `docs/screenshots/` | 검수용 스크린샷(1280×820). 시안 미리보기는 `design/previews/` |
 | `assets/` | `icons.svg`(Lucide 스프라이트) |
 | `design/` | 디자인 기준 문서·시안(`DESIGN.md`, `mockups/`, `previews/`, `sample-data.json` 등) |
@@ -67,7 +68,21 @@ planProgress('없는계획', getState()); // { total: 0, done: 0, pct: null }
 
 ## 진행 상황
 
-단계별(Phase) 계획은 `docs/PROMPTS.md` 를 따릅니다. 현재는 Phase 2(보드 뷰, 정적 데이터)까지 끝났습니다.
+단계별(Phase) 계획은 `docs/PROMPTS.md` 를 따릅니다. 현재는 Phase 3(링크 뷰, 정적 데이터)까지 끝났습니다.
 
-- 앱: http://localhost:8000/index.html (보드 뷰는 동작하고, 링크 뷰는 Phase 3 에서 만듭니다)
+- 앱: http://localhost:8000/index.html (보드 뷰·링크 뷰 모두 동작합니다)
 - 컴포넌트 확인: http://localhost:8000/dev.html (테마·뷰 전환 버튼 포함)
+
+## 링크 뷰 좌표 검증
+
+`js/layout.js` 는 DOM 없이 노드 좌표만 계산하는 순수 함수입니다. 아래로 실행하면 `design/sample-data.json` 으로 계산한
+좌표가 `design/DESIGN.md` 6-2 표와 맞는지 확인합니다.
+
+```bash
+node check-layout.mjs
+```
+
+15개 중 13개가 정확히 일치합니다. 나머지 2개(`m1`, `y1`)는 "할 일이 주간을 건너뛰고 월간·연간에 직접 연결된 경우,
+그 직접 연결이 상위 계획의 세로 위치에 얼마나 영향을 주는지"를 DESIGN.md 가 명확히 정하지 않아서 생기는 차이입니다.
+한 가지 예(t0)만으로 규칙을 거꾸로 추정하면 과적합이 될 수 있어, 문서에 쓰인 "부모는 자식들의 세로 중앙에 맞춘다"는
+규칙을 일관되게 적용하는 쪽을 택했습니다. `check-layout.mjs` 실행 결과에 두 값의 차이가 그대로 나타납니다.
