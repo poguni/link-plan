@@ -280,6 +280,17 @@
 .status-check { display: none; color: var(--muted); }
 .status-menu-item[aria-checked="true"] .status-check { display: flex; }
 
+/* ── 검색·필터 패널(P1-7, .status-menu 를 그대로 넓혀 씁니다) ── */
+.filter-panel { width: 280px; display: flex; flex-direction: column; gap: 2px; }
+.filter-panel .field-input { height: 38px; }
+.filter-panel select.field-input { appearance: auto; }
+.btn-search { position: relative; }
+.btn-search.is-active::after {
+  content: ""; position: absolute; top: 6px; right: 6px;
+  width: 8px; height: 8px; border-radius: 999px;
+  background: var(--primary); border: 2px solid var(--btn-bg);
+}
+
 /* ── 범용 모달(계획·할 일 만들기·수정, PRD P0-1·P0-2·P0-5·P0-6). auth.css 의 .modal-backdrop 을 함께 씁니다. ── */
 .modal-card {
   width: 100%; max-width: 480px; max-height: 85vh;

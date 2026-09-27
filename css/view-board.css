@@ -1,6 +1,15 @@
 /* 보드 뷰: 3열 칸반, 연결 사슬, 좌측 목표 패널 내용, 드래그 상태, (파스텔) 응원 배너.
  * 뷰는 배치만, 테마는 겉모습만 바꿉니다. 색은 tokens.css 변수만 씁니다. */
 
+/* ── 미완료 이월(P1-3) ───────────────────────────── */
+.carryover-bar {
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+  padding: 10px 14px; margin-bottom: 4px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+}
+.carryover-bar[hidden] { display: none; }
+.carryover-text { display: flex; align-items: center; gap: 8px; flex-grow: 1; color: var(--text); font-size: 13px; font-weight: var(--fw-strong); }
+
 /* ── 3열 칸반 ────────────────────────────────────── */
 .board { display: flex; gap: 16px; align-items: stretch; height: 100%; min-height: 0; }
 .board .column { flex: 1 1 0; min-height: 0; }

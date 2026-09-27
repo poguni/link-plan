@@ -126,7 +126,6 @@
 }
 [data-theme="pastel"] .topbar-right { gap: 10px; }
 [data-theme="pastel"] .topbar-right .btn-primary { margin-left: 8px; }
-[data-theme="pastel"] .btn-search { display: none; }
 
 /* ── 기간 이전/다음 ──────────────────────────────── */
 .period-nav { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; font-weight: 500; white-space: nowrap; }

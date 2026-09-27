@@ -1,13 +1,14 @@
 // 보드 뷰: 좌측 목표 패널, 연결 사슬, 시작 전·진행 중·완료 3열 칸반, (파스텔) 응원 배너.
 // 상태가 바뀔 때마다 통째로 다시 그립니다(할 일이 500개여도 충분히 빠른 규모). 상태 변경은 state.js 의 함수로만 합니다.
 import { icon } from './icons.js';
-import { chip, esc, progressBar, showToast, LEVELS, STATUSES } from './ui.js';
-import { getState, subscribe, setTaskStatus } from './state.js';
-import { planProgress, planTaskIds } from './progress.js';
+import { chip, esc, progressBar, showToast, openModal, closeModal, LEVELS, STATUSES } from './ui.js';
+import { getState, subscribe, setTaskStatus, reorderTask, carryOverTasks } from './state.js';
+import { planProgress } from './progress.js';
 import { openTaskModal, confirmDeleteTask } from './taskmodal.js';
 import { openPlanModal } from './planmodal.js';
 import { rangeOf, planForRange, getPeriod, getAnchor, labelOf, titleOf } from './period.js';
 import { updatePeriodDisplay } from './shell.js';
+import { getFilter, setScope, matchTask, subscribe as subscribeFilter } from './filter.js';
 
 const STATUS_KEYS = ['todo', 'doing', 'done'];
 const TO_LABEL = { todo: '시작 전으로', doing: '진행 중으로', done: '완료로' };   // 조사(으로/로)까지 붙인 문구
@@ -23,7 +24,6 @@ const shortDate = (iso) => { const d = parseISO(iso); return `${d.getMonth() + 1
 
 // ── 화면 상태(메모리) ───────────────────────────────
 let els = {};
-let filter = null;          // { type: 'plan', id } | { type: 'solo' } | null
 let sortables = [];
 let pendingFocus = null;    // 다시 그린 뒤 포커스를 돌려줄 할 일 id(키보드 조작용)
 let openMenu = null;
@@ -41,21 +41,14 @@ function inPeriod(task, range) {
 
 function visibleTasks(s) {
   const range = rangeOf(getPeriod(), getAnchor());
-  const tasks = s.tasks.filter((t) => inPeriod(t, range));
-  if (!filter) return tasks;
-  if (filter.type === 'solo') {
-    const linked = linkedTaskIds(s);
-    return tasks.filter((t) => !linked.has(t.id));
-  }
-  const ids = planTaskIds(filter.id, s.plans, s.links);   // 진행률과 같은 범위(하위 계획 포함)
-  return tasks.filter((t) => ids.has(t.id));
+  return s.tasks.filter((t) => inPeriod(t, range) && matchTask(t, s));
 }
 
 // ── 좌측 목표 패널 ──────────────────────────────────
 function planPill(plan, depth, s) {
   const level = levelOf(plan);
   const pr = planProgress(plan.id, s);
-  const active = filter?.type === 'plan' && filter.id === plan.id;
+  const active = getFilter().scope?.type === 'plan' && getFilter().scope.id === plan.id;
   const value = pr.pct === 100 ? `${icon('star', 13)}달성!` : pctLabel(pr);
   return `<div class="goal-branch" data-depth="${depth}">
     <span class="goal-corner" aria-hidden="true">${icon('corner', 16)}</span>
@@ -69,7 +62,7 @@ function planPill(plan, depth, s) {
 
 function goalCard(year, s) {
   const pr = planProgress(year.id, s);
-  const active = filter?.type === 'plan' && filter.id === year.id;
+  const active = getFilter().scope?.type === 'plan' && getFilter().scope.id === year.id;
   // 파스텔에서만 보이는 하위 계획(월간 → 그 아래 주간). 다른 테마에서는 CSS 로 숨깁니다.
   const branches = s.plans
     .filter((p) => p.parent_id === year.id)
@@ -99,7 +92,7 @@ function renderGoals(s) {
     : '<p class="goal-empty">아직 연간 목표가 없어요.</p>';
   const linked = linkedTaskIds(s);
   els.soloCount.textContent = s.tasks.filter((t) => !linked.has(t.id)).length;
-  els.soloRow.setAttribute('aria-pressed', String(filter?.type === 'solo'));
+  els.soloRow.setAttribute('aria-pressed', String(getFilter().scope?.type === 'solo'));
 }
 
 // ── 연결 사슬(클린·나이트): 선택한 기간의 주간 → 월간 → 연간 ─
@@ -211,7 +204,7 @@ function initDrag() {
   els.board.querySelectorAll('.column-list').forEach((list) => {
     sortables.push(window.Sortable.create(list, {
       group: 'board',
-      sort: false,                       // 같은 열 안의 순서 변경은 P1-1 에서 다룹니다.
+      sort: true,                        // 같은 열 안의 순서 변경(P1-1). 순서는 onEnd 에서 저장합니다.
       draggable: '.task-card',
       filter: '.icon-btn',               // 수정·삭제 버튼 위에서는 끌기를 시작하지 않습니다.
       preventOnFilter: false,
@@ -231,12 +224,32 @@ function initDrag() {
       },
       onEnd(evt) {
         clearDropTarget();
-        if (evt.from === evt.to) return;
+        const taskId = evt.item.dataset.taskId;
         // 끌기가 완전히 끝난 뒤에 상태를 바꿔서, 다시 그리기가 SortableJS 의 마무리와 겹치지 않게 합니다.
-        setTimeout(() => moveTask(evt.item.dataset.taskId, evt.to.dataset.status), 0);
+        if (evt.from !== evt.to) setTimeout(() => moveTask(taskId, evt.to.dataset.status), 0);
+        else if (evt.oldIndex !== evt.newIndex) setTimeout(() => reorderColumn(taskId, evt.to), 0);
       },
     }));
   });
+}
+
+// 같은 열 안에서 순서를 바꿉니다(P1-1). 드롭 직후의 실제 DOM 순서(cards)에서 이웃 카드를 찾고,
+// 그 이웃들의 저장된 sort_order 사이의 중간값을 새 값으로 씁니다(같은 열의 다른 카드는 건드리지 않음).
+function orderBetween(before, after) {
+  if (before == null && after == null) return 0;
+  if (before == null) return after - 1;
+  if (after == null) return before + 1;
+  return (before + after) / 2;
+}
+function reorderColumn(taskId, listEl) {
+  const cards = [...listEl.querySelectorAll('.task-card')];
+  const idx = cards.findIndex((c) => c.dataset.taskId === taskId);
+  if (idx === -1) return;
+  const byId = new Map(getState().tasks.map((t) => [t.id, t]));
+  const prevOrder = idx > 0 ? byId.get(cards[idx - 1].dataset.taskId)?.sort_order ?? null : null;
+  const nextOrder = idx < cards.length - 1 ? byId.get(cards[idx + 1].dataset.taskId)?.sort_order ?? null : null;
+  reorderTask(taskId, orderBetween(prevOrder, nextOrder))
+    .catch((err) => { console.error(err); showToast('순서를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.'); });
 }
 
 // 데이터를 아직 못 불러왔으면(loadState 진행 중) 카드 모양 스켈레톤을 보여 줍니다(DESIGN.md 7절).
@@ -255,7 +268,7 @@ function renderColumns(s) {
     return;
   }
   const tasks = visibleTasks(s);
-  els.board.innerHTML = STATUS_KEYS.map((st) => columnHtml(st, tasks.filter((t) => t.status === st), s)).join('');
+  els.board.innerHTML = STATUS_KEYS.map((st) => columnHtml(st, tasks.filter((t) => t.status === st).sort((a, b) => a.sort_order - b.sort_order), s)).join('');
   initDrag();
   if (pendingFocus) {
     els.board.querySelector(`[data-task-id="${CSS.escape(pendingFocus)}"]`)?.focus();
@@ -322,6 +335,49 @@ export async function moveTask(taskId, status) {
   }
 }
 
+// ── 미완료 이월(P1-3) ────────────────────────────────
+// 대상: 지금 보고 있는 주의 수행일이 있고 완료하지 않은 할 일. 수행일만 7일 뒤로 옮기고 계획 연결은
+// 그대로 둡니다(진행률은 연결 기준이라 영향이 없고, 다음 주 보드에는 수행일 기준으로 자연히 나타납니다).
+function eligibleForCarryOver(s) {
+  if (getPeriod() !== 'week') return [];
+  const range = rangeOf('week', getAnchor());
+  const start = isoOf(range.start), end = isoOf(range.end);
+  return s.tasks.filter((t) => t.status !== 'done' && t.due_date && t.due_date >= start && t.due_date <= end);
+}
+
+function renderCarryoverBar(s) {
+  if (!els.carryoverBar) return;
+  const eligible = eligibleForCarryOver(s);
+  els.carryoverBar.hidden = eligible.length === 0;
+  els.carryoverBar.innerHTML = eligible.length === 0 ? '' : `
+    <span class="carryover-text">${icon('sparkles', 15)}이번 주 미완료 ${eligible.length}개</span>
+    <button type="button" class="btn btn-sm btn-outline" data-carryover>${icon('chevs-r', 14)}다음 주로 이월</button>`;
+}
+
+function confirmCarryOver() {
+  const eligible = eligibleForCarryOver(getState());
+  if (!eligible.length) return;
+  const back = openModal(`<div class="auth-card" role="alertdialog" aria-modal="true" aria-label="미완료 이월">
+    <div class="auth-status-title">이번 주 미완료 ${eligible.length}개를 다음 주로 옮길까요?</div>
+    <p class="auth-status-text">수행일이 7일 뒤로 바뀌어서 다음 주 보드에 나타나요. 계획 연결과 진행률에는 영향이 없어요.</p>
+    <div class="auth-status-actions">
+      <button type="button" class="btn btn-outline" id="carryover-cancel">취소</button>
+      <button type="button" class="btn btn-primary" id="carryover-confirm">이월하기</button>
+    </div>
+  </div>`, '#carryover-cancel');
+  back.querySelector('#carryover-cancel').addEventListener('click', closeModal);
+  back.querySelector('#carryover-confirm').addEventListener('click', async () => {
+    try {
+      const count = eligible.length;
+      await carryOverTasks(eligible.map((t) => t.id));
+      closeModal();
+      showToast(`${count}개를 다음 주로 옮겼어요.`);
+    } catch (err) {
+      showToast(err.message);
+    }
+  });
+}
+
 // ── 키보드 대안: 카드에서 Enter → 상태 변경 메뉴 ─────
 // 링크 뷰의 할 일 노드도 같은 메뉴를 씁니다(openStatusMenu export).
 export function closeStatusMenu(returnFocusTo) {
@@ -377,18 +433,12 @@ export function openStatusMenu(card) {
   (items.find((b) => b.getAttribute('aria-checked') === 'true') || items[0]).focus();
 }
 
-// ── 필터(목표 클릭) ─────────────────────────────────
-function toggleFilter(next) {
-  const same = filter && filter.type === next.type && filter.id === next.id;
-  filter = same ? null : next;   // 같은 목표를 다시 누르면 해제
-  render(getState());
-}
-
 function render(s) {
   renderGoals(s);
   renderChain(s);
   renderColumns(s);
   renderBanner(s);
+  renderCarryoverBar(s);
   const period = getPeriod();
   const { long, short } = labelOf(period, getAnchor());
   updatePeriodDisplay({ long, short, title: titleOf(period) });
@@ -412,13 +462,15 @@ export function mountBoard() {
     board: document.getElementById('board'),
     banner: document.getElementById('banner'),
     statusTabs: document.getElementById('status-tabs'),
+    carryoverBar: document.getElementById('carryover-bar'),
   };
   renderStatusTabs(document.documentElement.dataset.mobileStatus || 'todo');
 
   document.addEventListener('click', (e) => {
     const planBtn = e.target.closest('[data-filter-plan]');
-    if (planBtn) return toggleFilter({ type: 'plan', id: planBtn.dataset.filterPlan });
-    if (e.target.closest('[data-filter-solo]')) return toggleFilter({ type: 'solo', id: null });
+    if (planBtn) return setScope({ type: 'plan', id: planBtn.dataset.filterPlan });
+    if (e.target.closest('[data-filter-solo]')) return setScope({ type: 'solo', id: null });
+    if (e.target.closest('[data-carryover]')) return confirmCarryOver();
 
     if (e.target.closest('[data-task-add]')) return openTaskModal();
     const taskEdit = e.target.closest('[data-task-edit]');
@@ -451,5 +503,6 @@ export function mountBoard() {
   document.addEventListener('linkplan:change', () => { if (getState().ready) render(getState()); });
 
   subscribe(render);
+  subscribeFilter(() => { if (getState().ready) render(getState()); });
   render(getState());
 }

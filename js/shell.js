@@ -4,6 +4,9 @@ import { icon } from './icons.js';
 import { getView, setView, getTheme, setTheme, THEMES } from './theme.js';
 import { getPeriod, getAnchor, setAnchor, shiftAnchor, navLabel } from './period.js';
 import { saveSettings } from './api.js';
+import { getState } from './state.js';
+import { esc, STATUSES, LEVELS } from './ui.js';
+import { getFilter, isActive as isFilterActive, setQuery, setStatus, setScope, clearScope, clearFilter, subscribe as subscribeFilter } from './filter.js';
 
 const THEME_LABEL = { clean: '클린', night: '나이트', pastel: '파스텔' };
 
@@ -130,6 +133,7 @@ export function renderShell(app) {
         </div>
       </div>
       <section class="chain only-board" id="chain" aria-label="이번 주 계획이 이어지는 목표"></section>
+      <section class="carryover-bar only-board" id="carryover-bar" aria-label="미완료 이월" hidden></section>
       <section class="content" aria-label="본문">
         <div class="status-tabs only-board" id="status-tabs" role="tablist" aria-label="상태"></div>
         <div class="board only-board" id="board"></div>
@@ -232,6 +236,87 @@ function openUserMenu(anchor) {
   userMenu = { menu, anchor, onOutside };
 }
 
+// ── 검색·필터(P1-7): 계획별·상태별·개별 할 일 필터 + 제목 검색. 보드·링크 뷰 공통이라 상단바의
+// "검색" 버튼(테마마다 topbar 또는 main-head 안, 둘 중 화면에 보이는 쪽)에서 엽니다 ──
+function planOptionsHtml(plans) {
+  const groups = { yearly: '연간', monthly: '월간', weekly: '주간' };
+  return Object.entries(groups).map(([type, label]) => {
+    const items = plans.filter((p) => p.plan_type === type);
+    if (!items.length) return '';
+    return `<optgroup label="${label}">${items.map((p) => `<option value="plan:${esc(p.id)}">${esc(p.title)}</option>`).join('')}</optgroup>`;
+  }).join('');
+}
+
+function syncSearchIndicator() {
+  document.querySelectorAll('.btn-search').forEach((b) => b.classList.toggle('is-active', isFilterActive()));
+}
+
+let filterPanel = null;
+function closeFilterPanel() {
+  if (!filterPanel) return;
+  filterPanel.anchor.setAttribute('aria-expanded', 'false');
+  filterPanel.panel.remove();
+  document.removeEventListener('pointerdown', filterPanel.onOutside, true);
+  filterPanel = null;
+}
+function openFilterPanel(anchor) {
+  closeFilterPanel();
+  const { query, status, scope } = getFilter();
+  const plans = getState().plans;
+  const panel = document.createElement('div');
+  panel.className = 'status-menu filter-panel';
+  panel.setAttribute('role', 'dialog');
+  panel.setAttribute('aria-label', '검색·필터');
+  panel.innerHTML = `
+    <div class="status-menu-title">검색·필터</div>
+    <div class="field" style="padding:0 6px">
+      <label class="field-label" for="filter-query">검색</label>
+      <input class="field-input" id="filter-query" type="search" maxlength="100" placeholder="할 일 제목" value="${esc(query)}">
+    </div>
+    <div class="field" style="padding:8px 6px 0">
+      <span class="field-label">상태</span>
+      <div class="seg" role="group" aria-label="상태 필터">
+        ${Object.entries(STATUSES).map(([key, v]) => `<button type="button" class="seg-btn" data-filter-status="${key}" aria-pressed="${status === key}">${icon(v.icon, 14, 'seg-ic')}<span>${v.label}</span></button>`).join('')}
+      </div>
+    </div>
+    <div class="field" style="padding:8px 6px 0">
+      <label class="field-label" for="filter-plan">계획</label>
+      <select class="field-input" id="filter-plan">
+        <option value="">전체</option>
+        <option value="solo" ${scope?.type === 'solo' ? 'selected' : ''}>${LEVELS.solo.label}만</option>
+        ${planOptionsHtml(plans)}
+      </select>
+    </div>
+    <button type="button" class="status-menu-item" id="filter-clear" role="menuitem">
+      <span class="status-ic">${icon('x', 16)}</span><span class="status-name">필터 지우기</span>
+    </button>`;
+  if (scope?.type === 'plan') panel.querySelector(`option[value="plan:${CSS.escape(scope.id)}"]`)?.setAttribute('selected', '');
+  document.body.appendChild(panel);
+  const rect = anchor.getBoundingClientRect();
+  panel.style.top = `${Math.min(rect.bottom + 6, window.innerHeight - panel.offsetHeight - 8)}px`;
+  panel.style.left = `${Math.min(rect.right - panel.offsetWidth, window.innerWidth - panel.offsetWidth - 8)}px`;
+  anchor.setAttribute('aria-expanded', 'true');
+
+  panel.querySelector('#filter-query').addEventListener('input', (e) => setQuery(e.target.value));
+  panel.querySelectorAll('[data-filter-status]').forEach((b) => b.addEventListener('click', () => {
+    setStatus(b.dataset.filterStatus);
+    panel.querySelectorAll('[data-filter-status]').forEach((btn) => btn.setAttribute('aria-pressed', String(getFilter().status === btn.dataset.filterStatus)));
+  }));
+  panel.querySelector('#filter-plan').addEventListener('change', (e) => {
+    const v = e.target.value;
+    if (v === 'solo') setScope({ type: 'solo', id: null });
+    else if (v.startsWith('plan:')) setScope({ type: 'plan', id: v.slice(5) });
+    else clearScope();
+  });
+  panel.querySelector('#filter-clear').addEventListener('click', () => { clearFilter(); closeFilterPanel(); });
+
+  const onOutside = (e) => { if (!panel.contains(e.target) && e.target !== anchor) closeFilterPanel(); };
+  document.addEventListener('pointerdown', onOutside, true);
+  panel.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); closeFilterPanel(); anchor.focus(); } });
+  filterPanel = { panel, anchor, onOutside };
+  panel.querySelector('#filter-query').focus();
+}
+
 // ── 600px 미만: 목표 패널이 햄버거로 여는 드로어가 됩니다(DESIGN.md 9절) ──
 // 닫혀 있을 때는 transform 으로 화면 밖에 둘 뿐이라 그대로 두면 키보드 포커스·스크린 리더가
 // 여전히 닿습니다. inert 로 닫힌 드로어를 완전히 비활성화합니다(DESIGN.md 8절 접근성).
@@ -284,6 +369,8 @@ export function bindShell() {
     }
     const userBtn = e.target.closest('#user-menu-btn');
     if (userBtn) return openUserMenu(userBtn);
+    const searchBtn = e.target.closest('.btn-search');
+    if (searchBtn) return openFilterPanel(searchBtn);
     if (e.target.closest('#menu-btn')) return root.classList.contains('is-menu-open') ? closeMenu() : openMenu();
     if (e.target.closest('#drawer-close')) return closeMenu();
     if (e.target.closest('[data-filter-plan], [data-filter-solo]')) closeMenu();
@@ -291,6 +378,8 @@ export function bindShell() {
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && root.classList.contains('is-menu-open')) closeMenu(); });
   document.addEventListener('linkplan:change', () => { syncPressed(); enforceLinkAvailability(); });
   window.addEventListener('resize', enforceLinkAvailability);
+  subscribeFilter(syncSearchIndicator);
   syncPressed();
   enforceLinkAvailability();
+  syncSearchIndicator();
 }

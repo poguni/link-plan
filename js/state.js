@@ -1,6 +1,7 @@
 // 메모리 상태 저장소. 구독(변경 알림) 방식이고, 상태는 이 파일의 함수로만 바꿉니다.
 // 화면은 getState() 로 읽고 subscribe() 로 변경을 받습니다. 상태 객체를 직접 고치지 않습니다(항상 새 객체로 교체).
 import * as api from './api.js';
+import { isoOf } from './period.js';
 
 const STATUSES = ['todo', 'doing', 'done'];
 
@@ -154,6 +155,38 @@ export async function deletePlan(planId) {
   try {
     await api.deletePlan(planId);
     await refreshProgress(state.plans.map((p) => p.id).filter((id) => id !== planId));
+  } catch (err) {
+    commit(before);
+    throw err;
+  }
+}
+
+// 같은 열 안에서 카드를 끌어 순서를 바꿀 때 씁니다(P1-1). 순서 값은 board.js 가 이웃 카드 사이의
+// 중간값으로 계산해 넘겨줍니다(부동소수라 그때마다 다른 카드들 순서를 다시 매길 필요가 없습니다).
+export async function reorderTask(taskId, sortOrder) {
+  const before = state.tasks.find((t) => t.id === taskId);
+  if (!before) return;
+  commit({ ...state, tasks: state.tasks.map((t) => (t.id === taskId ? { ...t, sort_order: sortOrder } : t)) });
+  try {
+    await api.updateTask(taskId, { sort_order: sortOrder });
+  } catch (err) {
+    commit({ ...state, tasks: state.tasks.map((t) => (t.id === taskId ? before : t)) });
+    throw err;
+  }
+}
+
+// 주가 끝나면 미완료 할 일의 수행일을 한 번에 7일 뒤로 옮깁니다(P1-3). 계획 연결은 건드리지 않으므로
+// 진행률(연결 기반)에는 영향이 없고, 다음 주 보드(수행일 기준 기간 뷰)에 그대로 나타납니다.
+export async function carryOverTasks(taskIds) {
+  if (!taskIds.length) return;
+  const before = state;
+  const shift = (iso) => { const [y, m, d] = iso.split('-').map(Number); return isoOf(new Date(y, m - 1, d + 7)); };
+  commit({ ...state, tasks: state.tasks.map((t) => (taskIds.includes(t.id) ? { ...t, due_date: shift(t.due_date) } : t)) });
+  try {
+    await Promise.all(taskIds.map((id) => {
+      const task = before.tasks.find((t) => t.id === id);
+      return api.updateTask(id, { due_date: shift(task.due_date) });
+    }));
   } catch (err) {
     commit(before);
     throw err;

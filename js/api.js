@@ -22,7 +22,7 @@ function dbThrow(error) { console.error(error); throw new Error(friendlyDbError(
 export async function loadAll() {
   const [plansRes, tasksRes, linksRes] = await Promise.all([
     supabase.from('plans').select('id, plan_type, title, period_start, period_end, parent_id').order('created_at'),
-    supabase.from('tasks').select('id, title, memo, due_date, status, completed_at').order('created_at'),
+    supabase.from('tasks').select('id, title, memo, due_date, status, completed_at, sort_order').order('sort_order'),
     supabase.from('task_plan_links').select('task_id, plan_id'),
   ]);
   if (plansRes.error) dbThrow(plansRes.error);
@@ -46,7 +46,7 @@ export async function getProgress(planIds) {
 // ── 할 일 CRUD(P0-1, P0-2) ──────────────────────────
 export async function createTask({ title, memo, due_date }) {
   const { data, error } = await supabase.from('tasks').insert({ title, memo: memo || null, due_date: due_date || null })
-    .select('id, title, memo, due_date, status, completed_at').single();
+    .select('id, title, memo, due_date, status, completed_at, sort_order').single();
   if (error) dbThrow(error);
   return data;
 }

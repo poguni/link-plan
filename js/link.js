@@ -8,6 +8,7 @@ import { computeLayout, checkPlanParent } from './layout.js';
 import { planProgress } from './progress.js';
 import { openPlanModal } from './planmodal.js';
 import { getAnchor } from './period.js';
+import { matchTask, subscribe as subscribeFilter } from './filter.js';
 
 const CHILD_TYPE = { yearly: 'monthly', monthly: 'weekly', weekly: null };
 
@@ -154,11 +155,15 @@ function renderTray(s) {
 }
 
 // ── 전체 렌더 ────────────────────────────────────────
+// 검색·필터(P1-7)는 할 일 노드만 걸러냅니다. 계획 노드·트리 구조는 항상 전체를 보여 줘서
+// 그래프의 뼈대(연간→월간→주간)를 잃지 않게 합니다. 걸러진 할 일로 가는 연결선은 byId 에 그
+// 할 일의 좌표가 없어서 buildEdges() 의 기존 방어 코드가 자동으로 건너뜁니다.
 function render(s) {
   closeStatusMenu();
   closeEdgeDelete();
+  const tasks = s.tasks.filter((t) => matchTask(t, s));
   const columns = readColumns();
-  layout = computeLayout({ plans: s.plans, tasks: s.tasks, links: s.links, columns, pastelOffset: document.documentElement.dataset.theme === 'pastel' });
+  layout = computeLayout({ plans: s.plans, tasks, links: s.links, columns, pastelOffset: document.documentElement.dataset.theme === 'pastel' });
   const byId = layout.byId;
 
   const graphWidth = columns.x0[3] + columns.width + 40;
@@ -166,8 +171,8 @@ function render(s) {
   els.graph.style.setProperty('--graph-w', `${graphWidth}px`);
   els.graph.style.setProperty('--graph-h', `${graphHeight}px`);
 
-  const solo = s.tasks.filter((t) => !s.links.some((l) => l.task_id === t.id));
-  const linkedCount = s.tasks.length - solo.length;
+  const solo = tasks.filter((t) => !s.links.some((l) => l.task_id === t.id));
+  const linkedCount = tasks.length - solo.length;
   const headers = [
     headerHtml(columns.x0[0], columns.width, 'flag', '연간 목표', s.plans.filter((p) => p.plan_type === 'yearly').length),
     headerHtml(columns.x0[1], columns.width, 'calendar', '월간 계획', s.plans.filter((p) => p.plan_type === 'monthly').length),
@@ -176,7 +181,7 @@ function render(s) {
   ].join('');
 
   const nodes = s.plans.map((p) => planNodeHtml(p, byId.get(p.id), s)).join('')
-    + s.tasks.map((t) => taskNodeHtml(t, byId.get(t.id), s)).join('');
+    + tasks.map((t) => taskNodeHtml(t, byId.get(t.id), s)).join('');
 
   const soloHtml = `<div class="lsolo-head" style="left:${columns.x0[3]}px;top:${layout.soloHeaderY}px;width:${columns.width}px">
       ${icon('unlink', 14)}<span>연결 없음 · 개별 할 일</span></div>`;
@@ -186,7 +191,7 @@ function render(s) {
   els.svg.setAttribute('width', graphWidth);
   els.svg.setAttribute('height', graphHeight);
 
-  renderTray(s);
+  renderTray({ ...s, tasks });
 }
 
 // ── 상호작용: 호버·포커스로 관련 선만 강조(나머지는 옅게, DESIGN 6-6) ─
@@ -359,6 +364,7 @@ export function mountLink() {
   document.addEventListener('pointerdown', (e) => { if (edgeDelete && !e.target.closest('.edge-delete') && !e.target.closest('.edge-hit')) closeEdgeDelete(); });
 
   subscribe(() => { if (document.documentElement.dataset.view === 'link') render(getState()); });
+  subscribeFilter(() => { if (getState().ready && document.documentElement.dataset.view === 'link') render(getState()); });
   document.addEventListener('linkplan:change', () => { if (getState().ready && document.documentElement.dataset.view === 'link') relayout(); });
   bindResize();
   if (getState().ready) render(getState());

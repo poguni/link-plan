@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>링크 플랜 개발 보고서 v1</title>
+<style>
+  :root { --sidebar-w: 260px; --accent: #4F46E5; --text: #1f2430; --muted: #6b7280; --bg: #ffffff; --panel: #f7f7fb; --border: #e5e7eb; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", "Noto Sans KR", sans-serif; color: var(--text); background: var(--bg); line-height: 1.6; }
+  .layout { display: flex; min-height: 100vh; }
+  nav.sidebar { position: sticky; top: 0; align-self: flex-start; width: var(--sidebar-w); flex-shrink: 0; height: 100vh; overflow-y: auto; padding: 24px 16px; background: var(--panel); border-right: 1px solid var(--border); }
+  nav.sidebar h1 { font-size: 15px; margin: 0 0 4px; }
+  nav.sidebar .meta { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+  nav.sidebar a { display: block; padding: 7px 10px; margin: 2px 0; font-size: 13.5px; color: var(--text); text-decoration: none; border-radius: 8px; }
+  nav.sidebar a:hover { background: #eceafd; }
+  nav.sidebar a.active { background: var(--accent); color: #fff; }
+  main { flex: 1; min-width: 0; padding: 40px 48px; max-width: 900px; }
+  main section { margin-bottom: 48px; scroll-margin-top: 24px; }
+  main h2 { font-size: 22px; border-bottom: 2px solid var(--border); padding-bottom: 8px; }
+  main h3 { font-size: 17px; color: var(--accent); margin-top: 28px; }
+  main p { font-size: 14.5px; }
+  main ul, main ol { font-size: 14.5px; padding-left: 22px; }
+  main li { margin: 4px 0; }
+  main table { border-collapse: collapse; width: 100%; margin: 12px 0 20px; }
+  main th, main td { border: 1px solid var(--border); padding: 8px 10px; font-size: 13.5px; text-align: left; vertical-align: top; }
+  main th { background: var(--panel); font-weight: 700; }
+  main code { background: #f1f1f5; padding: 1px 5px; border-radius: 4px; font-size: 0.9em; }
+  main pre { background: #1f2430; color: #eee; padding: 14px; border-radius: 8px; overflow-x: auto; font-size: 13px; }
+  main blockquote { margin: 12px 0; padding: 10px 16px; background: #fff7e6; border-left: 4px solid #f0b429; font-size: 14px; }
+  .header-block { padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+  .header-block h2 { border: 0; margin-bottom: 4px; }
+  .header-block .sub { color: var(--muted); font-size: 13.5px; }
+  .tag { display: inline-block; padding: 2px 9px; border-radius: 999px; background: #eceafd; color: var(--accent); font-size: 12px; font-weight: 600; margin-right: 6px; }
+  @media (max-width: 800px) {
+    .layout { flex-direction: column; }
+    nav.sidebar { position: relative; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    main { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <h1>링크 플랜 (Link Plan)</h1>
+    <div class="meta">개발 보고서 v1 · 2026-09-28</div>
+    <a href="#sec-1">1. 개요</a>
+    <a href="#sec-2">2. 목표 및 배경</a>
+    <a href="#sec-3">3. 주요 기능</a>
+    <a href="#sec-4">4. 기술 스택 및 아키텍처</a>
+    <a href="#sec-5">5. 개발 과정 (타임라인)</a>
+    <a href="#sec-6">6. 주요 의사결정과 이유</a>
+    <a href="#sec-7">7. 문제 해결 기록</a>
+    <a href="#sec-8">8. 보안/성능 고려사항</a>
+    <a href="#sec-9">9. 테스트 및 검증</a>
+    <a href="#sec-10">10. 배포</a>
+    <a href="#sec-11">11. 알려진 한계</a>
+    <a href="#sec-12">12. 향후 개선 아이디어</a>
+  </nav>
+  <main id="content">
+
+    <div class="header-block">
+      <h2 style="border:0">링크 플랜(Link Plan) 개발 보고서</h2>
+      <div class="sub">작성일 2026-09-28 · 버전 v1</div>
+    </div>
+
+    <section id="sec-1">
+      <h2>1. 개요</h2>
+      <p><strong>링크 플랜(Link Plan)</strong>은 할 일을 주간·월간·연간 목표에 연결해, 지금 하는 일이 큰 목표에 얼마나 기여하는지 진행률로 자동 보여 주는 개인용 할 일 관리 웹 앱입니다. 가입 후 관리자가 승인한 사용자만 쓸 수 있는 승인제 서비스이며, 클린·나이트·파스텔 3가지 테마와 보드 뷰·링크 뷰 2가지 화면(6가지 조합)을 지원합니다.</p>
+      <ul>
+        <li><strong>대상 사용자</strong>: 연간 목표를 세우고 꾸준히 실천하려는 개인. 주 타깃은 자기계발형 직장인, 자격증·취업 준비생이고, 보조 타깃은 여러 프로젝트를 병행하는 프리랜서·1인 창작자입니다. 팀 협업·공유는 범위 밖입니다.</li>
+        <li><strong>개발 기간</strong>: 2026-09-26(PRD 작성) ~ 2026-09-28(배포 및 Phase 10 일부 P1 기능 구현). Claude Code와 함께 약 2~3일에 걸쳐 기획부터 배포까지 진행했습니다.</li>
+        <li><strong>배포 주소</strong>: <code>https://poguni.github.io/link-plan/</code> (GitHub Pages)</li>
+      </ul>
+    </section>
+
+    <section id="sec-2">
+      <h2>2. 목표 및 배경</h2>
+      <h3>문제 정의</h3>
+      <ul>
+        <li>할 일 목록과 목표가 따로 관리되어, 일을 끝내도 목표에 얼마나 가까워졌는지 알 수 없습니다.</li>
+        <li>연간 목표를 세워도 월간·주간·일일 실행 계획으로 내려오지 않아 중간에 흐지부지됩니다.</li>
+        <li>모든 할 일을 목표에 억지로 묶으면 입력 부담이 커져 앱을 떠나게 됩니다. "스마트폰 케이스 구입" 같은 잡무는 개별적으로 둘 수 있어야 합니다.</li>
+      </ul>
+      <h3>핵심 가치</h3>
+      <table>
+        <tr><th>가치</th><th>설명</th></tr>
+        <tr><td>연결</td><td>할 일 → 주간 계획 → 월간 계획 → 연간 목표의 4단계 구조로 실행과 목표를 잇습니다.</td></tr>
+        <tr><td>자동 반영</td><td>할 일의 상태가 바뀌면 연결된 주간·월간·연간 목표의 진행률이 자동으로 다시 계산됩니다.</td></tr>
+        <tr><td>선택적 연결</td><td>연결은 권장하되 강제하지 않습니다. 개별 할 일도 같은 화면과 같은 방식으로 관리합니다.</td></tr>
+      </table>
+      <h3>성공 지표(제안값, 출시 전 가설)</h3>
+      <table>
+        <tr><th>지표</th><th>정의</th><th>목표</th></tr>
+        <tr><td>연결률</td><td>새로 만든 할 일 중 상위 계획에 1개 이상 연결된 비율</td><td>60% 이상</td></tr>
+        <tr><td>첫 주 계획 수립률</td><td>가입 후 7일 안에 주간 계획을 1개 이상 만든 사용자 비율</td><td>70% 이상</td></tr>
+        <tr><td>진행률 조회율</td><td>주 1회 이상 목표 진행률 화면을 본 활성 사용자 비율</td><td>70% 이상</td></tr>
+        <tr><td>4주 재방문율</td><td>가입 후 4주차에 다시 접속한 사용자 비율</td><td>40% 이상</td></tr>
+      </table>
+    </section>
+
+    <section id="sec-3">
+      <h2>3. 주요 기능</h2>
+      <h3>핵심(P0) 기능</h3>
+      <ul>
+        <li><strong>할 일 CRUD</strong>: 제목·수행일·메모 입력, 계획에 0개 이상 연결(연결 없으면 "개별 할 일").</li>
+        <li><strong>계획 CRUD</strong>: 연간·월간·주간 계획 생성·수정·삭제, 상위 계획 연결(주간→월간→연간만 허용).</li>
+        <li><strong>3열 칸반 보드</strong>: 시작 전/진행 중/완료, 드래그 앤 드롭(SortableJS) + 카드 Enter 키 메뉴(키보드 대안).</li>
+        <li><strong>링크 뷰</strong>: 연간→월간→주간→할 일 노드 그래프, SVG 연결선, 상태 트레이로 드래그 상태 변경.</li>
+        <li><strong>진행률 자동 계산</strong>: 서버의 <code>plan_progress</code> 뷰가 기준값이며, 하위 계획까지 집계합니다.</li>
+        <li><strong>기간별 뷰</strong>: 일일/주간/월간/연간 전환.</li>
+        <li><strong>회원가입·로그인·관리자 승인</strong>: 승인 전에는 앱을 쓸 수 없고, 관리자 승인 후 접근 가능.</li>
+        <li><strong>관리자 페이지</strong>: 사용자 목록, 승인/거절, 비밀번호 초기화, 사용자별 JSON 백업 저장.</li>
+        <li><strong>반응형</strong>: 1200px 이상 데스크톱, 1024~1199px, 600~1023px(가로 스크롤 스냅), 600px 미만(햄버거 드로어).</li>
+        <li><strong>접근성</strong>: 텍스트 대비 4.5:1 이상, 상태 표시에 색만 쓰지 않음, 키보드로 모든 조작 가능.</li>
+      </ul>
+      <h3>새로 추가된 기능(P1, Phase 10, 이번 세션)</h3>
+      <ul>
+        <li><strong>P1-7 검색·필터</strong>: 할 일 제목 검색 + 상태별(시작 전/진행 중/완료) + 계획별/개별 할 일만 보기 필터를 보드 뷰와 링크 뷰가 공통으로 씁니다.</li>
+        <li><strong>P1-1 열 안 순서 변경</strong>: 같은 상태 열 안에서 카드를 드래그해 우선순위 순서를 바꾸고 저장합니다.</li>
+        <li><strong>P1-3 미완료 이월</strong>: 주간 보드에서 이번 주 미완료 할 일을 한 번에 다음 주로 옮기는 버튼을 제공합니다.</li>
+      </ul>
+      <blockquote>P1-1은 DB 스키마 변경(<code>tasks.sort_order</code> 컬럼)이 필요해 <code>supabase/05_sort_order.sql</code>을 별도로 준비했고, 아직 실제 Supabase 프로젝트에는 적용 전입니다(11절 참고).</blockquote>
+    </section>
+
+    <section id="sec-4">
+      <h2>4. 기술 스택 및 아키텍처</h2>
+      <table>
+        <tr><th>영역</th><th>선택</th><th>비고</th></tr>
+        <tr><td>프론트엔드</td><td>Vanilla JS(ES 모듈), 빌드 도구 없음</td><td>번들러·프레임워크 없이 <code>&lt;script type="module"&gt;</code>로 직접 로드</td></tr>
+        <tr><td>드래그 앤 드롭</td><td>SortableJS(CDN)</td><td>칸반 카드 이동·같은 열 재정렬, 링크 뷰 트레이 드롭</td></tr>
+        <tr><td>백엔드</td><td>Supabase(Postgres, Auth, Data API, Edge Function)</td><td>이 앱 전용 신규 프로젝트, 테이블 접두사 없음</td></tr>
+        <tr><td>인증·권한</td><td>Supabase Auth + RLS</td><td>모든 테이블에 <code>(select auth.uid()) = user_id and (select private.is_approved())</code> 형태 정책</td></tr>
+        <tr><td>관리자 기능</td><td>Supabase Edge Function(<code>admin-api</code>, Deno)</td><td><code>service_role</code> 키는 여기서만 사용, 프런트엔드·저장소에는 절대 두지 않음</td></tr>
+        <tr><td>배포</td><td>GitHub Pages + GitHub Actions</td><td><code>main</code> 푸시 시 자동 배포, <code>docs/</code>·<code>design/</code>·<code>supabase/</code>는 배포 대상 제외</td></tr>
+      </table>
+
+      <h3>코드 구조(핵심 JS 모듈)</h3>
+      <table>
+        <tr><th>파일</th><th>역할</th></tr>
+        <tr><td><code>js/app.js</code></td><td>진입점: 아이콘 로드 → 테마 복원 → 인증 게이트</td></tr>
+        <tr><td><code>js/state.js</code></td><td>메모리 상태 저장소(구독/알림 패턴), 모든 데이터 변경은 이 파일의 함수를 거침</td></tr>
+        <tr><td><code>js/api.js</code></td><td>Supabase 어댑터(할 일·계획·연결·설정 CRUD), Postgres 오류를 사용자 문장으로 변환</td></tr>
+        <tr><td><code>js/filter.js</code></td><td>(신규) 검색·필터 공유 상태, 보드·링크 뷰가 함께 구독</td></tr>
+        <tr><td><code>js/shell.js</code></td><td>앱 셸(상단바/사이드바/드로어), 테마·기간 전환, 검색·필터 패널, 계정 메뉴</td></tr>
+        <tr><td><code>js/board.js</code></td><td>보드 뷰 렌더링, 드래그, 상태 변경, 미완료 이월</td></tr>
+        <tr><td><code>js/link.js</code></td><td>링크 뷰 렌더링, 연결선, 상태 트레이</td></tr>
+        <tr><td><code>js/layout.js</code></td><td>링크 뷰 좌표 계산(DOM 없는 순수 함수)</td></tr>
+        <tr><td><code>js/auth.js</code>, <code>js/authview.js</code></td><td>로그인·가입·승인 대기·비밀번호 변경 화면</td></tr>
+        <tr><td><code>js/admin.js</code></td><td>관리자 페이지(Edge Function 호출)</td></tr>
+      </table>
+
+      <h3>아키텍처 특징</h3>
+      <ul>
+        <li><strong>단일 DOM, CSS로 테마·뷰 분기</strong>: <code>&lt;html data-theme="…" data-view="…"&gt;</code> 속성만으로 6가지 화면을 전환합니다. 컴포넌트 CSS에는 색 코드를 직접 쓰지 않고 <code>tokens.css</code> 변수만 사용합니다.</li>
+        <li><strong>구독 기반 상태 관리</strong>: <code>state.js</code>가 단일 진실 공급원이며, 화면은 <code>subscribe()</code>로 변경을 받아 통째로 다시 그립니다(할 일 수백 개 규모에서는 충분히 빠름).</li>
+        <li><strong>낙관적 업데이트</strong>: 상태 변경(드래그, 순서 변경, 이월 등)은 화면을 먼저 바꾸고 서버 저장이 실패하면 되돌립니다.</li>
+        <li><strong>진행률은 서버 기준</strong>: 클라이언트 로컬 계산(<code>progress.js</code>)은 서버 값을 아직 못 불러왔을 때의 미리보기 용도로만 씁니다.</li>
+      </ul>
+    </section>
+
+    <section id="sec-5">
+      <h2>5. 개발 과정 (타임라인)</h2>
+      <table>
+        <tr><th>단계</th><th>커밋</th><th>날짜</th><th>내용</th></tr>
+        <tr><td>0</td><td><code>148480a</code> <code>950174b</code> <code>c4e8116</code></td><td>09-27~28</td><td>초기 뼈대, 링크 플랜 ver.1.0 태깅</td></tr>
+        <tr><td>Phase 1</td><td><code>bfa2ff6</code></td><td>09-27</td><td>프로젝트 구조 생성(<code>tokens.css</code>, <code>icons.svg</code>, 디렉터리 골격)</td></tr>
+        <tr><td>Phase 1</td><td><code>b1f858b</code></td><td>09-27</td><td>디자인 시스템과 테마·뷰 셸(6가지 조합의 정적 뼈대)</td></tr>
+        <tr><td>Phase 2</td><td><code>dbd8545</code></td><td>09-27</td><td>보드 뷰 + 드래그 앤 드롭(샘플 데이터 기준)</td></tr>
+        <tr><td>Phase 3</td><td><code>0bfad80</code></td><td>09-27</td><td>링크 뷰(노드·연결선·트레이, 샘플 데이터 기준)</td></tr>
+        <tr><td>Phase 4</td><td><code>3ec6558</code></td><td>09-27</td><td>Supabase 스키마·RLS SQL(<code>01_schema.sql</code>~<code>04_rls_tests.sql</code>)</td></tr>
+        <tr><td>Phase 5</td><td><code>7f7f6cd</code></td><td>09-27</td><td>가입·로그인·승인 대기·비밀번호 변경 화면</td></tr>
+        <tr><td>Phase 6</td><td><code>7c3c72c</code></td><td>09-27</td><td>Supabase 실연동, P0 기능 완성(샘플 데이터 어댑터 교체)</td></tr>
+        <tr><td>Phase 7</td><td><code>a7d4e3a</code></td><td>09-27</td><td>관리자 페이지 + Edge Function(<code>admin-api</code>)</td></tr>
+        <tr><td>Phase 8</td><td><code>6e75357</code></td><td>09-27</td><td>접근성(axe-core 0건)·반응형 3단계·상태 다듬기</td></tr>
+        <tr><td>Phase 9</td><td>(커밋 예정)</td><td>09-28</td><td>배포 준비·보안 스캔·<code>DEPLOY_CHECKLIST.md</code>·GitHub Pages 실배포</td></tr>
+        <tr><td>배포 후</td><td>—</td><td>09-28</td><td>GitHub Pages Source 설정, <code>ALLOWED_ORIGIN</code> 수정, leaked password protection(무료 플랜 한계 확인) 등 라이브 점검</td></tr>
+        <tr><td>정리</td><td>—</td><td>09-28</td><td>용어 정리("독립 할 일"→"개별 할 일"), 테마 메뉴 디버그 문구 제거, 보안/<code>.gitignore</code> 점검, <code>.dot</code> 클래스 충돌 버그 수정</td></tr>
+        <tr><td>Phase 10(일부)</td><td>(미커밋)</td><td>09-28</td><td>P1-7 검색·필터, P1-1 열 안 순서 변경, P1-3 미완료 이월 구현</td></tr>
+      </table>
+    </section>
+
+    <section id="sec-6">
+      <h2>6. 주요 의사결정과 이유</h2>
+      <ul>
+        <li><strong>빌드 도구 없는 Vanilla JS</strong>: 프로젝트 규칙(CLAUDE.md)으로 처음부터 고정. 개인용 소규모 앱에 번들러·프레임워크 오버헤드가 불필요하다고 판단했습니다.</li>
+        <li><strong>진행률은 서버 뷰(<code>plan_progress</code>) 기준</strong>: 클라이언트마다 계산이 갈리는 것을 막고, <code>security_invoker</code>로 RLS(승인 조건 포함)를 그대로 따르게 했습니다.</li>
+        <li><strong><code>service_role</code> 키는 Edge Function에서만</strong>: 관리자 기능(계정 삭제·비밀번호 초기화)은 반드시 서버에서 관리자 여부를 다시 검증한 뒤 실행합니다.</li>
+        <li><strong>링크 뷰는 기간별로 필터링하지 않음</strong>: 링크 뷰는 연결 구조 전체를 한눈에 보는 화면이라는 목적을 유지하기 위해 항상 전체 그래프를 보여 줍니다(기간 전환은 보드 뷰에만 적용).</li>
+        <li><strong>좁은 화면(600px 미만)의 좌측 패널은 드로어</strong>: 완전 아이콘 전용 레일은 계획 필터 기능을 없애 버리므로, 기능을 유지하는 햄버거 드로어를 선택했습니다(시안에 없는 구간이라 기능 우선으로 결정).</li>
+        <li><strong>용어 "독립 할 일" → "개별 할 일"</strong>: 사용자 피드백으로 어색한 표현을 수정하면서, "연결된 할 일"과 나란히 쓰이는 자리에서 의미가 겹치지 않는 "개별"을 선택했습니다(대안으로 "미연결"도 검토했으나 "연결 없음"과 겹쳐 제외).</li>
+        <li><strong>P1-1 순서 값: 정수 대신 double precision(부동소수)</strong>: 카드를 두 카드 사이로 끌어다 놓으면 (이전 값 + 다음 값) / 2를 계산해 저장하므로, 그때마다 같은 열의 다른 카드 순서를 다시 매길 필요가 없습니다(fractional indexing).</li>
+        <li><strong>P1-3 이월은 계획 연결이 아니라 수행일 이동</strong>: 계획 연결까지 옮기면 다음 주 주간 계획이 없을 때 처리가 애매해져, 수행일만 7일 뒤로 옮기고 계획 연결·진행률은 그대로 두는 단순한 방식을 택했습니다.</li>
+        <li><strong>검색·필터 상태를 별도 모듈(<code>filter.js</code>)로 분리</strong>: 기존에는 필터 상태가 <code>board.js</code> 안에만 있어 링크 뷰에서 쓸 수 없었습니다. 공유 모듈로 분리해 두 뷰가 같은 필터를 구독하도록 재구성했습니다.</li>
+      </ul>
+    </section>
+
+    <section id="sec-7">
+      <h2>7. 문제 해결 기록</h2>
+      <table>
+        <tr><th>문제</th><th>원인</th><th>해결</th></tr>
+        <tr><td>수정한 CSS/JS가 반영 안 됨</td><td>이전에 띄운 Python <code>http.server</code>가 같은 포트를 여전히 점유</td><td>실제 서버 헤더(<code>Server:</code> 값)로 프로세스 정체 확인 후 새 포트로 테스트, 이후 포트 정리</td></tr>
+        <tr><td>모바일(599px 이하) 레이아웃이 사이드바를 덮음</td><td><code>.main{grid-column:2}</code>가 트랙 1개짜리 그리드에서도 묵시적 2번째 열을 만듦</td><td>미디어 쿼리 안에서 <code>grid-column:1</code>로 명시</td></tr>
+        <tr><td>클린 테마 모바일에서 본문이 상단바를 가림</td><td>데스크톱 전용 <code>grid-row:1/-1</code> 규칙이 모바일 topbar 강제 모드에서도 유지됨</td><td>미디어 쿼리 안에서 <code>grid-row:2</code>로 재정의</td></tr>
+        <tr><td>드로어 배경이 드로어보다 위에 뜸</td><td><code>.shell{position:relative;z-index:1}</code>가 독립된 쌓임 맥락을 만들어 <code>body</code> 직속 배경의 z-index 비교가 어긋남</td><td>배경 요소를 <code>.shell</code> 내부에 추가해 같은 맥락에서 비교되게 함</td></tr>
+        <tr><td>"내 계정" 버튼에 브라우저 기본 버튼 배경이 보임</td><td><code>background</code>/<code>border</code> 리셋 누락(전 테마·전 폭에서 존재하던 기존 버그)</td><td>명시적으로 <code>background:transparent</code> 등 리셋</td></tr>
+        <tr><td>나이트·파스텔 계획 제목이 글자 단위로 줄바꿈</td><td><code>.goal-title</code>에 <code>overflow</code>/<code>text-overflow</code> 규칙이 클린 테마에만 있었음</td><td>공통 규칙으로 옮겨 3테마 모두 말줄임 처리</td></tr>
+        <tr><td>배포 후 <code>/admin.html</code> 등에서 404</td><td>GitHub Pages의 Source가 "GitHub Actions"로 설정되지 않음</td><td>사용자가 대시보드에서 설정, Actions 탭에서 배포 성공 확인</td></tr>
+        <tr><td>관리자 페이지 버튼이 반응 없음(CORS)</td><td>Edge Function <code>ALLOWED_ORIGIN</code>에 경로(<code>/link-plan/</code>)까지 포함되어 브라우저가 보내는 Origin과 불일치</td><td>스킴+호스트만 남기도록 수정, curl 프리플라이트로 재확인</td></tr>
+        <tr><td>파스텔 테마 "완료" 칼럼 안에 정체불명의 동그라미 7개</td><td><code>css/view-board.css</code>(배너 요일 동그라미)와 <code>css/view-link.css</code>(링크 뷰 연결점)가 똑같이 <code>.dot</code> 클래스를 써서, 나중에 로드되는 파일이 이겨 배너 동그라미가 <code>position:absolute</code> 연결점 규칙을 물려받음</td><td>클래스명을 <code>.week-dot</code>으로 분리해 충돌 제거, Playwright로 <code>getComputedStyle</code>까지 확인</td></tr>
+      </table>
+    </section>
+
+    <section id="sec-8">
+      <h2>8. 보안/성능 고려사항</h2>
+      <ul>
+        <li><strong>RLS 전면 적용</strong>: <code>plans</code>·<code>tasks</code>·<code>task_plan_links</code>·<code>profiles</code>·<code>user_settings</code> 5개 테이블 모두 RLS를 켜고, <code>auth.uid()</code> + 승인 여부(<code>private.is_approved()</code>) 조건의 정책을 둡니다. <code>anon</code> 역할에는 기본 권한을 회수해 두었습니다.</li>
+        <li><strong><code>service_role</code> 키 격리</strong>: 계정 삭제·비밀번호 초기화 같은 관리자 작업은 Edge Function <code>admin-api</code>에서만 처리하고, 호출자가 실제 관리자인지 서버에서 다시 확인합니다(RLS 우회 경로를 최소화).</li>
+        <li><strong>저장소 비밀 값 스캔</strong>: <code>service_role</code> 문자열, JWT 패턴, 비밀번호 리터럴, 개인 이메일을 저장소 전체에서 검색해 노출이 없음을 확인했습니다. <code>config.js</code>에는 anon(publishable) 키만 있습니다.</li>
+        <li><strong>관리자 이메일 자리표시자화</strong>: 공개 저장소이므로 <code>supabase/03_admin_bootstrap.sql</code>의 실제 관리자 이메일을 <code>ADMIN_EMAIL_HERE</code> 자리표시자로 교체했습니다.</li>
+        <li><strong>성능</strong>: 데이터가 바뀔 때마다 해당 영역을 통째로 다시 그리는 방식을 씁니다. 개인용 앱 규모(할 일 수백 개)에서는 이 방식이 충분히 빠르다고 판단해 가상 DOM 등 최적화 계층을 추가하지 않았습니다.</li>
+        <li><strong>알려진 플랫폼 한계</strong>: Supabase 무료 플랜에서는 "Leaked password protection"(HaveIBeenPwned 연동)을 켤 수 없습니다(Pro 플랜부터 제공). PRD 필수 항목이 아니라서 무료 플랜 운영 중에는 꺼진 채로 둡니다.</li>
+      </ul>
+    </section>
+
+    <section id="sec-9">
+      <h2>9. 테스트 및 검증</h2>
+      <ul>
+        <li><strong>RLS 시나리오 테스트</strong>: <code>supabase/04_rls_tests.sql</code>의 19개 시나리오(타인 데이터 접근 차단, 미승인 사용자 차단, 관리자 자기 자신 보호 등)를 SQL Editor에서 실행해 확인.</li>
+        <li><strong>접근성</strong>: axe-core(WCAG2A/AA)를 보드 뷰·링크 뷰·모바일 드로어·모달 열림 상태 4가지에서 실행해 위반 0건 확인. 텍스트 대비 4.5:1, 그래픽 3:1 기준도 재확인.</li>
+        <li><strong>디자인 검수</strong>: <code>DESIGN.md</code> 11절 체크리스트를 6가지 테마×뷰 조합에 대해 Playwright로 순회하며 새로고침 없는 전환, 콘솔 오류 없음, 하드코딩된 색 없음(정규식 스캔)을 확인.</li>
+        <li><strong>레이아웃 순수 함수 검증</strong>: <code>check-layout.mjs</code>로 <code>layout.js</code>의 좌표 계산 결과를 <code>design/DESIGN.md</code> 6-2 표와 대조(15개 중 13개 정확히 일치, 나머지 2개는 문서화된 설계 판단 차이).</li>
+        <li><strong>배포 후 라이브 점검</strong>: <code>gh</code> CLI 없이 GitHub REST API(curl)로 Actions 실행 결과를 확인하고, CORS 프리플라이트 요청으로 <code>Access-Control-Allow-Origin</code> 값이 실제 배포 주소와 정확히 일치하는지 확인.</li>
+        <li><strong>Phase 10 스모크 테스트</strong>: 새로 만든 <code>filter.js</code>·<code>board.js</code>·<code>shell.js</code>·<code>link.js</code>·<code>state.js</code>·<code>api.js</code>를 브라우저에서 동적 <code>import()</code>로 직접 로드해 문법·런타임 오류가 없는지 확인하고, <code>filter.js</code>의 검색/상태/계획 토글 로직을 직접 호출해 검증. <code>renderShell()</code>을 파스텔 테마로 강제 렌더링해 검색·필터 패널이 실제로 열리고 동작하는지 1440px·900px 폭에서 스크린샷으로 확인(가로 스크롤 없음 확인).</li>
+      </ul>
+    </section>
+
+    <section id="sec-10">
+      <h2>10. 배포</h2>
+      <ul>
+        <li><strong>호스팅</strong>: GitHub Pages, 저장소 <code>https://github.com/poguni/link-plan.git</code>.</li>
+        <li><strong>배포 방식</strong>: <code>.github/workflows/deploy.yml</code>이 <code>main</code> 브랜치 푸시마다 자동 배포. <code>index.html</code>·<code>admin.html</code>·<code>404.html</code>·<code>config.js</code>·<code>css/</code>·<code>js/</code>·<code>assets/</code>만 골라 올리고, <code>docs/</code>·<code>design/</code>·<code>supabase/</code> 등 내부 문서는 제외합니다.</li>
+        <li><strong>백엔드</strong>: Supabase 전용 프로젝트(무료 플랜), Postgres + Auth + Edge Function(<code>admin-api</code>).</li>
+        <li><strong>배포 주소</strong>: <code>https://poguni.github.io/link-plan/</code></li>
+        <li><strong>캐시 무효화</strong>: CSS·진입 스크립트에 <code>?v=</code> 쿼리를 붙여 재배포 시 수동으로 올립니다(ES 모듈 <code>import</code>에는 전파되지 않는 한계가 있어 하드 새로고침이 필요할 수 있습니다).</li>
+      </ul>
+    </section>
+
+    <section id="sec-11">
+      <h2>11. 알려진 한계</h2>
+      <ul>
+        <li><strong>무료 플랜 제약</strong>: 다운로드 가능한 자동 백업 없음(관리자 JSON 저장을 수동 백업으로 사용), 1주일 이상 미사용 시 프로젝트 일시정지 가능, leaked password protection 사용 불가.</li>
+        <li><strong>PRD 열린 질문(미결정)</strong>: 주간 계획이 두 달에 걸칠 때 자동 추천 규칙 필요 여부, 진행 중 가중치(P1-6) 기본 활성화 여부, 비밀번호 규칙에서 특수문자 허용 범위, 관리자 다중 지정 화면(P1-18) 필요 여부, 승인 취소·비밀번호 초기화 시 기존 세션 즉시 차단 여부.</li>
+        <li><strong>Phase 10 배포 전 필수 작업</strong>: <code>supabase/05_sort_order.sql</code>을 Supabase SQL Editor에서 먼저 실행해야 합니다. 이 컬럼이 없는 상태로 현재 코드를 배포하면 <code>js/api.js</code>의 할 일 조회 쿼리가 <code>sort_order</code> 컬럼을 요구해 전체 할 일 로딩이 실패합니다.</li>
+        <li><strong>파스텔 테마 CSS 특이도 버그(미수정)</strong>: <code>[data-theme="pastel"] .brand-tagline{display:flex}</code>가 <code>@media(max-width:1023px){.brand-tagline{display:none}}</code>보다 특이도가 높아, 900px 부근에서 태그라인 텍스트가 숨겨지지 않고 3줄로 줄바꿈됩니다(페이지 가로 스크롤은 발생하지 않음).</li>
+        <li><strong>통짜 재렌더링 방식</strong>: 할 일이 매우 많아지면(수천 개 이상) 매번 전체를 다시 그리는 현재 방식이 느려질 수 있습니다. P1-12(링크 뷰 대량 데이터 대응)가 이를 다루도록 남겨져 있습니다.</li>
+      </ul>
+    </section>
+
+    <section id="sec-12">
+      <h2>12. 향후 개선 아이디어 / 업데이트 계획</h2>
+      <h3>다음에 하면 좋을 것<span class="tag">우선순위 높음</span></h3>
+      <ol>
+        <li><strong>P1-9 CSV 내보내기</strong> — 할 일·계획을 한글 엑셀 호환 BOM 포함 CSV로 내려받기.</li>
+        <li><strong>P1-14 JSON 가져오기</strong> — 관리자 화면에서 P0-22 백업 파일을 복원(id 재매핑, 연결 유지).</li>
+        <li><strong>P1-15 관리자 작업 기록</strong> — 승인·삭제·초기화·JSON 저장 이력을 관리자만 볼 수 있게 기록(임시 비밀번호는 기록하지 않음).</li>
+        <li><strong>P1-11 시스템 다크 모드 연동</strong> — 첫 방문 시 기기가 다크 모드면 나이트 테마를 추천.</li>
+      </ol>
+      <h3>여유 있으면<span class="tag">중간</span></h3>
+      <ul>
+        <li><strong>P1-2 연결 추천</strong> — 할 일 생성 시 이번 주 주간 계획·최근 사용 계획을 위쪽에 추천.</li>
+        <li><strong>P1-4 반복 할 일</strong> — 매일·매주 반복 작업 자동 생성.</li>
+        <li><strong>P1-6 진행 중 가중치</strong> — 진행 중 할 일을 50%로 반영하는 옵션(PRD 열린 질문 2와 함께 결정 필요).</li>
+        <li><strong>P1-13 전체 사용자 JSON 저장</strong> — 관리자가 모든 사용자 데이터를 한 번에 백업(무료 플랜 백업 수단 강화).</li>
+        <li><strong>파스텔 900px 태그라인 CSS 특이도 버그 수정</strong> — 11절에서 발견한 항목.</li>
+      </ul>
+      <h3>아이디어 수준<span class="tag">낮음</span></h3>
+      <ul>
+        <li><strong>P1-8 목표 회고</strong> — 달성한 계획 보관, 월말·연말 완료 현황 요약.</li>
+        <li><strong>P1-12 링크 뷰 대량 데이터 대응</strong> — 선택 기간 계획만 표시, 열 접기/펼치기.</li>
+        <li><strong>P1-16 가입 봇 방지(CAPTCHA)</strong>, <strong>P1-17 이메일 비밀번호 재설정</strong>(사용자 지정 SMTP 필요), <strong>P1-18 관리자 권한 관리 화면</strong>.</li>
+        <li>검색·필터(P1-7)에 텍스트 검색 결과 하이라이트, 최근 검색어 기억 등 세부 UX 보강.</li>
+        <li>Supabase Pro 전환 시 leaked password protection 활성화 및 여유 있는 백업 자동화 검토.</li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+<script>
+  const links = document.querySelectorAll('nav.sidebar a');
+  const sections = [...links].map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function setActive(id) {
+    links.forEach(function (a) { a.classList.toggle('active', a.getAttribute('href') === '#' + id); });
+  }
+  const observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) { if (entry.isIntersecting) setActive(entry.target.id); });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(function (el) { if (el) observer.observe(el); });
+</script>
+</body>
+</html>
