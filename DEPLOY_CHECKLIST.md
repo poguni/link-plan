@@ -14,15 +14,15 @@
 - [ ] DB 비밀번호를 비밀번호 관리자에 보관
 - [ ] Authentication → Providers → Email: **Confirm email 끄기**, **Allow new users to sign up 켜기**
 - [ ] Authentication → Policies(비밀번호 규칙): 최소 길이 8, "Digits and letters" 켜기
-- [ ] Authentication → Security → **Leaked password protection 켜기** (Advisor가 경고 중인 항목, Phase 5-6엔 없지만 배포 전에 켜 두길 권합니다)
+- [x] **(무료 플랜 한계 — 확인 완료)** Leaked password protection은 **Supabase Pro 플랜부터** 제공됩니다("Failed to update auth configuration: ... available on Pro Plans and up" 오류로 확인). PRD 5-6에는 원래 없는 항목이라 무료 플랜으로 운영하는 동안은 꺼진 채로 둬도 됩니다. Pro로 전환하면 Authentication → Providers → Email에서 켜세요.
 
-### A-2. 도메인 연결(GitHub Pages 주소가 정해진 뒤)
-- [ ] `origin`(https://github.com/poguni/link-plan.git)이 이미 연결돼 있고 Phase 8까지 푸시돼 있습니다 — 저장소가 **Public**인지 Settings에서 확인만 하면 됩니다(공개로 하기로 하셨죠. `supabase/03_admin_bootstrap.sql`의 이메일은 이미 자리표시자로 바꿔 뒀습니다). 이번 Phase 9 변경분은 아직 커밋 전이니 직접 커밋·푸시해 주세요
-- [ ] 저장소 Settings → Pages → Source를 **GitHub Actions**로 설정(`.github/workflows/deploy.yml`이 이미 있음)
-- [ ] 배포된 주소(`https://<아이디>.github.io/<저장소이름>/`) 확인
-- [ ] Supabase → Authentication → URL Configuration: **Site URL**을 위 주소로, **Redirect URLs**에 같은 주소(+ 로컬 개발 주소 `http://localhost:8000` 등)를 추가
-- [ ] Supabase → Edge Functions → `admin-api` → Secrets: **`ALLOWED_ORIGIN`을 배포 주소로 재설정**(로컬 테스트 때 `http://localhost:8000`으로 해 두셨다면 지금 바꿔야 관리자 페이지가 배포 주소에서 동작합니다)
-- [ ] 관리자로 쓸 계정으로 **배포된 사이트에서** 가입 → `supabase/03_admin_bootstrap.sql`의 `ADMIN_EMAIL_HERE`를 실제 이메일로 바꿔 SQL Editor에서 실행(로컬 테스트 때 이미 관리자를 지정했다면 건너뛰어도 됩니다)
+### A-2. 도메인 연결
+- [x] **(확인 완료)** 저장소 공개(Public), `origin` 연결됨, Phase 9까지 푸시 완료
+- [x] **(확인 완료)** 저장소 Settings → Pages → Source가 **GitHub Actions**로 설정됨 — 배포 워크플로 성공
+- [x] **(확인 완료)** 배포 주소 `https://poguni.github.io/link-plan/` — `index.html`·`admin.html`·`config.js` 모두 200 정상 응답
+- [x] **(확인 완료)** Supabase `admin-api`의 `ALLOWED_ORIGIN` = `https://poguni.github.io`(경로·슬래시 없이) — 실제 CORS 프리플라이트 요청으로 `Access-Control-Allow-Origin` 값이 정확히 일치하는 것까지 확인
+- [ ] Supabase → Authentication → URL Configuration: **Site URL**을 `https://poguni.github.io/link-plan/`로, **Redirect URLs**에 같은 주소(+ 로컬 개발 주소)를 추가 — 이 항목은 대시보드 값이라 원격으로 확인은 못 했습니다, 한 번 봐주세요
+- [ ] 관리자로 쓸 계정으로 **배포된 사이트에서** 가입 → `supabase/03_admin_bootstrap.sql`의 `ADMIN_EMAIL_HERE`를 실제 이메일로 바꿔 SQL Editor에서 실행(로컬 테스트 때 이미 관리자를 지정했다면 같은 계정이니 건너뛰어도 됩니다)
 
 ### A-3. 백업·운영 대책
 - [ ] 정기 백업 방법을 정함 — 아래 "백업" 절 참고, 캘린더 알림 등으로 주기 정하기
@@ -53,7 +53,7 @@ git grep -niE "@(gmail|naver|daum|kakao)\.com" -- .
 
 ### B-3. RLS·DB 설정
 - [x] **(확인 완료, 이번 세션)** `public.plans`·`profiles`·`task_plan_links`·`tasks`·`user_settings` 5개 테이블 모두 `rowsecurity = true`
-- [x] **(확인 완료, 이번 세션)** Security Advisor: 경고 3건 모두 기존에 파악·검토된 항목(`rls_auto_enable`은 Supabase 플랫폼이 직접 관리하는 함수로 RLS 켜기를 도와주는 안전장치이지 취약점이 아님 — Phase 5에서 함수 정의를 직접 읽고 확인함; `auth_leaked_password_protection`은 위 A-1에서 켜는 대시보드 설정). **심각(critical) 등급 경고 없음.**
+- [x] **(확인 완료, 이번 세션)** Security Advisor: 경고 3건 모두 기존에 파악·검토된 항목(`rls_auto_enable`은 Supabase 플랫폼이 직접 관리하는 함수로 RLS 켜기를 도와주는 안전장치이지 취약점이 아님 — Phase 5에서 함수 정의를 직접 읽고 확인함; `auth_leaked_password_protection`은 위 A-1에서 확인했듯 무료 플랜에서는 켤 수 없는 항목). **심각(critical) 등급 경고 없음.**
 - [x] **(Phase 5에서 실행·확인 완료)** `supabase/04_rls_tests.sql`의 시나리오 1~15, 18~19 — PRD 5-5의 같은 번호 시나리오와 대응하며 전부 통과(사용자가 SQL Editor에서 직접 실행하거나 Claude Code가 Playwright로 확인)
 - [x] **(Phase 7에서 확인 완료)** PRD 5-5 시나리오 16(관리자 API를 토큰 없이/일반 사용자 토큰으로 호출) — 토큰 없음 → 401, 승인된 일반 사용자 토큰 → 403 확인
 - [ ] PRD 5-5 시나리오 17(관리자 API로 자기 자신 삭제·관리자 계정 삭제/승인 취소·자기 비밀번호 초기화 시도)은 `supabase/functions/admin-api/index.ts` 코드상 전부 거절하도록 작성돼 있지만(각 함수의 자기 자신·`is_admin` 검사), **실제 관리자 로그인으로 눌러서 거절되는지는 아직 라이브로 확인 못 했습니다.** 관리자 페이지에서 본인 계정에 "사용자 삭제"·"비밀번호 초기화" 버튼이 아예 비활성화되어 있는지만 한 번 봐주시면 충분합니다(버튼 자체가 꺼져 있어야 정상).

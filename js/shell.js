@@ -103,10 +103,10 @@ export function renderShell(app) {
           <button type="button" class="icon-btn" data-plan-add-year aria-label="연간 목표 추가">${icon('plus', 14)}</button>
         </div>
         <div class="goal-list" id="goal-list"></div>
-        <button type="button" class="solo-row" id="solo-row" data-filter-solo aria-pressed="false" title="독립 할 일">
+        <button type="button" class="solo-row" id="solo-row" data-filter-solo aria-pressed="false" title="개별 할 일">
           <span class="solo-ic solo-ic--inbox">${icon('inbox', 15)}</span>
           <span class="solo-ic solo-ic--unlink">${icon('unlink', 20)}</span>
-          <span class="solo-name">독립 할 일</span>
+          <span class="solo-name">개별 할 일</span>
           <span class="solo-count num" id="solo-count">0</span>
         </button>
       </section>
@@ -191,7 +191,7 @@ function openUserMenu(anchor) {
   menu.setAttribute('role', 'menu');
   menu.setAttribute('aria-label', '내 계정 메뉴');
   menu.innerHTML = `
-    <div class="status-menu-title">테마(PRD P0-13)</div>
+    <div class="status-menu-title">테마</div>
     <div class="seg" role="radiogroup" aria-label="테마 선택" style="margin:2px 6px 10px">
       ${THEMES.map((t) => `<button type="button" class="seg-btn" data-theme-set="${t}" role="radio" aria-checked="${getTheme() === t}" aria-pressed="${getTheme() === t}">${THEME_LABEL[t]}</button>`).join('')}
     </div>

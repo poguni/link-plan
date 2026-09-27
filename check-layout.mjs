@@ -29,5 +29,5 @@ for (const [id, want] of Object.entries(expected)) {
   if (diff !== 0) mismatches++;
   console.log(`${id}\t${want}\t${got}\t${diff >= 0 ? '+' : ''}${diff}\t${diff === 0 ? 'OK' : '차이'}`);
 }
-console.log(`\n독립 할 일 헤더 y = ${layout.soloHeaderY} (기대 606)`);
+console.log(`\n개별 할 일 헤더 y = ${layout.soloHeaderY} (기대 606)`);
 console.log(`${mismatches === 0 ? '모두 일치합니다.' : `${mismatches}건이 시안과 다릅니다(아래 설명 참고).`}`);

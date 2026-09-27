@@ -11,7 +11,7 @@ export const LEVELS = {
   year: { icon: 'flag', label: '연간' },
   month: { icon: 'calendar', label: '월간' },
   week: { icon: 'calendar-days', label: '주간' },
-  solo: { icon: 'unlink', label: '독립 할 일' },
+  solo: { icon: 'unlink', label: '개별 할 일' },
 };
 
 export const STATUSES = {

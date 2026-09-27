@@ -69,7 +69,7 @@
 .dot-right { right: -11px; cursor: grab; }
 .dot-left { cursor: grab; }
 
-/* ── 독립 할 일 머리글 ───────────────────────────── */
+/* ── 개별 할 일 머리글 ───────────────────────────── */
 .lsolo-head { position: absolute; display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; font-weight: var(--fw-strong); }
 
 /* ── 연결선 ──────────────────────────────────────── */

@@ -55,7 +55,7 @@ create table public.tasks (
   unique (id, user_id)
 );
 
--- 4) 할 일-계획 연결 (연결이 하나도 없는 할 일 = 독립 할 일)
+-- 4) 할 일-계획 연결 (연결이 하나도 없는 할 일 = 개별 할 일)
 create table public.task_plan_links (
   task_id uuid not null,
   plan_id uuid not null,

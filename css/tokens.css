@@ -186,7 +186,7 @@
   --logo-bg: linear-gradient(135deg, #B7A4FF, #5CD6E8); --logo-fg: #0D1017;
   --avatar-bg: #1B2233; --avatar-fg: #C5CEE0;
   --grip: #6B778F;                       /* 시안 값(장식용) */
-  --lv-solo-bg: #232B3B; --lv-solo-fg: #C5CEE0;   /* 카드 위 '독립' 칩 시안 값 */
+  --lv-solo-bg: #232B3B; --lv-solo-fg: #C5CEE0;   /* 카드 위 '개별' 칩 시안 값 */
   --glow: rgba(183,164,255,.10);
   --tape-todo: transparent; --tape-doing: transparent; --tape-done: transparent;
   --danger: #FF8A80;

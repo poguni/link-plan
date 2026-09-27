@@ -179,7 +179,7 @@ function render(s) {
     + s.tasks.map((t) => taskNodeHtml(t, byId.get(t.id), s)).join('');
 
   const soloHtml = `<div class="lsolo-head" style="left:${columns.x0[3]}px;top:${layout.soloHeaderY}px;width:${columns.width}px">
-      ${icon('unlink', 14)}<span>연결 없음 · 독립 할 일</span></div>`;
+      ${icon('unlink', 14)}<span>연결 없음 · 개별 할 일</span></div>`;
 
   els.nodes.innerHTML = headers + nodes + soloHtml;
   els.svg.innerHTML = buildEdges(s, byId).map((e) => edgeSvg(e, columns)).join('');
@@ -221,7 +221,7 @@ function openEdgeDelete(hitPath, x, y) {
   btn.addEventListener('click', async (e) => {
     e.stopPropagation();
     closeEdgeDelete();
-    try { await removeLink(taskId, planId); showToast('연결을 지웠어요. 이제 독립 할 일일 수 있어요.'); }
+    try { await removeLink(taskId, planId); showToast('연결을 지웠어요. 이제 개별 할 일일 수 있어요.'); }
     catch { showToast('연결을 지우지 못했어요. 잠시 후 다시 시도해 주세요.'); }
   });
   els.graph.appendChild(btn);

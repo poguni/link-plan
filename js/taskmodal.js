@@ -1,6 +1,6 @@
 // 할 일 만들기·수정·삭제 모달(PRD P0-1, P0-2). 제목·수행일·메모와, 연결할 계획을 체크리스트로 고릅니다
 // (마우스로 끌지 않아도 되는 키보드 대안, PRD P0-1 "저장 전에 연결 방식을 반드시 고릅니다"는 0개 이상 선택도 허용해
-// "독립 할 일"을 그대로 표현합니다).
+// "개별 할 일"을 그대로 표현합니다).
 import { icon } from './icons.js';
 import { esc, chip, showToast, openModal, closeModal } from './ui.js';
 import { getState, createTask, updateTask, updateTaskLinks, deleteTask } from './state.js';
@@ -47,7 +47,7 @@ export function openTaskModal(task = null) {
         <input class="field-input" id="task-memo" value="${esc(task?.memo ?? '')}">
       </div>
       <div class="field">
-        <span class="field-label">연결할 계획(0개 이상, 없으면 독립 할 일)</span>
+        <span class="field-label">연결할 계획(0개 이상, 없으면 개별 할 일)</span>
         ${planCheckList(s.plans, linkedIds)}
       </div>
       <div class="field-error" id="task-error" hidden>${icon('triangle-alert', 15)}<span></span></div>

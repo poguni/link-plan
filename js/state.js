@@ -174,7 +174,7 @@ export async function addLink(taskId, planId) {
   }
 }
 
-// 연결선을 클릭해 삭제할 때 씁니다. 삭제 후 그 계획과의 연결이 하나도 없으면 할 일은 독립 상태가 됩니다(DESIGN.md 6-6).
+// 연결선을 클릭해 삭제할 때 씁니다. 삭제 후 그 계획과의 연결이 하나도 없으면 할 일은 개별 상태가 됩니다(DESIGN.md 6-6).
 export async function removeLink(taskId, planId) {
   const before = state.links;
   commit({ ...state, links: state.links.filter((l) => !(l.task_id === taskId && l.plan_id === planId)) });
