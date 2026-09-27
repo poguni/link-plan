@@ -240,3 +240,24 @@
   box-shadow: var(--shadow-drag);
   font-size: 14px;
 }
+
+/* ── 상태 변경 메뉴(키보드 대안: 카드에서 Enter) ───── */
+.status-menu {
+  position: fixed; z-index: 90; min-width: 188px; padding: 6px;
+  background: var(--surface); border: var(--card-bw) solid var(--border); border-radius: var(--card-radius);
+  box-shadow: var(--shadow-drag);
+}
+.status-menu-title { padding: 6px 10px; color: var(--muted); font-size: 12px; font-weight: 600; }
+.status-menu-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 9px 10px; border: 0; border-radius: 8px;
+  background: transparent; color: var(--text); font-size: 14px; text-align: left;
+}
+.status-menu-item[aria-checked="true"] { background: var(--primary-soft); font-weight: var(--fw-strong); }
+.status-menu-item[data-status="todo"] { --st: var(--st-todo); }
+.status-menu-item[data-status="doing"] { --st: var(--st-doing); }
+.status-menu-item[data-status="done"] { --st: var(--st-done); }
+.status-ic { display: flex; color: var(--st); }
+.status-name { flex-grow: 1; }
+.status-check { display: none; color: var(--muted); }
+.status-menu-item[aria-checked="true"] .status-check { display: flex; }

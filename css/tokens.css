@@ -209,3 +209,31 @@
   --panel-w: 312px;                      /* 시안 값(원본 248px 은 시안과 다름). 링크 뷰의 0px 규칙이 더 우선함 */
   --danger: #B83A4B;
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+ * Phase 2 보충 토큰 — 보드 뷰(목표 패널, 연결 사슬, 드래그, 응원 배너). 시안 값입니다.
+ * ══════════════════════════════════════════════════════════════════════ */
+
+/* 클린 */
+:root, :root[data-theme="clean"] {
+  --drop-border: #7FA0EE; --drop-bg: #F3F7FF; --drop-fg: #1B47B8;      /* 놓을 열 안내 */
+  --drag-border: #2557D6; --drag-bg: #FFFFFF;                           /* 끌고 있는 카드 */
+  --chain-bg: #FFFFFF; --chain-border: #E6E8EC; --chain-link: #9AA3B2;  /* 연결 사슬 */
+}
+
+/* 나이트 */
+:root[data-theme="night"] {
+  --drop-border: #7BE0A0; --drop-bg: #10241C; --drop-fg: #8CF0B4;
+  --drag-border: #7FB2FF; --drag-bg: #28324A;
+  --chain-bg: #161B26; --chain-border: #232B3B; --chain-link: #5E6A82;
+  --goal-bg: #1E1B33; --goal-border: #453F73; --goal-track: #2E2A52; --goal-sub: #B4AEE0;
+}
+
+/* 파스텔 */
+:root[data-theme="pastel"] {
+  --drop-border: #4B3B3B; --drop-bg: rgba(255,255,255,.7); --drop-fg: #4B3B3B;
+  --drag-border: #4B3B3B; --drag-bg: #FFFFFF;
+  --goal-bg: #ECE6FF; --goal-border: #CFC3FA; --goal-shadow: 0 5px 0 #D6CCFB;
+  --goal-ink: #5B47B8; --goal-sub: #6B5A8F; --goal-corner: #8E7FC4;
+  --banner-bg: #FFF0B8; --banner-border: #F2D97A; --banner-done: #8FDDAF; --banner-star: #B58500;
+}

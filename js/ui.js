@@ -36,10 +36,13 @@ export function progressRing(pct, level, label) {
   </div>`;
 }
 
-export function progressBar(pct, level, label) {
+// pct 가 null 이면 "측정 전"(연결된 할 일이 없는 계획)입니다. showPct=false 이면 막대만 그립니다.
+export function progressBar(pct, level, label, showPct = true) {
+  const known = pct !== null;
+  const now = known ? `aria-valuenow="${pct}"` : 'aria-valuetext="측정 전"';
   return `<div class="progress-row">
-    <div class="bar bar--${level}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-label="${esc(label)}"><div class="bar-fill" style="width:${pct}%"></div></div>
-    <span class="pct num">${pct}%</span>
+    <div class="bar bar--${level}" role="progressbar" aria-valuemin="0" aria-valuemax="100" ${now} aria-label="${esc(label)}"><div class="bar-fill" style="width:${known ? pct : 0}%"></div></div>
+    ${showPct ? `<span class="pct num">${known ? `${pct}%` : '측정 전'}</span>` : ''}
   </div>`;
 }
 

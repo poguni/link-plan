@@ -76,13 +76,13 @@ export function renderShell(app) {
         <div class="goal-heading" title="연간 목표">
           ${icon('flag', 14, 'gh-flag')}${icon('sprout', 20, 'gh-sprout')}<span class="gh-text">연간 목표</span>
         </div>
-        <p class="goal-empty">아직 연간 목표가 없어요.</p>
-        <div class="solo-row" title="독립 할 일">
+        <div class="goal-list" id="goal-list"></div>
+        <button type="button" class="solo-row" id="solo-row" data-filter-solo aria-pressed="false" title="독립 할 일">
           <span class="solo-ic solo-ic--inbox">${icon('inbox', 15)}</span>
           <span class="solo-ic solo-ic--unlink">${icon('unlink', 20)}</span>
           <span class="solo-name">독립 할 일</span>
-          <span class="solo-count num">0</span>
-        </div>
+          <span class="solo-count num" id="solo-count">0</span>
+        </button>
       </section>
       <div class="user-box">
         <div class="avatar">${icon('user', 16)}</div>
@@ -103,15 +103,17 @@ export function renderShell(app) {
           ${newTaskButton()}
         </div>
       </div>
+      <section class="chain only-board" id="chain" aria-label="이번 주 계획이 이어지는 목표"></section>
       <section class="content" aria-label="본문">
-        <div class="empty">
+        <div class="board only-board" id="board"></div>
+        <!-- 링크 뷰 본문은 Phase 3 에서 만듭니다. -->
+        <div class="empty only-link">
           <div class="empty-ic">${icon('inbox', 28)}</div>
-          <p class="empty-title only-board">아직 할 일이 없어요</p>
-          <p class="empty-title only-link">연결할 계획이 아직 없어요</p>
-          <p class="empty-text">새 할 일을 만들면 이곳에서 볼 수 있어요.</p>
-          <button type="button" class="btn btn-primary">${icon('plus', 18)}<span>새 할 일</span></button>
+          <p class="empty-title">링크 뷰는 준비 중이에요</p>
+          <p class="empty-text">보드 뷰에서 할 일을 옮겨 볼 수 있어요.</p>
         </div>
       </section>
+      <section class="banner only-board" id="banner" aria-label="이번 주 응원"></section>
     </main>
   </div>`;
 }
