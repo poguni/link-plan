@@ -6,6 +6,10 @@ import { getState, subscribe, addLink, removeLink } from './state.js';
 import { moveTask, openStatusMenu, closeStatusMenu } from './board.js';
 import { computeLayout, checkPlanParent } from './layout.js';
 import { planProgress } from './progress.js';
+import { openPlanModal } from './planmodal.js';
+import { getAnchor } from './period.js';
+
+const CHILD_TYPE = { yearly: 'monthly', monthly: 'weekly', weekly: null };
 
 const LEVEL_OF = { yearly: 'year', monthly: 'month', weekly: 'week' };
 const HEADER_Y = 40, HEADER_H = 30;
@@ -35,11 +39,17 @@ function planNodeHtml(plan, pos, s) {
   const achieved = plan.plan_type === 'weekly' && pr.pct === 100;
   const label = achieved ? `${LEVELS[level].label} 계획 · 달성` : `${LEVELS[level].label} 계획`;
   const ariaLabel = `${LEVELS[level].label} 계획, ${plan.title}, ${pr.pct === null ? '측정 전' : `${pr.pct}%`}`;
+  const childType = CHILD_TYPE[plan.plan_type];
   return `<div class="lnode lnode--plan lnode--${level}" data-plan-id="${esc(plan.id)}" data-kind="${plan.plan_type}"
       style="left:${pos.x}px;top:${pos.top}px;width:${pos.width}px;height:${pos.height}px"
       tabindex="0" role="group" aria-label="${esc(ariaLabel)}">
     <div class="lnode-info">
-      <div class="lnode-label">${icon(LEVELS[level].icon, 13)}<span>${label}</span></div>
+      <div class="lnode-label">${icon(LEVELS[level].icon, 13)}<span>${label}</span>
+        <span class="lnode-actions">
+          <button type="button" class="icon-btn" data-plan-edit="${esc(plan.id)}" aria-label="수정">${icon('pencil', 12)}</button>
+          ${childType ? `<button type="button" class="icon-btn" data-plan-create="${childType}" data-plan-create-parent="${esc(plan.id)}" aria-label="하위 계획 추가">${icon('plus', 12)}</button>` : ''}
+        </span>
+      </div>
       <div class="lnode-title">${esc(plan.title)}</div>
       <div class="lnode-count">${pr.total === 0 ? '측정 전' : `${pr.done}/${pr.total} 완료`}</div>
     </div>
@@ -329,6 +339,15 @@ export function mountLink() {
 
   els.nodes.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && e.target.classList.contains('lnode--task')) { e.preventDefault(); openStatusMenu(e.target); }
+  });
+
+  els.nodes.addEventListener('click', (e) => {
+    // board.js도 document 에서 같은 data-plan-* 속성을 듣고 있어(목표 패널·연결 사슬용), 여기서 처리했으면
+    // document 까지 올라가 두 번 열리지 않도록 막습니다.
+    const editBtn = e.target.closest('[data-plan-edit]');
+    if (editBtn) { e.stopPropagation(); const p = getState().plans.find((x) => x.id === editBtn.dataset.planEdit); if (p) openPlanModal(p); return; }
+    const createBtn = e.target.closest('[data-plan-create]');
+    if (createBtn) { e.stopPropagation(); openPlanModal(null, { planType: createBtn.dataset.planCreate, parentId: createBtn.dataset.planCreateParent, anchor: getAnchor() }); }
   });
 
   els.svg.addEventListener('click', (e) => {

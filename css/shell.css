@@ -140,6 +140,8 @@
 [data-theme="pastel"] .goal-section { gap: 14px; }
 
 .goal-heading { display: flex; align-items: center; gap: 8px; }
+.goal-heading .icon-btn { margin-left: auto; flex-shrink: 0; }
+[data-theme="clean"][data-view="link"] [data-plan-add-year] { display: none; }   /* 레일 모드는 좁아서 생략(링크 뷰의 "+"로 대신함) */
 .gh-flag, .gh-sprout { display: none; }
 [data-theme="clean"] .goal-heading { padding: 0 12px 6px; color: var(--muted); font-size: 12px; font-weight: 600; }
 [data-theme="night"] .goal-heading { padding: 0 4px; color: var(--lv-year-bar); font-size: 12px; font-weight: var(--fw-bold); }

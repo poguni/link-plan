@@ -4,6 +4,10 @@ import { icon } from './icons.js';
 import { chip, esc, progressBar, showToast, LEVELS, STATUSES } from './ui.js';
 import { getState, subscribe, setTaskStatus } from './state.js';
 import { planProgress, planTaskIds } from './progress.js';
+import { openTaskModal, confirmDeleteTask } from './taskmodal.js';
+import { openPlanModal } from './planmodal.js';
+import { rangeOf, planForRange, getPeriod, getAnchor, labelOf, titleOf } from './period.js';
+import { updatePeriodDisplay } from './shell.js';
 
 const STATUS_KEYS = ['todo', 'doing', 'done'];
 const TO_LABEL = { todo: '시작 전으로', doing: '진행 중으로', done: '완료로' };   // 조사(으로/로)까지 붙인 문구
@@ -28,14 +32,23 @@ const levelOf = (plan) => LEVEL_OF[plan.plan_type];
 const pctLabel = (pr) => (pr.pct === null ? '측정 전' : `${pr.pct}%`);
 const linkedTaskIds = (s) => new Set(s.links.map((l) => l.task_id));
 
+// 수행일이 선택된 기간 안에 있는 할 일만 봅니다(PRD P0-9). 수행일이 없는 할 일은 기간과 상관없이 항상
+// 보이고, 카드의 날짜 자리에 "기한 없음"으로 표시됩니다(taskDate 참고) — 그래서 따로 목록을 만들지 않습니다.
+function inPeriod(task, range) {
+  if (!task.due_date) return true;
+  return task.due_date >= isoOf(range.start) && task.due_date <= isoOf(range.end);
+}
+
 function visibleTasks(s) {
-  if (!filter) return s.tasks;
+  const range = rangeOf(getPeriod(), getAnchor());
+  const tasks = s.tasks.filter((t) => inPeriod(t, range));
+  if (!filter) return tasks;
   if (filter.type === 'solo') {
     const linked = linkedTaskIds(s);
-    return s.tasks.filter((t) => !linked.has(t.id));
+    return tasks.filter((t) => !linked.has(t.id));
   }
   const ids = planTaskIds(filter.id, s.plans, s.links);   // 진행률과 같은 범위(하위 계획 포함)
-  return s.tasks.filter((t) => ids.has(t.id));
+  return tasks.filter((t) => ids.has(t.id));
 }
 
 // ── 좌측 목표 패널 ──────────────────────────────────
@@ -50,6 +63,7 @@ function planPill(plan, depth, s) {
       <span class="pill-name">${icon(LEVELS[level].icon, 13)}${esc(plan.title)}</span>
       <span class="pill-pct num">${value}</span>
     </button>
+    <button type="button" class="icon-btn pill-edit" data-plan-edit="${esc(plan.id)}" aria-label="${LEVELS[level].label} 계획 수정">${icon('pencil', 13)}</button>
   </div>`;
 }
 
@@ -62,12 +76,15 @@ function goalCard(year, s) {
     .map((m) => planPill(m, 1, s) + s.plans.filter((p) => p.parent_id === m.id).map((w) => planPill(w, 2, s)).join(''))
     .join('');
   return `<div class="goal-card${active ? ' is-active' : ''}">
-    <button type="button" class="goal-main" data-filter-plan="${esc(year.id)}" aria-pressed="${active}">
-      <span class="goal-dot" aria-hidden="true"></span>
-      <span class="goal-ic" aria-hidden="true">${icon('sprout', 22)}</span>
-      <span class="goal-text"><span class="goal-title">${esc(year.title)}</span><span class="goal-sub">연간 목표</span></span>
-      <span class="goal-pct num">${pctLabel(pr)}</span>
-    </button>
+    <div class="goal-head-row">
+      <button type="button" class="goal-main" data-filter-plan="${esc(year.id)}" aria-pressed="${active}">
+        <span class="goal-dot" aria-hidden="true"></span>
+        <span class="goal-ic" aria-hidden="true">${icon('sprout', 22)}</span>
+        <span class="goal-text"><span class="goal-title">${esc(year.title)}</span><span class="goal-sub">연간 목표</span></span>
+        <span class="goal-pct num">${pctLabel(pr)}</span>
+      </button>
+      <button type="button" class="icon-btn goal-edit" data-plan-edit="${esc(year.id)}" aria-label="연간 목표 수정">${icon('pencil', 14)}</button>
+    </div>
     <div class="goal-bar">${progressBar(pr.pct, 'year', `${year.title} 진행률`, false)}</div>
     <div class="goal-count">${pr.done}/${pr.total} 완료</div>
     <div class="goal-children">${branches}</div>
@@ -84,23 +101,48 @@ function renderGoals(s) {
   els.soloRow.setAttribute('aria-pressed', String(filter?.type === 'solo'));
 }
 
-// ── 연결 사슬(클린·나이트): 주간 → 월간 → 연간 ───────
-// 샘플 데이터에는 계획 기간이 없어서 "이번 주 계획"을 고를 수 없습니다. 첫 번째 주간 계획을 씁니다(기간은 Phase 6).
+// ── 연결 사슬(클린·나이트): 선택한 기간의 주간 → 월간 → 연간 ─
+// 기간이 "연간"이면 목표 패널의 연간 카드 하나로 충분해 사슬은 비웁니다. "월간"이면 주간을 뺀 월→연만 보여 줍니다.
 function renderChain(s) {
-  const week = s.plans.find((p) => p.plan_type === 'weekly');
-  if (!week) { els.chain.innerHTML = ''; return; }
-  const month = s.plans.find((p) => p.id === week.parent_id);
-  const year = month && s.plans.find((p) => p.id === month.parent_id);
-  const items = [week, month, year].filter(Boolean).map((plan) => {
-    const level = levelOf(plan);
-    const pr = planProgress(plan.id, s);
-    return `<div class="chain-item">
-      <div class="chain-head">${chip(level)}<span class="chain-name">${esc(plan.title)}</span></div>
-      ${progressBar(pr.pct, level, `${LEVELS[level].label} 계획 ${plan.title} 진행률`)}
-    </div>`;
-  });
-  els.chain.innerHTML = `<div class="chain-title">이번 주 계획이 이어지는 목표</div>
+  const period = getPeriod();
+  if (period === 'year') { els.chain.innerHTML = ''; return; }
+
+  let week = null, month = null, year = null;
+  if (period === 'month') {
+    month = planForRange(s.plans, 'monthly', rangeOf('month', getAnchor()));
+    year = month ? s.plans.find((p) => p.id === month.parent_id) : planForRange(s.plans, 'yearly', rangeOf('year', getAnchor()));
+  } else {
+    const weekRange = rangeOf('week', getAnchor());
+    week = planForRange(s.plans, 'weekly', weekRange);
+    month = week ? s.plans.find((p) => p.id === week.parent_id) : planForRange(s.plans, 'monthly', rangeOf('month', getAnchor()));
+    year = month ? s.plans.find((p) => p.id === month.parent_id) : planForRange(s.plans, 'yearly', rangeOf('year', getAnchor()));
+  }
+
+  // 있는 단계만 보여 주고 끝내지 않습니다 — 예를 들어 연간만 있고 월간·주간이 없으면, 그 자리에
+  // "만들기" 버튼을 둬서 클린·나이트에서도 (파스텔의 펼친 트리 없이) 계속 만들어 나갈 수 있게 합니다.
+  const slots = period === 'month' ? [['monthly', month], ['yearly', year]] : [['weekly', week], ['monthly', month], ['yearly', year]];
+  if (slots.every(([, plan]) => !plan)) { els.chain.innerHTML = ''; return; } // 아무 것도 없으면 목표 패널의 "연간 목표 추가"로 유도
+  const items = slots.map(([planType, plan]) => (plan ? chainItemHtml(plan, s) : chainAddHtml(planType)));
+  els.chain.innerHTML = `<div class="chain-title">${period === 'month' ? '이번 달' : '이번 주'} 계획이 이어지는 목표</div>
     <div class="chain-row">${items.join(`<div class="chain-link" aria-hidden="true">${icon('link', 18)}</div>`)}</div>`;
+}
+
+function chainItemHtml(plan, s) {
+  const level = levelOf(plan);
+  const pr = planProgress(plan.id, s);
+  return `<div class="chain-item">
+    <div class="chain-head">${chip(level)}<span class="chain-name">${esc(plan.title)}</span>
+      <span class="chain-actions"><button type="button" class="icon-btn" data-plan-edit="${esc(plan.id)}" aria-label="${LEVELS[level].label} 계획 수정">${icon('pencil', 13)}</button></span>
+    </div>
+    ${progressBar(pr.pct, level, `${LEVELS[level].label} 계획 ${plan.title} 진행률`)}
+  </div>`;
+}
+
+function chainAddHtml(planType) {
+  const level = LEVEL_OF[planType];
+  return `<div class="chain-item chain-item--empty">
+    <button type="button" class="btn btn-sm btn-outline" data-plan-create="${planType}">${icon('plus', 14)}<span>${LEVELS[level].label} 계획 만들기</span></button>
+  </div>`;
 }
 
 // ── 칸반 ────────────────────────────────────────────
@@ -131,8 +173,8 @@ function taskCard(task, s) {
     <div class="card-foot">
       ${taskDate(task)}
       <span class="card-actions">
-        <button type="button" class="icon-btn" aria-label="수정">${icon('pencil', 15)}</button>
-        <button type="button" class="icon-btn" aria-label="삭제">${icon('trash', 15)}</button>
+        <button type="button" class="icon-btn" data-task-edit="${esc(task.id)}" aria-label="수정">${icon('pencil', 15)}</button>
+        <button type="button" class="icon-btn" data-task-delete="${esc(task.id)}" aria-label="삭제">${icon('trash', 15)}</button>
       </span>
     </div>
   </article>`;
@@ -146,12 +188,12 @@ function columnHtml(status, tasks, s) {
       <span class="column-name">${label}</span>
       <span class="count">${tasks.length}</span>
       <span class="column-spacer"></span>
-      <button type="button" class="icon-btn column-add" aria-label="${label}에 할 일 추가">${icon('plus', 16)}</button>
+      <button type="button" class="icon-btn column-add" data-task-add aria-label="${label}에 할 일 추가">${icon('plus', 16)}</button>
     </div>
     <div class="drop-hint" aria-hidden="true">${icon('circle-check', 16)}여기에 놓으면 ${TO_LABEL[status]} 바뀌어요</div>
     <div class="column-list" data-status="${status}">
       ${tasks.map((t) => taskCard(t, s)).join('')}
-      ${status === 'todo' ? `<button type="button" class="add-slot">${icon('plus', 18)}새 할 일 추가</button>` : ''}
+      ${status === 'todo' ? `<button type="button" class="add-slot" data-task-add>${icon('plus', 18)}새 할 일 추가</button>` : ''}
     </div>
   </section>`;
 }
@@ -331,6 +373,9 @@ function render(s) {
   renderChain(s);
   renderColumns(s);
   renderBanner(s);
+  const period = getPeriod();
+  const { long, short } = labelOf(period, getAnchor());
+  updatePeriodDisplay({ long, short, title: titleOf(period) });
 }
 
 export function mountBoard() {
@@ -346,7 +391,19 @@ export function mountBoard() {
   document.addEventListener('click', (e) => {
     const planBtn = e.target.closest('[data-filter-plan]');
     if (planBtn) return toggleFilter({ type: 'plan', id: planBtn.dataset.filterPlan });
-    if (e.target.closest('[data-filter-solo]')) toggleFilter({ type: 'solo', id: null });
+    if (e.target.closest('[data-filter-solo]')) return toggleFilter({ type: 'solo', id: null });
+
+    if (e.target.closest('[data-task-add]')) return openTaskModal();
+    const taskEdit = e.target.closest('[data-task-edit]');
+    if (taskEdit) return openTaskModal(getState().tasks.find((t) => t.id === taskEdit.dataset.taskEdit));
+    const taskDelete = e.target.closest('[data-task-delete]');
+    if (taskDelete) { const t = getState().tasks.find((x) => x.id === taskDelete.dataset.taskDelete); if (t) confirmDeleteTask(t); return; }
+
+    if (e.target.closest('[data-plan-add-year]')) return openPlanModal(null, { planType: 'yearly', anchor: getAnchor() });
+    const planEdit = e.target.closest('[data-plan-edit]');
+    if (planEdit) { const p = getState().plans.find((x) => x.id === planEdit.dataset.planEdit); if (p) openPlanModal(p); return; }
+    const planCreate = e.target.closest('[data-plan-create]');
+    if (planCreate) return openPlanModal(null, { planType: planCreate.dataset.planCreate, anchor: getAnchor() });
   });
 
   els.board.addEventListener('keydown', (e) => {
@@ -355,6 +412,9 @@ export function mountBoard() {
       openStatusMenu(e.target);
     }
   });
+
+  // 기간 이동·전환은 shell.js 가 'linkplan:change' 를 쏘아 줍니다(테마·뷰 전환과 같은 채널).
+  document.addEventListener('linkplan:change', () => { if (getState().ready) render(getState()); });
 
   subscribe(render);
   render(getState());

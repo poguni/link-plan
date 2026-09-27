@@ -10,6 +10,8 @@ import { loadState } from './state.js';
 import { renderShell, bindShell, setUser } from './shell.js';
 import { mountBoard } from './board.js';
 import { mountLink } from './link.js';
+import { getSettings } from './api.js';
+import { setTheme, setView } from './theme.js';
 
 const root = () => document.getElementById('app');
 
@@ -232,9 +234,22 @@ function openPasswordModal() {
 }
 
 // ── 앱(보드·링크 뷰) ─────────────────────────────
+function renderLoading() {
+  root().innerHTML = `<div class="auth-shell"><div class="auth-card">${brandHtml()}<p class="auth-status-text" style="text-align:center">불러오는 중이에요…</p></div></div>`;
+}
+
 async function renderApp() {
   if (!appMounted) {
     appMounted = true;
+    renderLoading();
+    // 뷰·테마는 계정 설정(user_settings)이 기준입니다(PRD 6-8, P1-10 을 앞당겨 지금 붙임).
+    // localStorage 값은 이 조회가 끝나기 전 깜빡임을 막는 캐시일 뿐입니다.
+    try {
+      const settings = await getSettings();
+      if (settings) { setTheme(settings.theme); setView(settings.view_mode); }
+    } catch (err) {
+      console.error('설정을 불러오지 못했어요. 이전에 저장된 값으로 계속해요.', err);
+    }
     await loadState();
     renderShell(root());
     bindShell();

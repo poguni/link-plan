@@ -61,9 +61,14 @@
 .goal-card { display: flex; flex-direction: column; gap: 8px; }
 .goal-main {
   display: flex; align-items: center; gap: 10px;
-  width: 100%; padding: 0; border: 0; background: transparent;
+  flex: 1; min-width: 0; padding: 0; border: 0; background: transparent;
   color: inherit; font: inherit; text-align: left;
 }
+/* ── 계획 수정 버튼(연간 카드 머리·월간·주간 알약, PRD P0-5) ── */
+.goal-head-row { display: flex; align-items: center; gap: 2px; }
+.goal-edit, .pill-edit { flex-shrink: 0; color: var(--muted); }
+.chain-actions { margin-left: auto; display: flex; }
+.chain-item--empty { align-items: center; justify-content: center; }
 .goal-title { display: block; }
 .goal-pct { flex-shrink: 0; white-space: nowrap; }
 .goal-dot, .goal-ic, .goal-sub, .goal-bar, .goal-count, .goal-children { display: none; }

@@ -27,7 +27,12 @@ export function planTaskIds(planId, plans, links) {
   return new Set(links.filter((l) => tree.has(l.plan_id)).map((l) => l.task_id));
 }
 
-export function planProgress(planId, { plans, tasks, links }) {
+// 서버 값이 있으면 그걸 우선 씁니다(PRD: 화면 표시는 plan_progress 뷰 기준). 아직 못 불러왔거나
+// 드래그·연결 변경 직후의 즉시 미리보기(예: 이동 토스트 문구)에는 로컬 계산으로 대신합니다.
+export function planProgress(planId, s) {
+  const server = s.progress && s.progress[planId];
+  if (server) return server;
+  const { plans, tasks, links } = s;
   const ids = planTaskIds(planId, plans, links);
   const linked = tasks.filter((t) => ids.has(t.id));
   const total = linked.length;

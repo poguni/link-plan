@@ -29,6 +29,8 @@
 /* 계획 노드(연간·월간·주간) */
 .lnode-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .lnode-label { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; }
+.lnode-actions { margin-left: auto; display: flex; gap: 2px; }
+.lnode-actions .icon-btn { width: 22px; height: 22px; color: var(--muted); }
 .lnode-title { overflow: hidden; font-family: var(--font-display); font-size: 14.5px; font-weight: var(--fw-bold); white-space: nowrap; text-overflow: ellipsis; }
 .lnode-count { color: var(--muted); font-size: 12px; }
 .lnode--year .lnode-label { color: var(--lv-year-fg); }
