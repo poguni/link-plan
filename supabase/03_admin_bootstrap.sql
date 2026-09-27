@@ -11,9 +11,9 @@
 
 update public.profiles
 set approved = true, approved_at = now(), is_admin = true
-where email = 'ADMIN_EMAIL_HERE';
+where email = 'jhbaek0817@naver.com';
 
 -- 확인: 아래 결과에 방금 지정한 이메일이 approved=true, is_admin=true 로 나오면 성공입니다.
 select id, email, approved, is_admin, created_at, approved_at
 from public.profiles
-where email = 'ADMIN_EMAIL_HERE';
+where email = 'jhbaek0817@naver.com';

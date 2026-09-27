@@ -1,6 +1,12 @@
 // 데이터 어댑터. 화면 코드는 이 파일의 함수만 부릅니다.
 // 지금은 design/sample-data.json 을 읽는 "샘플 어댑터"입니다. Phase 6 에서 같은 함수 이름으로 Supabase 어댑터를 만들어 바꿔 끼웁니다.
 
+// Supabase 클라이언트(PRD 5-2, index.html 이 CDN 스크립트로 window.supabase 를 미리 준비해 둡니다).
+// auth.js 가 이 클라이언트로 로그인·가입·세션을 다룹니다. anon key 는 공개돼도 되지만 RLS 가 전제입니다(CLAUDE.md 보안 규칙).
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
+const { createClient } = window.supabase;
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 // sample-data.json 은 원본을 고치지 않고, 읽을 때 PRD 5-3 의 데이터 모양(plan_type 이름, memo)으로 맞춥니다.
 const PLAN_TYPE = { year: 'yearly', month: 'monthly', week: 'weekly' };
 

@@ -1,18 +1,12 @@
-// 앱 진입점: 아이콘 스프라이트 → 데이터 → 테마·뷰 복원 → 셸 → 보드 뷰 순서로 시작합니다.
+// 앱 진입점: 아이콘 스프라이트 → 테마 복원 → 인증 게이트(로그인 → 승인 대기 → 앱) 순서로 시작합니다.
 import { loadIcons } from './icons.js';
-import { loadState } from './state.js';
 import { initTheme } from './theme.js';
-import { renderShell, bindShell } from './shell.js';
-import { mountBoard } from './board.js';
-import { mountLink } from './link.js';
+import { startAuthGate } from './authview.js';
 
 async function start() {
-  await Promise.all([loadIcons(), loadState()]);
+  await loadIcons();
   initTheme();
-  renderShell(document.getElementById('app'));
-  bindShell();
-  mountBoard();
-  mountLink();
+  await startAuthGate();
 }
 
 start().catch((err) => {

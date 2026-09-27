@@ -84,10 +84,10 @@ export function renderShell(app) {
           <span class="solo-count num" id="solo-count">0</span>
         </button>
       </section>
-      <div class="user-box">
+      <button type="button" class="user-box" id="user-menu-btn" aria-haspopup="menu" aria-expanded="false">
         <div class="avatar">${icon('user', 16)}</div>
-        <span class="user-name">내 계정</span>
-      </div>
+        <span class="user-name" id="user-email">내 계정</span>
+      </button>
     </aside>
 
     <main class="main">
@@ -140,6 +140,56 @@ function enforceLinkAvailability() {
   if (!allowed && getView() === 'link') setView('board');
 }
 
+// ── 사용자 영역(아바타·이메일) · 메뉴(내 계정·관리자 페이지·로그아웃, PRD 6-10) ──
+export function setUser({ email, isAdmin }) {
+  const label = document.getElementById('user-email');
+  if (label) label.textContent = email;
+  const btn = document.getElementById('user-menu-btn');
+  if (btn) btn.dataset.admin = isAdmin ? '1' : '';
+}
+
+let userMenu = null;
+function closeUserMenu() {
+  if (!userMenu) return;
+  userMenu.anchor.setAttribute('aria-expanded', 'false');
+  userMenu.menu.remove();
+  document.removeEventListener('pointerdown', userMenu.onOutside, true);
+  userMenu = null;
+}
+function openUserMenu(anchor) {
+  closeUserMenu();
+  const isAdmin = anchor.dataset.admin === '1';
+  const menu = document.createElement('div');
+  menu.className = 'status-menu';
+  menu.setAttribute('role', 'menu');
+  menu.setAttribute('aria-label', '내 계정 메뉴');
+  menu.innerHTML = `
+    <button type="button" class="status-menu-item" role="menuitem" data-user-action="password">
+      <span class="status-ic">${icon('lock', 18)}</span><span class="status-name">내 계정(비밀번호 변경)</span>
+    </button>
+    ${isAdmin ? `<a class="status-menu-item" role="menuitem" href="admin.html">
+      <span class="status-ic">${icon('shield', 18)}</span><span class="status-name">관리자 페이지</span>
+    </a>` : ''}
+    <button type="button" class="status-menu-item" role="menuitem" data-user-action="logout">
+      <span class="status-ic">${icon('log-out', 18)}</span><span class="status-name">로그아웃</span>
+    </button>`;
+  document.body.appendChild(menu);
+  const rect = anchor.getBoundingClientRect();
+  menu.style.top = `${Math.min(rect.top, window.innerHeight - menu.offsetHeight - 8)}px`;
+  menu.style.left = `${Math.min(rect.right + 8, window.innerWidth - menu.offsetWidth - 8)}px`;
+  anchor.setAttribute('aria-expanded', 'true');
+  const onOutside = (e) => { if (!menu.contains(e.target) && e.target !== anchor) closeUserMenu(); };
+  document.addEventListener('pointerdown', onOutside, true);
+  menu.addEventListener('click', (e) => {
+    const item = e.target.closest('[data-user-action]');
+    if (!item) return;
+    const action = item.dataset.userAction;
+    closeUserMenu();
+    document.dispatchEvent(new CustomEvent(`linkplan:${action}`));
+  });
+  userMenu = { menu, anchor, onOutside };
+}
+
 export function bindShell() {
   root.dataset.period = root.dataset.period || 'week';
   document.addEventListener('click', (e) => {
@@ -149,7 +199,10 @@ export function bindShell() {
     if (periodBtn) {
       root.dataset.period = periodBtn.dataset.periodBtn;
       syncPressed();
+      return;
     }
+    const userBtn = e.target.closest('#user-menu-btn');
+    if (userBtn) openUserMenu(userBtn);
   });
   document.addEventListener('linkplan:change', () => { syncPressed(); enforceLinkAvailability(); });
   window.addEventListener('resize', enforceLinkAvailability);

@@ -29,8 +29,8 @@ reset role;
 -- ── 2: A가 로그인해 자신의 할 일·계획·연결을 만들고 수정·삭제 ─────
 -- 기대: 모두 성공
 begin;
-  set local role authenticated;
   select set_config('request.jwt.claim.sub', (select id::text from auth.users where email = 'test-a@example.com'), true);
+  set local role authenticated;
 
   insert into public.plans (plan_type, title, period_start, period_end)
     values ('yearly', 'RLS 테스트 연간(A)', '2026-01-01', '2026-12-31');
@@ -49,8 +49,8 @@ commit;
 -- ── 3: B가 A의 할 일·계획·연결을 조회 ───────────────────────────
 -- 기대: 세 조회 모두 0행
 begin;
-  set local role authenticated;
   select set_config('request.jwt.claim.sub', (select id::text from auth.users where email = 'test-b@example.com'), true);
+  set local role authenticated;
   select * from public.plans where title like 'RLS 테스트%(A%';
   select * from public.tasks where title like 'RLS 테스트%(A%';
   select * from public.task_plan_links l join public.plans p on p.id = l.plan_id where p.title like 'RLS 테스트%(A%';
@@ -59,8 +59,8 @@ rollback;
 -- ── 4: B가 A의 행을 수정·삭제 ────────────────────────────────────
 -- 기대: 오류 없이 0행에만 적용되고, A의 데이터는 그대로
 begin;
-  set local role authenticated;
   select set_config('request.jwt.claim.sub', (select id::text from auth.users where email = 'test-b@example.com'), true);
+  set local role authenticated;
   update public.plans set title = 'B가 바꿔봄' where title = 'RLS 테스트 연간(A, 수정)';
   delete from public.plans where title = 'RLS 테스트 연간(A, 수정)';
 rollback;
@@ -69,17 +69,22 @@ rollback;
 -- ── 5: B가 user_id를 A의 id로 넣어 새 행을 저장 ──────────────────
 -- 기대: 정책 위반으로 저장 실패
 begin;
-  set local role authenticated;
   select set_config('request.jwt.claim.sub', (select id::text from auth.users where email = 'test-b@example.com'), true);
+  -- A 의 id 도 role 을 바꾸기 전에 미리 구해 둡니다(authenticated 는 auth.users 를 직접 조회할 권한이 없음).
+  select set_config('app.test_a_id', (select id::text from auth.users where email = 'test-a@example.com'), true);
+  set local role authenticated;
   insert into public.plans (user_id, plan_type, title, period_start, period_end)
-    values ((select id from auth.users where email = 'test-a@example.com'), 'yearly', 'B가 A 행세', '2026-01-01', '2026-12-31');
+    values (current_setting('app.test_a_id')::uuid, 'yearly', 'B가 A 행세', '2026-01-01', '2026-12-31');
 rollback;
 
 -- ── 6: B가 A의 계획 id로 자기 할 일을 연결 ───────────────────────
--- 기대: 외래 키 오류로 실패
+-- 기대: 실패(성공하면 안 됨). B는 RLS 때문에 A의 계획을 조회할 수조차 없어서 plan_id 서브쿼리가
+--       NULL이 되고, NOT NULL 제약(23502)으로 막힙니다. (혹시 조회가 됐더라도 (plan_id, user_id)
+--       복합 외래 키가 "B 소유 계획이 아니다"라며 23503으로 막았을 것입니다.) 둘 중 어느 오류가
+--       나든 "B가 A의 계획에 연결하지 못한다"는 결론은 같습니다.
 begin;
-  set local role authenticated;
   select set_config('request.jwt.claim.sub', (select id::text from auth.users where email = 'test-b@example.com'), true);
+  set local role authenticated;
   insert into public.tasks (title) values ('B의 할 일(FK 테스트)');
   insert into public.task_plan_links (task_id, plan_id)
     select
@@ -90,8 +95,8 @@ rollback;
 -- ── 6-부록: check_plan_parent 도 같은 것을 막는지(01_schema.sql 에서 user_id 조건을 추가한 부분 확인) ──
 -- 기대: 친절한 한국어 오류("허용되지 않는 상위 계획 유형입니다")로 실패. 원시 외래 키 오류가 아니어야 합니다.
 begin;
-  set local role authenticated;
   select set_config('request.jwt.claim.sub', (select id::text from auth.users where email = 'test-b@example.com'), true);
+  set local role authenticated;
   insert into public.plans (plan_type, title, period_start, period_end, parent_id)
     values ('monthly', 'B의 월간(부모=A 것)', '2026-01-01', '2026-01-31',
       (select id from public.plans where title = 'RLS 테스트 연간(A, 수정)'));
@@ -100,8 +105,8 @@ rollback;
 -- ── 7: 주간 계획을 연간 목표에 바로 연결 ──────────────────────────
 -- 기대: 트리거 예외로 실패
 begin;
-  set local role authenticated;
   select set_config('request.jwt.claim.sub', (select id::text from auth.users where email = 'test-a@example.com'), true);
+  set local role authenticated;
   insert into public.plans (plan_type, title, period_start, period_end, parent_id)
     values ('weekly', '건너뛴 주간', '2026-01-01', '2026-01-07',
       (select id from public.plans where title = 'RLS 테스트 연간(A, 수정)'));
@@ -110,16 +115,16 @@ rollback;
 -- ── 8: B가 진행률 뷰를 조회 ───────────────────────────────────────
 -- 기대: B의 데이터만 집계됨(A 의 계획은 보이지 않음)
 begin;
-  set local role authenticated;
   select set_config('request.jwt.claim.sub', (select id::text from auth.users where email = 'test-b@example.com'), true);
+  set local role authenticated;
   select * from public.plan_progress;
 rollback;
 
 -- ── 9: 하위 주간 계획이 있는 월간 계획의 유형을 연간으로 변경 ─────
 -- 기대: 트리거 예외로 실패하고, 계획은 그대로
 begin;
-  set local role authenticated;
   select set_config('request.jwt.claim.sub', (select id::text from auth.users where email = 'test-a@example.com'), true);
+  set local role authenticated;
   insert into public.plans (plan_type, title, period_start, period_end, parent_id)
     values ('monthly', 'RLS 테스트 월간(A)', '2026-01-01', '2026-01-31',
       (select id from public.plans where title = 'RLS 테스트 연간(A, 수정)'));
@@ -146,8 +151,8 @@ rollback;
 -- ── 12: 승인 전 사용자(C)가 조회하거나 저장 ───────────────────────
 -- 기대: 조회는 0행, 저장은 정책 위반으로 실패
 begin;
-  set local role authenticated;
   select set_config('request.jwt.claim.sub', (select id::text from auth.users where email = 'test-c@example.com'), true);
+  set local role authenticated;
   select * from public.plans;
   select * from public.tasks;
   insert into public.tasks (title) values ('C가 시도');
@@ -156,16 +161,16 @@ rollback;
 -- ── 13: 일반 사용자가 profiles에서 다른 사용자의 행을 조회 ────────
 -- 기대: 0행
 begin;
-  set local role authenticated;
   select set_config('request.jwt.claim.sub', (select id::text from auth.users where email = 'test-a@example.com'), true);
+  set local role authenticated;
   select * from public.profiles where email = 'test-b@example.com';
 rollback;
 
 -- ── 14: 일반 사용자가 profiles의 approved·is_admin을 수정·추가·삭제 ─
 -- 기대: 권한 오류(42501). profiles 에는 select 권한만 있고 insert·update·delete 권한 자체가 없습니다.
 begin;
-  set local role authenticated;
   select set_config('request.jwt.claim.sub', (select id::text from auth.users where email = 'test-a@example.com'), true);
+  set local role authenticated;
   update public.profiles set approved = true, is_admin = true where email = 'test-a@example.com';
 rollback;
 
@@ -173,8 +178,8 @@ rollback;
 -- 기대: 토큰 만료를 기다리지 않고 즉시 0행(is_approved() 가 매번 profiles 를 다시 읽기 때문)
 begin;
   update public.profiles set approved = false where email = 'test-a@example.com';
-  set local role authenticated;
   select set_config('request.jwt.claim.sub', (select id::text from auth.users where email = 'test-a@example.com'), true);
+  set local role authenticated;
   select * from public.plans;   -- 기대: 0행
 rollback;   -- rollback 으로 A의 승인 취소를 되돌립니다(실제로 취소하려는 게 아니라 확인용이므로).
 

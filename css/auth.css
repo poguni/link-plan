@@ -1,0 +1,89 @@
+/* 로그인·가입·승인 대기·비밀번호 변경 화면(DESIGN.md 10절, PRD 3-4·6-10).
+ * 시안이 없어 세 테마의 토큰만 그대로 적용합니다. 이 화면들에는 뷰 전환·기간 전환이 없습니다. */
+
+.auth-shell {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+
+.auth-card {
+  width: 100%; max-width: 400px;
+  padding: 32px;
+  display: flex; flex-direction: column; gap: 20px;
+  background: var(--surface);
+  border: var(--card-bw) solid var(--border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-card);
+}
+[data-theme="pastel"] .auth-card { padding: 28px; }
+
+.auth-brand { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.auth-brand .logo-mark {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--logo-bg); color: var(--logo-fg);
+}
+[data-theme="pastel"] .auth-brand .logo-mark {
+  border-radius: 999px; border: 2px solid var(--text); box-shadow: 0 3px 0 var(--text);
+}
+.auth-brand-name { font-family: var(--font-display); font-size: 20px; font-weight: var(--fw-bold); }
+
+/* ── 탭(로그인 | 가입) ───────────────────────────── */
+.auth-tabs {
+  display: flex; gap: 2px; padding: 3px;
+  background: var(--seg-bg); border: 1px solid var(--seg-border); border-radius: var(--btn-radius);
+}
+.auth-tab {
+  flex: 1; height: 40px; border: 0; border-radius: calc(var(--btn-radius) - 2px);
+  background: transparent; color: var(--seg-off-fg);
+  font-family: var(--font-display); font-size: 14px; font-weight: var(--fw-strong);
+}
+.auth-tab[aria-selected="true"] { background: var(--seg-on-bg); color: var(--seg-on-fg); box-shadow: var(--seg-on-shadow); }
+
+/* ── 입력 필드 ───────────────────────────────────── */
+.auth-form { display: flex; flex-direction: column; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field-label { font-size: 13px; font-weight: var(--fw-strong); color: var(--ink-2); }
+.field-input-wrap { position: relative; display: flex; align-items: center; }
+.field-input {
+  width: 100%; height: 44px; padding: 0 14px;
+  background: var(--btn-bg); border: 1px solid var(--btn-border); border-radius: var(--btn-radius);
+  color: var(--text); font-size: 14px;
+}
+.field-input.has-toggle { padding-right: 44px; }
+.field-toggle {
+  position: absolute; right: 4px;
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border: 0; border-radius: 8px;
+  background: transparent; color: var(--icon-btn-fg);
+}
+
+.field-rule { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12.5px; }
+.field-rule.is-ok { color: var(--st-done); }
+
+.field-error { display: flex; align-items: center; gap: 6px; color: var(--danger); font-size: 13px; }
+
+/* .auth-form/.field-error 가 display 를 지정해서, hidden 속성 기본 규칙([hidden]{display:none})보다
+   나중에 적용돼 있으면 이깁니다. hidden 일 때는 항상 숨도록 명시적으로 다시 규칙을 둡니다. */
+.auth-form[hidden], .field-error[hidden] { display: none; }
+
+.auth-actions { display: flex; flex-direction: column; gap: 10px; }
+.auth-actions .btn { width: 100%; }
+
+/* ── 승인 대기 / 비밀번호 변경 강제 화면 ──────────── */
+.auth-status-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 56px; height: 56px; margin: 0 auto;
+  border-radius: 999px; background: var(--primary-soft); color: var(--primary-ink);
+}
+.auth-status-title { text-align: center; font-family: var(--font-display); font-size: 18px; font-weight: var(--fw-bold); }
+.auth-status-text { text-align: center; color: var(--muted); font-size: 13.5px; }
+.auth-status-actions { display: flex; gap: 10px; }
+.auth-status-actions .btn { flex: 1; }
+
+/* ── 앱 안에서 여는 비밀번호 변경 모달(「내 계정」 메뉴) ── */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  background: color-mix(in srgb, var(--text) 45%, transparent);
+}
