@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko" data-theme="clean" data-view="board">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>링크 플랜 컴포넌트 확인</title>
+  <link rel="icon" href="data:,">
+  <script>
+    try {
+      var r = document.documentElement, t = localStorage.getItem('linkplan_theme'), v = localStorage.getItem('linkplan_view');
+      if (t === 'clean' || t === 'night' || t === 'pastel') r.dataset.theme = t;
+      if (v === 'board' || v === 'link') r.dataset.view = v;
+    } catch (e) { /* 기본값을 씁니다. */ }
+  </script>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    /* 이 페이지 전용 배치(개발 확인용, 배포 대상 아님). 색은 토큰만 씁니다. */
+    .dev { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 24px 32px 96px; display: flex; flex-direction: column; gap: 32px; }
+    .dev h1 { font-family: var(--font-display); font-size: 24px; font-weight: var(--fw-bold); }
+    .dev h2 { margin-bottom: 12px; color: var(--muted); font-size: 13px; font-weight: 700; }
+    .row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+    .board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
+    .panel { padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .rings { display: flex; gap: 24px; }
+    .stack { display: flex; flex-direction: column; gap: 12px; max-width: 420px; }
+  </style>
+</head>
+<body>
+  <div class="dev" id="dev"></div>
+
+  <script type="module">
+    import { loadIcons, icon } from './js/icons.js';
+    import { initTheme, setTheme, setView, getTheme, getView } from './js/theme.js';
+    import { chip, progressRing, progressBar, showToast, STATUSES } from './js/ui.js';
+
+    const themeBtn = (t, label) => `<button type="button" class="seg-btn" data-theme-set="${t}" aria-pressed="false">${label}</button>`;
+    const viewBtn = (v, label) => `<button type="button" class="seg-btn" data-view-set="${v}" aria-pressed="false">${label}</button>`;
+
+    const card = (status, title, chips, dateIcon, date) => `
+      <article class="task-card" data-status="${status}">
+        <div class="card-head"><span class="grip">${icon('grip', 16)}</span><div class="card-title">${title}</div></div>
+        <div class="card-chips">${chips}</div>
+        <div class="card-foot">
+          <span class="card-date">${icon(dateIcon, 14)}${date}</span>
+          <span class="card-actions">
+            <button type="button" class="icon-btn" aria-label="수정">${icon('pencil', 15)}</button>
+            <button type="button" class="icon-btn" aria-label="삭제">${icon('trash', 15)}</button>
+          </span>
+        </div>
+      </article>`;
+
+    const column = (status, count, cards) => `
+      <section class="column" data-status="${status}" aria-label="${STATUSES[status].label}">
+        <div class="column-head">
+          <span class="column-status">${icon(STATUSES[status].icon, 18)}</span>
+          <span class="column-name">${STATUSES[status].label}</span>
+          <span class="count">${count}</span>
+          <span class="column-spacer"></span>
+          <button type="button" class="icon-btn column-add" aria-label="${STATUSES[status].label}에 할 일 추가">${icon('plus', 16)}</button>
+        </div>
+        ${cards}
+        <button type="button" class="add-slot">${icon('plus', 18)}새 할 일 추가</button>
+      </section>`;
+
+    async function start() {
+      await loadIcons();
+      initTheme();
+      document.getElementById('dev').innerHTML = `
+        <header class="row" style="justify-content: space-between">
+          <h1>링크 플랜 컴포넌트 확인</h1>
+          <div class="row">
+            <div class="seg" role="group" aria-label="테마">${themeBtn('clean', '클린')}${themeBtn('night', '나이트')}${themeBtn('pastel', '파스텔')}</div>
+            <div class="seg" role="group" aria-label="뷰">${viewBtn('board', '보드 뷰')}${viewBtn('link', '링크 뷰')}</div>
+          </div>
+        </header>
+
+        <section><h2>세그먼트 · 버튼</h2>
+          <div class="row">
+            <div class="seg seg--view" role="group" aria-label="뷰 전환 예시">
+              <button type="button" class="seg-btn" aria-pressed="true">${icon('dashboard', 15)}<span>보드 뷰</span></button>
+              <button type="button" class="seg-btn" aria-pressed="false">${icon('link', 15)}<span>링크 뷰</span></button>
+            </div>
+            <div class="seg seg--period" role="group" aria-label="기간 전환 예시">
+              <button type="button" class="seg-btn" aria-pressed="false">${icon('sun', 16, 'seg-ic')}<span>일일</span></button>
+              <button type="button" class="seg-btn" aria-pressed="true">${icon('calendar-days', 16, 'seg-ic')}<span>주간</span></button>
+              <button type="button" class="seg-btn" aria-pressed="false">${icon('calendar', 16, 'seg-ic')}<span>월간</span></button>
+              <button type="button" class="seg-btn" aria-pressed="false">${icon('flag', 16, 'seg-ic')}<span>연간</span></button>
+            </div>
+            <button type="button" class="btn btn-primary">${icon('plus', 18)}<span>새 할 일</span></button>
+            <button type="button" class="btn btn-outline btn-sm">취소</button>
+            <button type="button" class="btn btn-primary btn-sm">추가</button>
+            <button type="button" class="btn btn-primary" disabled>비활성</button>
+            <button type="button" class="icon-btn icon-btn--box" aria-label="검색">${icon('search', 18)}</button>
+          </div>
+        </section>
+
+        <section><h2>단계 칩</h2>
+          <div class="row">${chip('year')}${chip('month')}${chip('week')}${chip('solo')}
+            ${chip('week', '주간 · 책 1~3장 읽기')}${chip('month', '월간 · 클로드 코드 기능 습득')}${chip('year', '연간 · 바이브 코딩 앱 개발')}</div>
+        </section>
+
+        <section><h2>진행 링 (연간 · 월간 · 주간, 42% · 67% · 100%)</h2>
+          <div class="rings">${progressRing(42, 'year', '연간 진행률')}${progressRing(67, 'month', '월간 진행률')}${progressRing(100, 'week', '주간 진행률')}</div>
+        </section>
+
+        <section><h2>진행 막대</h2>
+          <div class="stack">${progressBar(42, 'year', '연간 진행률')}${progressBar(25, 'month', '월간 진행률')}${progressBar(33, 'week', '주간 진행률')}</div>
+        </section>
+
+        <section><h2>칸반 열 · 할 일 카드 · 점선 추가 슬롯</h2>
+          <div class="board">
+            ${column('todo', 2,
+              card('todo', '슬래시 명령어 정리하기', chip('week', '주간 · 책 1~3장 읽기'), 'calendar', '9/27 (일)') +
+              card('todo', '스마트폰 케이스 구입', chip('solo'), 'calendar', '기한 없음'))}
+            ${column('doing', 1,
+              card('doing', '클로드 코드 책 읽기', chip('month', '월간 · 클로드 코드 기능 습득') + chip('year', '연간 · 바이브 코딩 앱 개발'), 'calendar', '오늘 · 9/26 (토)'))}
+            ${column('done', 1,
+              card('done', '1장 읽고 요약 노트 쓰기', chip('week', '주간 · 책 1~3장 읽기'), 'circle-check', '9/24 (목) 완료'))}
+          </div>
+        </section>
+
+        <section><h2>빈 상태 · 토스트</h2>
+          <div class="row" style="align-items: flex-start">
+            <div class="panel" style="min-width: 320px">
+              <div class="empty">
+                <div class="empty-ic">${icon('inbox', 28)}</div>
+                <p class="empty-title">아직 할 일이 없어요</p>
+                <p class="empty-text">새 할 일을 만들면 이곳에서 볼 수 있어요.</p>
+                <button type="button" class="btn btn-primary">${icon('plus', 18)}<span>새 할 일</span></button>
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline" id="toast-btn">토스트 띄우기</button>
+          </div>
+        </section>`;
+
+      const sync = () => {
+        document.querySelectorAll('[data-theme-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themeSet === getTheme())));
+        document.querySelectorAll('[data-view-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.viewSet === getView())));
+      };
+      document.addEventListener('linkplan:change', sync);
+      document.addEventListener('click', (e) => {
+        const t = e.target.closest('[data-theme-set]');
+        if (t) setTheme(t.dataset.themeSet);
+        const v = e.target.closest('[data-view-set]');
+        if (v) setView(v.dataset.viewSet);
+        if (e.target.closest('#toast-btn')) showToast('완료로 옮겼어요. 주간 계획이 33%에서 67%가 됐어요.');
+      });
+      sync();
+    }
+    start();
+  </script>
+</body>
+</html>

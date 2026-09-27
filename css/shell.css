@@ -1,0 +1,199 @@
+/* 앱 셸(뼈대). DESIGN.md 1절.
+ * 셸 종류는 테마가 정하고(clean=사이드바, night·pastel=상단바), 뷰는 좌측 패널의 폭·표시만 바꿉니다.
+ * DOM 은 하나이고, 테마별로 보이는 조각만 CSS 로 바꿉니다. 색·서체는 tokens.css 변수만 씁니다. */
+
+.shell {
+  position: relative; z-index: 1;
+  height: 100vh; overflow: hidden;
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+}
+.shell > * { position: relative; z-index: 1; }
+[data-theme="clean"][data-view="link"] .shell { grid-template-columns: var(--rail-w) minmax(0, 1fr); }
+[data-theme="night"] .shell, [data-theme="pastel"] .shell { grid-template-columns: var(--panel-w) minmax(0, 1fr); }
+
+.topbar { grid-column: 1 / -1; grid-row: 1; }
+.goal-panel { grid-column: 1; grid-row: 2; min-height: 0; overflow: auto; background: var(--panel-bg); }
+.main { grid-column: 2; grid-row: 2; min-width: 0; min-height: 0; overflow: auto; display: flex; flex-direction: column; }
+.content { flex: 1; min-height: 0; }
+
+/* 테마별로 보이는 조각 */
+.topbar, .side-brand, .side-nav, .main-head { display: none; }
+[data-theme="clean"] .side-brand,
+[data-theme="clean"] .side-nav,
+[data-theme="clean"] .main-head { display: flex; }
+[data-theme="night"] .topbar,
+[data-theme="pastel"] .topbar { display: flex; }
+
+/* ── 브랜드 ──────────────────────────────────────── */
+.brand { display: flex; align-items: center; gap: 10px; }
+.logo-mark {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 34px; height: 34px; border-radius: 10px;
+  background: var(--logo-bg); color: var(--logo-fg);
+}
+.brand-text { display: flex; flex-direction: column; gap: 2px; }
+.brand-line { display: flex; align-items: center; gap: 10px; }
+.brand-name { font-family: var(--font-display); font-size: 18px; font-weight: var(--fw-bold); letter-spacing: -.02em; white-space: nowrap; }
+.brand-en, .brand-tagline { display: none; }
+
+/* ── 클린: 사이드바 232px / 레일 72px ────────────── */
+[data-theme="clean"] .goal-panel {
+  grid-row: 1 / -1;
+  display: flex; flex-direction: column; gap: 26px;
+  padding: 24px 16px;
+  border-right: 1px solid var(--panel-border);
+}
+[data-theme="clean"] .main { grid-row: 1 / -1; padding: 24px 36px; gap: 16px; }
+.side-brand { padding: 0 8px; }
+
+.side-nav { flex-direction: column; gap: 4px; }
+.side-label { padding: 0 12px 6px; color: var(--muted); font-size: 12px; font-weight: 600; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border: 0; border-radius: 10px;
+  background: transparent; color: var(--ink-2);
+  font-size: 14px; font-weight: 500; text-align: left;
+}
+.nav-item[aria-pressed="true"] { background: var(--primary-soft); color: var(--primary-ink); font-weight: 600; }
+
+.main-head { align-items: flex-end; justify-content: space-between; gap: 16px; }
+.mh-left { display: flex; flex-direction: column; gap: 6px; }
+.mh-right { display: flex; align-items: center; gap: 12px; }
+.page-title { font-size: 26px; font-weight: var(--fw-bold); letter-spacing: -.02em; }
+
+/* 클린 링크 뷰: 좌측은 72px 레일, 상단은 컨트롤 바 한 줄 */
+[data-theme="clean"][data-view="link"] .goal-panel { align-items: center; gap: 8px; padding: 20px 0; }
+[data-theme="clean"][data-view="link"] .main { padding: 16px 48px 0 24px; }
+[data-theme="clean"][data-view="link"] .main-head { align-items: center; height: 48px; }
+[data-theme="clean"][data-view="link"] .period-nav { color: var(--ink-2); font-size: 14px; font-weight: 600; }
+[data-theme="clean"][data-view="link"] .period-nav .icon-btn { width: 32px; height: 32px; }
+[data-theme="clean"][data-view="link"] .seg--period .seg-btn { padding: 0 14px; }
+[data-theme="clean"][data-view="link"] .side-brand { padding: 0; margin-bottom: 18px; }
+[data-theme="clean"][data-view="link"] .logo-mark { width: 36px; height: 36px; }
+[data-theme="clean"][data-view="link"] .brand-name,
+[data-theme="clean"][data-view="link"] .side-label,
+[data-theme="clean"][data-view="link"] .nav-item .label,
+[data-theme="clean"][data-view="link"] .goal-empty,
+[data-theme="clean"][data-view="link"] .solo-name,
+[data-theme="clean"][data-view="link"] .solo-count,
+[data-theme="clean"][data-view="link"] .user-name { display: none; }
+[data-theme="clean"][data-view="link"] .side-nav { align-items: center; gap: 8px; }
+[data-theme="clean"][data-view="link"] .nav-item { justify-content: center; width: 44px; height: 44px; padding: 0; border-radius: 12px; }
+
+/* ── 나이트: 상단바 64px + 좌측 목표 패널 248px ───── */
+[data-theme="night"] .shell::before {
+  content: ""; position: absolute; left: 300px; top: 70px; width: 760px; height: 560px;
+  background: radial-gradient(closest-side, var(--glow), transparent);
+  pointer-events: none; z-index: 0;
+}
+[data-theme="night"] .topbar {
+  align-items: center; justify-content: space-between;
+  height: var(--topbar-h); padding: 0 40px;
+  border-bottom: 1px solid var(--topbar-border);
+}
+[data-theme="night"] .logo-mark { width: 32px; height: 32px; }
+[data-theme="night"] .brand-name { font-size: 17px; letter-spacing: -.01em; }
+[data-theme="night"] .brand-en { display: block; color: var(--muted-2); font-family: var(--font-num); font-size: 12px; font-weight: 500; }
+[data-theme="night"] .goal-panel {
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 20px 16px; border-right: 1px solid var(--panel-border);
+}
+[data-theme="night"] .main { padding: 20px 28px 24px; gap: 16px; }
+
+/* ── 파스텔: 알약형 상단바 + 좌측 목표 패널 ──────── */
+[data-theme="pastel"] .shell { padding: 28px 32px 0; row-gap: 20px; column-gap: 24px; }
+[data-theme="pastel"][data-view="link"] .shell { padding-top: 16px; column-gap: 0; }
+[data-theme="pastel"] .topbar { align-items: center; justify-content: flex-start; height: var(--topbar-h); }
+[data-theme="pastel"] .brand { gap: 14px; }
+[data-theme="pastel"] .logo-mark {
+  width: 54px; height: 54px; border-radius: 999px;
+  border: 2px solid var(--text); box-shadow: 0 3px 0 var(--text);
+}
+[data-theme="pastel"] .brand-name { font-size: 28px; line-height: 1.1; letter-spacing: 0; }
+[data-theme="pastel"] .brand-tagline { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 14px; }
+[data-theme="pastel"] .topbar .seg--view { margin-left: auto; margin-right: 10px; }
+[data-theme="pastel"] .goal-panel { display: flex; flex-direction: column; gap: 14px; padding-bottom: 24px; }
+[data-theme="pastel"] .main { gap: 16px; padding-bottom: 24px; }
+
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+[data-theme="pastel"] .topbar-right { gap: 10px; }
+[data-theme="pastel"] .topbar-right .btn-primary { margin-left: 8px; }
+[data-theme="pastel"] .btn-search { display: none; }
+
+/* ── 기간 이전/다음 ──────────────────────────────── */
+.period-nav { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; font-weight: 500; white-space: nowrap; }
+.pl-short { display: none; }
+[data-theme="night"] .period-nav { gap: 4px; color: var(--ink-2); }
+[data-theme="night"] .pl-long, [data-theme="pastel"] .pl-long { display: none; }
+[data-theme="night"] .pl-short, [data-theme="pastel"] .pl-short { display: inline; }
+[data-theme="pastel"] .period-nav {
+  height: 44px; padding: 0 4px;
+  background: var(--btn-bg); border: 2px solid var(--btn-border); border-radius: 999px;
+  color: var(--text); font-family: var(--font-display); font-size: 15px; font-weight: var(--fw-bold);
+}
+
+/* ── 좌측 목표 패널 내용 ─────────────────────────── */
+.goal-section { display: flex; flex-direction: column; gap: 12px; }
+[data-theme="clean"] .goal-section { gap: 2px; }
+[data-theme="pastel"] .goal-section { gap: 14px; }
+
+.goal-heading { display: flex; align-items: center; gap: 8px; }
+.gh-flag, .gh-sprout { display: none; }
+[data-theme="clean"] .goal-heading { padding: 0 12px 6px; color: var(--muted); font-size: 12px; font-weight: 600; }
+[data-theme="night"] .goal-heading { padding: 0 4px; color: var(--lv-year-bar); font-size: 12px; font-weight: var(--fw-bold); }
+[data-theme="night"] .gh-flag { display: block; width: 14px; height: 14px; }
+[data-theme="pastel"] .goal-heading { padding: 0 4px; font-family: var(--font-display); font-size: 19px; font-weight: var(--fw-bold); }
+[data-theme="pastel"] .gh-sprout { display: block; width: 20px; height: 20px; }
+
+.goal-empty { padding: 0 12px; color: var(--muted); font-size: 13px; }
+[data-theme="night"] .goal-empty, [data-theme="pastel"] .goal-empty { padding: 0 4px; }
+
+.solo-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border: 1px dashed var(--solo-border); border-radius: 10px;
+  background: var(--solo-bg); color: var(--solo-fg); font-size: 13.5px;
+}
+.solo-ic { display: flex; align-items: center; justify-content: center; }
+.solo-ic--unlink { display: none; }
+.solo-name { flex-grow: 1; }
+.solo-count { color: var(--muted); font-size: 12.5px; font-weight: 600; }
+[data-theme="night"] .solo-row { padding: 10px 12px; border-radius: 12px; }
+[data-theme="night"] .solo-count { color: inherit; font-family: var(--font-num); font-weight: var(--fw-bold); }
+[data-theme="pastel"] .solo-row { gap: 12px; padding: 14px 18px; border-width: 2px; border-radius: 26px; }
+[data-theme="pastel"] .solo-name { font-family: var(--font-display); font-size: 17px; }
+[data-theme="pastel"] .solo-count { color: inherit; font-size: 13px; }
+[data-theme="pastel"] .solo-ic { width: 40px; height: 40px; border-radius: 999px; background: var(--surface); }
+[data-theme="pastel"] .solo-ic--inbox { display: none; }
+[data-theme="pastel"] .solo-ic--unlink { display: flex; }
+
+/* 클린 레일: 목표 패널은 아이콘 버튼 두 개로 접힙니다. */
+[data-theme="clean"][data-view="link"] .goal-section { align-items: center; gap: 8px; }
+[data-theme="clean"][data-view="link"] .goal-section::before {
+  content: ""; width: 28px; height: 1px; margin: 10px 0; background: var(--panel-border);
+}
+[data-theme="clean"][data-view="link"] .goal-heading,
+[data-theme="clean"][data-view="link"] .solo-row {
+  justify-content: center; width: 44px; height: 44px; padding: 0;
+  border: 0; border-radius: 12px; color: var(--ink-2);
+}
+[data-theme="clean"][data-view="link"] .gh-text { display: none; }
+[data-theme="clean"][data-view="link"] .gh-flag { display: block; width: 20px; height: 20px; }
+[data-theme="clean"][data-view="link"] .solo-ic .ic { width: 20px; height: 20px; }
+
+/* ── 사용자 영역 ─────────────────────────────────── */
+.user-box {
+  display: flex; align-items: center; gap: 10px; margin-top: auto;
+  padding: 10px 8px; border-top: 1px solid var(--panel-border);
+}
+.avatar {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 34px; height: 34px; border-radius: 999px;
+  background: var(--avatar-bg); color: var(--avatar-fg);
+}
+.user-name { font-size: 13.5px; font-weight: var(--fw-strong); }
+[data-theme="night"] .user-box { padding: 12px 4px 0; }
+[data-theme="pastel"] .user-box { padding: 0 4px; border-top: 0; }
+[data-theme="clean"][data-view="link"] .user-box { justify-content: center; padding: 0; border-top: 0; }
+[data-theme="clean"][data-view="link"] .avatar { width: 36px; height: 36px; }

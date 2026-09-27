@@ -5,13 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>링크 플랜</title>
   <link rel="icon" href="data:,">
+  <!-- 저장된 테마·뷰를 첫 화면이 그려지기 전에 적용해 깜빡임을 막습니다(자세한 처리는 js/theme.js). -->
+  <script>
+    try {
+      var r = document.documentElement, t = localStorage.getItem('linkplan_theme'), v = localStorage.getItem('linkplan_view');
+      if (t === 'clean' || t === 'night' || t === 'pastel') r.dataset.theme = t;
+      if (v === 'board' || v === 'link') r.dataset.view = v;
+    } catch (e) { /* 저장소를 못 쓰면 기본값(clean·board)을 씁니다. */ }
+  </script>
   <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/shell.css">
+  <link rel="stylesheet" href="css/view-board.css">
+  <link rel="stylesheet" href="css/view-link.css">
 </head>
 <body>
-  <!-- 아이콘 스프라이트 자리: assets/icons.svg 의 내용을 Phase 1 에서 이곳에 인라인으로 넣습니다. -->
-
   <div id="app"></div>
-
   <script type="module" src="js/app.js"></script>
 </body>
 </html>

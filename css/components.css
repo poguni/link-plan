@@ -1,1 +1,242 @@
-/* components.css — 이후 Phase 에서 작성합니다. */
+/* 공통 컴포넌트 (DESIGN.md 4절). 색은 모두 tokens.css 변수를 씁니다. 테마별 모양 차이는 [data-theme] 선택자로만 처리합니다. */
+
+/* ── 버튼 ──────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: var(--btn-h); padding: 0 18px;
+  border: 0; border-radius: var(--btn-radius);
+  background: transparent; color: var(--text);
+  font-family: var(--font-display); font-size: 14px; font-weight: var(--fw-strong);
+  white-space: nowrap;
+  transition: background var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-outline { background: var(--btn-bg); color: var(--btn-fg); border: 1px solid var(--btn-border); font-weight: 500; }
+.btn-ghost { color: var(--muted); font-weight: 500; }
+.btn-sm { height: 34px; padding: 0 14px; border-radius: 8px; font-size: 13px; }
+.btn:disabled, .icon-btn:disabled, .seg-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* 파스텔 버튼: 진한 테두리와 단단한 그림자 */
+[data-theme="pastel"] .btn-primary { border: 2px solid var(--text); box-shadow: 0 4px 0 var(--text); padding: 0 22px; font-size: 16px; }
+[data-theme="pastel"] .btn-sm { border-radius: 999px; }
+[data-theme="pastel"] .btn-outline { border-width: 2px; }
+
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0;
+  border: 0; border-radius: 8px;
+  background: transparent; color: var(--icon-btn-fg);
+}
+.icon-btn--md { width: 32px; height: 32px; }
+.icon-btn--box {
+  width: 44px; height: 44px;
+  border: 1px solid var(--btn-border); border-radius: var(--btn-radius);
+  background: var(--btn-bg); color: var(--btn-fg);
+}
+
+/* ── 세그먼트 컨트롤(알약 하나) ─────────────────────── */
+.seg {
+  display: flex; padding: 3px;
+  background: var(--seg-bg);
+  border: 0 solid var(--seg-border);
+  border-radius: 11px;
+}
+.seg-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 36px; padding: 0 14px;
+  border: 0; border-radius: 8px;
+  background: transparent; color: var(--seg-off-fg);
+  font-family: var(--font-display); font-size: 13.5px; font-weight: 500;
+  white-space: nowrap;
+}
+.seg-btn[aria-pressed="true"] {
+  background: var(--seg-on-bg); color: var(--seg-on-fg);
+  font-weight: var(--fw-strong); box-shadow: var(--seg-on-shadow);
+}
+.seg--view .seg-btn[aria-pressed="true"] { background: var(--seg-on-bg-view); }
+.seg-ic { display: none; }   /* 기간 아이콘은 파스텔에서만 보입니다. */
+
+[data-theme="clean"] .seg--period .seg-btn { padding: 0 16px; }
+
+[data-theme="night"] .seg { border-width: 1px; border-radius: 12px; }
+[data-theme="night"] .seg-btn { height: 34px; padding: 0 14px; border-radius: 9px; font-size: 13px; }
+[data-theme="night"] .seg--view .seg-btn { padding: 0 16px; }
+
+[data-theme="pastel"] .seg--view { gap: 4px; padding: 4px; border-width: 2px; border-radius: 999px; }
+[data-theme="pastel"] .seg--view .seg-btn { border: 2px solid transparent; border-radius: 999px; font-size: 15px; }
+[data-theme="pastel"] .seg--view .seg-btn[aria-pressed="true"] { border-color: var(--text); }
+/* 파스텔의 기간 선택은 하나로 묶지 않고 알약 4개를 따로 놓습니다. */
+[data-theme="pastel"] .seg--period { gap: 10px; padding: 0; background: none; border: 0; }
+[data-theme="pastel"] .seg--period .seg-btn {
+  height: 44px; padding: 0 14px;
+  background: var(--seg-bg); border: 2px solid var(--seg-border); border-radius: 999px; font-size: 15px;
+}
+[data-theme="pastel"] .seg--period .seg-btn[aria-pressed="true"] { border-color: var(--text); }
+[data-theme="pastel"] .seg-ic { display: inline-block; }
+
+/* ── 단계 칩 ──────────────────────────────────────── */
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: var(--radius-pill);
+  font-size: 12px; font-weight: 500; line-height: 1.4;
+}
+.chip--year  { background: var(--lv-year-bg);  color: var(--lv-year-fg); }
+.chip--month { background: var(--lv-month-bg); color: var(--lv-month-fg); }
+.chip--week  { background: var(--lv-week-bg);  color: var(--lv-week-fg); }
+.chip--solo  { background: var(--lv-solo-bg);  color: var(--lv-solo-fg); }
+[data-theme="pastel"] .chip { gap: 5px; padding: 4px 10px; font-size: 12.5px; }
+
+/* ── 진행 막대 ────────────────────────────────────── */
+.progress-row { display: flex; align-items: center; gap: 10px; }
+.bar {
+  flex-grow: 1; height: 8px;
+  background: var(--bar-track);
+  border-radius: var(--radius-pill); overflow: hidden;
+}
+.bar-fill {
+  height: 100%; border-radius: var(--radius-pill);
+  background-image: repeating-linear-gradient(45deg, var(--bar-stripe) 0 6px, transparent 6px 12px);
+}
+.bar--year  .bar-fill { background-color: var(--lv-year-bar); }
+.bar--month .bar-fill { background-color: var(--lv-month-bar); }
+.bar--week  .bar-fill { background-color: var(--lv-week-bar); }
+.pct { min-width: 36px; text-align: right; font-size: 13px; font-weight: var(--fw-bold); }
+[data-theme="pastel"] .bar { height: 16px; border: 2px solid var(--bar-track-border); }
+[data-theme="pastel"] .pct { font-family: var(--font-num); font-size: 14px; }
+
+/* ── 진행 링 ─────────────────────────────────────── */
+/* 모양은 테마와 상관없이 48 좌표 안에서 그리고, 크기와 굵기만 테마가 바꿉니다. */
+.ring {
+  --ring-sw: 5;
+  position: relative; flex-shrink: 0;
+  width: 48px; height: 48px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ring circle { fill: none; stroke-width: var(--ring-sw); }
+.ring-fill { stroke-linecap: round; }
+.ring--year  { --ring-c: var(--ring-year);  --ring-t: var(--ring-track-year); }
+.ring--month { --ring-c: var(--ring-month); --ring-t: var(--ring-track-month); }
+.ring--week  { --ring-c: var(--ring-week);  --ring-t: var(--ring-track-week); }
+.ring-track { stroke: var(--ring-t); }
+.ring-fill { stroke: var(--ring-c); }
+.ring-num { position: relative; font-size: 12px; font-weight: var(--fw-bold); }
+.ring.is-done { --ring-sw: 6.5; }   /* 100% 는 굵은 링 */
+.ring.is-done .ring-num { font-size: 11px; letter-spacing: -.02em; }   /* 세 자리 숫자가 링 안에 들어가도록 */
+[data-theme="clean"] .ring { width: 44px; height: 44px; --ring-sw: 5.45; }
+[data-theme="clean"] .ring.is-done { --ring-sw: 7; }
+[data-theme="clean"] .ring.is-done .ring-num { font-size: 10px; }
+[data-theme="pastel"] .ring { --ring-sw: 6; }
+[data-theme="pastel"] .ring.is-done { --ring-sw: 7.5; }
+
+/* ── 할 일 카드 ──────────────────────────────────── */
+.task-card {
+  position: relative;
+  display: flex; flex-direction: column; gap: 10px;
+  padding: var(--card-pad);
+  background: var(--surface);
+  border: var(--card-bw) solid var(--border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-card);
+}
+.card-head { display: flex; align-items: flex-start; gap: 6px; }
+.grip { display: flex; margin-top: 2px; color: var(--grip); }
+.card-title {
+  flex-grow: 1; min-width: 0;
+  font-family: var(--font-display); font-size: 14.5px; font-weight: var(--fw-strong); line-height: 1.4;
+}
+.card-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.card-foot { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12.5px; }
+.card-date { display: flex; align-items: center; gap: 6px; }
+.card-actions { display: flex; gap: 2px; }
+.task-card[data-status="done"] .card-title { color: var(--muted); text-decoration: line-through; }
+.task-card[data-status="done"] .card-date { color: var(--st-done); }
+
+[data-theme="pastel"] .task-card { gap: 10px; }
+[data-theme="pastel"] .grip { display: none; }
+[data-theme="pastel"] .card-title { font-size: 17px; line-height: 1.35; }
+[data-theme="pastel"] .card-foot { font-size: 13px; }
+[data-theme="pastel"] .card-actions .icon-btn { width: 30px; height: 30px; border-radius: 999px; }
+/* 마스킹테이프: 파스텔에서만, 새 DOM 없이 ::before 로 그립니다. */
+[data-theme="pastel"] .task-card::before {
+  content: ""; position: absolute; left: 22px; top: -10px;
+  width: 48px; height: 16px; border-radius: 3px; opacity: .9;
+  background: var(--tape); transform: rotate(-4deg);
+}
+[data-theme="pastel"] .task-card[data-status="todo"]  { --tape: var(--tape-todo); }
+[data-theme="pastel"] .task-card[data-status="doing"] { --tape: var(--tape-doing); }
+[data-theme="pastel"] .task-card[data-status="done"]  { --tape: var(--tape-done); }
+
+/* ── 칸반 열 ─────────────────────────────────────── */
+.column {
+  display: flex; flex-direction: column; gap: 12px;
+  min-width: 0; padding: 12px;
+  background: var(--column);
+  border: var(--column-bw) solid var(--column-border);
+  border-radius: var(--column-radius);
+}
+.column[data-status="todo"]  { --column: var(--column-todo);  --column-border: var(--column-border-todo);  --st: var(--st-todo);  --count-bg: var(--count-bg-todo);  --count-fg: var(--count-fg-todo); }
+.column[data-status="doing"] { --column: var(--column-doing); --column-border: var(--column-border-doing); --st: var(--st-doing); --count-bg: var(--count-bg-doing); --count-fg: var(--count-fg-doing); }
+.column[data-status="done"]  { --column: var(--column-done);  --column-border: var(--column-border-done);  --st: var(--st-done);  --count-bg: var(--count-bg-done);  --count-fg: var(--count-fg-done); }
+
+.column-head { display: flex; align-items: center; gap: 8px; padding: 2px 4px 0; }
+.column-status { display: flex; color: var(--st); }
+.column-name { font-family: var(--font-display); font-size: 14px; font-weight: var(--fw-strong); }
+.count {
+  display: flex; align-items: center; justify-content: center;
+  min-width: 22px; height: 22px; padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: var(--count-bg); color: var(--count-fg);
+  font-family: var(--font-num); font-size: 12px; font-weight: var(--fw-bold);
+}
+.column-spacer { flex-grow: 1; }
+.column-add { color: var(--muted); }
+
+[data-theme="pastel"] .column { gap: 14px; padding: 16px; }
+[data-theme="pastel"] .column-head { gap: 10px; padding: 0; }
+[data-theme="pastel"] .column-status {
+  align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 999px; background: var(--surface);
+}
+[data-theme="pastel"] .column-name { font-size: 20px; }
+[data-theme="pastel"] .count { width: 26px; height: 26px; font-size: 14px; }
+[data-theme="pastel"] .column-spacer, [data-theme="pastel"] .column-add { display: none; }
+/* 마스킹테이프가 위로 튀어나오므로 첫 카드 위쪽에 여유를 둡니다. */
+[data-theme="pastel"] .column .task-card { margin-top: 8px; }
+
+/* ── 점선 추가 슬롯 ──────────────────────────────── */
+.add-slot {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; height: 44px;
+  border: 1.5px dashed var(--slot-border); border-radius: var(--card-radius);
+  background: var(--slot-bg); color: var(--slot-fg);
+  font-family: var(--font-display); font-size: 13px; font-weight: var(--fw-strong);
+}
+[data-theme="pastel"] .add-slot { height: 56px; margin-top: 8px; border-width: 2px; font-size: 16px; }
+
+/* ── 빈 상태 ─────────────────────────────────────── */
+.empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  padding: 48px 16px; text-align: center; color: var(--muted);
+}
+.empty-ic {
+  display: flex; align-items: center; justify-content: center;
+  width: 56px; height: 56px; border-radius: 999px;
+  background: var(--column-todo); color: var(--muted);
+}
+.empty-text { font-size: 14px; }
+.empty-title { color: var(--text); font-family: var(--font-display); font-size: 16px; font-weight: var(--fw-strong); }
+
+/* ── 토스트 ──────────────────────────────────────── */
+.toast-host {
+  position: fixed; left: 50%; bottom: 24px; z-index: 100;
+  display: flex; flex-direction: column; gap: 8px; align-items: center;
+  transform: translateX(-50%); pointer-events: none;
+}
+.toast {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 18px; border-radius: var(--btn-radius);
+  background: var(--text); color: var(--bg);
+  box-shadow: var(--shadow-drag);
+  font-size: 14px;
+}

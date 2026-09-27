@@ -113,3 +113,99 @@
 /* 접근성 */
 :focus-visible { outline: none; box-shadow: var(--focus-ring); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* ══════════════════════════════════════════════════════════════════════
+ * Phase 1 보충 토큰 — 원본 블록에 없던 값을 시안(mockups/*.html)에서 추출해 추가했습니다.
+ * 컴포넌트 CSS 에는 색 값을 직접 쓰지 않으므로, 컴포넌트가 필요로 하는 색은 모두 여기에 둡니다.
+ * (원본과 다른 값은 시안이 기준이라는 규칙에 따라 시안 값으로 덮어썼습니다.)
+ * ══════════════════════════════════════════════════════════════════════ */
+
+/* 클린 */
+:root, :root[data-theme="clean"] {
+  --fw-strong: 600; --fw-bold: 700;
+  --ink-2: #3A4252;
+  --card-radius: 12px; --card-bw: 1px; --card-pad: 14px;
+  --column-radius: 16px; --column-bw: 0px;
+  --column-todo: var(--column); --column-doing: var(--column); --column-done: var(--column);
+  --column-border-todo: transparent; --column-border-doing: transparent; --column-border-done: transparent;
+  --count-bg-todo: #E1E4EA; --count-fg-todo: #3A4252;
+  --count-bg-doing: #DCE6FB; --count-fg-doing: #1B47B8;
+  --count-bg-done: #D9F0E4; --count-fg-done: #17794C;
+  --icon-btn-fg: #7A8394;
+  --btn-bg: #FFFFFF; --btn-border: #E1E4EA; --btn-fg: #4B5565; --btn-radius: 10px; --btn-h: 44px;
+  --seg-bg: #E9ECF1; --seg-border: transparent;
+  --seg-on-bg: #FFFFFF; --seg-on-bg-view: #FFFFFF; --seg-on-fg: #1B1F29; --seg-off-fg: #4B5565;
+  --seg-on-shadow: 0 1px 2px rgba(16,24,40,.12);
+  --panel-bg: #FFFFFF; --panel-border: #E6E8EC; --topbar-border: transparent;
+  --bar-track: #ECEEF2; --bar-track-border: transparent; --bar-stripe: transparent;
+  --ring-year: #4F46E5; --ring-month: #0F8A7A; --ring-week: #C26A0B;
+  --ring-track-year: #D9DCF7; --ring-track-month: #C5E5DF; --ring-track-week: #FAE9CF;
+  --slot-border: #9AA3B2; --slot-fg: #3A4252; --slot-bg: transparent;
+  --solo-bg: transparent; --solo-border: transparent; --solo-fg: #3A4252;
+  --logo-bg: #2557D6; --logo-fg: #FFFFFF;
+  --avatar-bg: #ECEEF2; --avatar-fg: #4B5565;
+  --tape-todo: transparent; --tape-doing: transparent; --tape-done: transparent;
+  --danger: #B3261E;
+}
+
+/* 나이트 */
+:root[data-theme="night"] {
+  --fw-strong: 700; --fw-bold: 700;
+  --ink-2: #C5CEE0;
+  --card-radius: 12px; --card-bw: 1px; --card-pad: 14px;
+  --column-radius: 16px; --column-bw: 1px;
+  --column-todo: var(--column); --column-doing: var(--column); --column-done: var(--column);
+  --column-border-todo: #232B3B; --column-border-doing: #232B3B; --column-border-done: #232B3B;
+  --count-bg-todo: #232B3B; --count-fg-todo: #C5CEE0;
+  --count-bg-doing: #3A2419; --count-fg-doing: #FFB79F;
+  --count-bg-done: #17402E; --count-fg-done: #8CF0B4;
+  --icon-btn-fg: #8E9AB3;
+  --btn-bg: #161B26; --btn-border: #232B3B; --btn-fg: #C5CEE0; --btn-radius: 12px; --btn-h: 44px;
+  --seg-bg: #161B26; --seg-border: #232B3B;
+  --seg-on-bg: #28324A; --seg-on-bg-view: #28324A; --seg-on-fg: #FFFFFF; --seg-off-fg: #9CA8BF;
+  --seg-on-shadow: none;
+  --panel-bg: #0F131C; --panel-border: #1F2635; --topbar-border: #1F2635;
+  --bar-track: #2A3345; --bar-track-border: transparent; --bar-stripe: transparent;
+  --ring-year: #B7A4FF; --ring-month: #5CD6E8; --ring-week: #FFC46B;
+  --ring-track-year: #2E2A52; --ring-track-month: #1F3D45; --ring-track-week: #4A3B1E;
+  --slot-border: #5E6A82; --slot-fg: #C5CEE0; --slot-bg: transparent;
+  --solo-bg: transparent; --solo-border: #3A455C; --solo-fg: #C5CEE0;
+  --logo-bg: linear-gradient(135deg, #B7A4FF, #5CD6E8); --logo-fg: #0D1017;
+  --avatar-bg: #1B2233; --avatar-fg: #C5CEE0;
+  --grip: #6B778F;                       /* 시안 값(장식용) */
+  --lv-solo-bg: #232B3B; --lv-solo-fg: #C5CEE0;   /* 카드 위 '독립' 칩 시안 값 */
+  --glow: rgba(183,164,255,.10);
+  --tape-todo: transparent; --tape-doing: transparent; --tape-done: transparent;
+  --danger: #FF8A80;
+}
+
+/* 파스텔 */
+:root[data-theme="pastel"] {
+  --fw-strong: 400; --fw-bold: 400;      /* Jua·Gowun Dodum 은 굵은 글꼴이 없어 굵기를 지정하지 않음 */
+  --ink-2: #4B3B3B;
+  --st-todo: #B04A6D; --st-doing: #2F6DA8; --st-done: #1F7A4D;   /* 원본 블록에서 빠져 있던 값(DESIGN.md 2-1) */
+  --card-radius: 20px; --card-bw: 2px; --card-pad: 16px;
+  --shadow-card: 0 4px 0 #EED9C8;        /* 시안 값 */
+  --column-radius: 26px; --column-bw: 2px;
+  --column-border-todo: #F7CFDD; --column-border-doing: #C4DFF7; --column-border-done: #C2E8D1;
+  --count-bg-todo: #FFFFFF; --count-fg-todo: #B04A6D;
+  --count-bg-doing: #FFFFFF; --count-fg-doing: #2F6DA8;
+  --count-bg-done: #FFFFFF; --count-fg-done: #1F7A4D;
+  --icon-btn-fg: #8A7373;
+  --btn-bg: #FFFFFF; --btn-border: #EBD9C8; --btn-fg: #4B3B3B; --btn-radius: 999px; --btn-h: 48px;
+  --seg-bg: #FFFFFF; --seg-border: #EBD9C8;
+  --seg-on-bg: #FFE9A8; --seg-on-bg-view: #DCD3FF; --seg-on-fg: #4B3B3B; --seg-off-fg: #4B3B3B;
+  --seg-on-shadow: 0 3px 0 #4B3B3B;
+  --panel-bg: transparent; --panel-border: transparent; --topbar-border: transparent;
+  --bar-track: #FFFFFF; --bar-track-border: #CFC3FA; --bar-stripe: rgba(255,255,255,.35);
+  --ring-year: #8B7BE0; --ring-month: #3DBE94; --ring-week: #F2985F;
+  --ring-track-year: #FFFFFF; --ring-track-month: #FFFFFF; --ring-track-week: #FFFFFF;
+  --slot-border: #E9A9BF; --slot-fg: #A23F62; --slot-bg: rgba(255,255,255,.55);
+  --solo-bg: #FFF3BF; --solo-border: #E8CF6B; --solo-fg: #6E5300;
+  --logo-bg: #DCD3FF; --logo-fg: #4B3B3B;
+  --avatar-bg: #FFFFFF; --avatar-fg: #4B3B3B;
+  --tape-todo: #FFB8CF; --tape-doing: #A9D6FA; --tape-done: #A9E3C0;
+  --dot: #F4E0CB; --blob-pink: #FFE1EA; --blob-blue: #DDF0FF;
+  --panel-w: 312px;                      /* 시안 값(원본 248px 은 시안과 다름). 링크 뷰의 0px 규칙이 더 우선함 */
+  --danger: #B83A4B;
+}
