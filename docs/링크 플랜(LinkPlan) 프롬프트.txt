@@ -27,7 +27,35 @@
 ### P1 - 추가 기능
 
 
-----------
+2. App Intro
+  - [한글] 오늘의 할 일을 주간·월간·연간 목표와 연결해 관리하는 할 일 앱이에요. 할 일을 끝낼 때마다 연결된 목표의 진행률이 저절로 올라가서, 지금 하는 일이 큰 목표에 얼마나 다가섰는지 바로 보여요. 목표랑 상관없는 잡다한 일은 연결하지 않고 그냥 편하게 적어둘 수도 있어요.
+
+  - [영어] A to-do app that links your daily tasks to weekly, monthly, and yearly goals. Finish a task, and the progress bar for its goal updates itself — so you always see how today's work moves you closer to the big picture. Got a random errand with nothing to do with your goals? Just add it as-is, no linking required.
+
+
+3. 
+
+
+4. 
+
+
+5. 
+
+
+6. 
+
+
+7. 
+
+
+8. 
+
+
+9. 
+
+
+10. 
+
 
 
 
