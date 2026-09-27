@@ -46,6 +46,52 @@ export function progressBar(pct, level, label, showPct = true) {
   </div>`;
 }
 
+// ── 모달 공통(할 일·계획·비밀번호·관리자 확인 모달이 함께 씁니다) ──
+// .modal-backdrop 은 css/auth.css 에 있습니다. Esc 닫기·바깥 클릭 닫기·포커스 가두기(Tab 순환)를
+// 여기서 한 번만 구현해 어느 모달에서 열어도 같은 접근성 동작을 보장합니다(DESIGN.md 8절).
+let activeModal = null;
+
+function trapFocus(container) {
+  function onKeydown(e) {
+    if (e.key !== 'Tab') return;
+    const items = [...container.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )].filter((el) => el.offsetParent !== null);
+    if (!items.length) return;
+    const first = items[0], last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+  container.addEventListener('keydown', onKeydown);
+  return () => container.removeEventListener('keydown', onKeydown);
+}
+
+export function closeModal() {
+  if (!activeModal) return;
+  const { back, onKeydown, untrap } = activeModal;
+  back.remove();
+  document.removeEventListener('keydown', onKeydown);
+  untrap();
+  activeModal = null;
+}
+
+// html: 모달 카드 전체(.modal-card 또는 .auth-card 를 포함한 문자열). focusSelector 가 없으면
+// 모달 안의 첫 입력·버튼에 포커스를 둡니다.
+export function openModal(html, focusSelector) {
+  closeModal();
+  const back = document.createElement('div');
+  back.className = 'modal-backdrop';
+  back.innerHTML = html;
+  document.body.appendChild(back);
+  back.addEventListener('click', (e) => { if (e.target === back) closeModal(); });
+  const onKeydown = (e) => { if (e.key === 'Escape') closeModal(); };
+  document.addEventListener('keydown', onKeydown);
+  const untrap = trapFocus(back);
+  activeModal = { back, onKeydown, untrap };
+  (focusSelector ? back.querySelector(focusSelector) : back.querySelector('input, textarea, button'))?.focus();
+  return back;
+}
+
 // 토스트: 하단 중앙, 3초 뒤 사라집니다. 알림 영역(role="status")은 처음 한 번만 만듭니다.
 export function showToast(message) {
   let host = document.querySelector('.toast-host');

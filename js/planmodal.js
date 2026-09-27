@@ -2,7 +2,7 @@
 // 상위 계획 규칙(단계 건너뜀 금지·순환 금지)은 layout.js 의 checkPlanParent 로 먼저 걸러 토스트로 보여 주고,
 // 최종 기준은 서버 트리거(check_plan_parent, 01_schema.sql)입니다.
 import { icon } from './icons.js';
-import { esc, showToast } from './ui.js';
+import { esc, showToast, openModal, closeModal } from './ui.js';
 import { getState, createPlan, updatePlan, deletePlan } from './state.js';
 import { checkPlanParent } from './layout.js';
 import { defaultPeriodFor } from './period.js';
@@ -10,25 +10,7 @@ import { defaultPeriodFor } from './period.js';
 const TYPE_LABEL = { yearly: '연간 목표', monthly: '월간 계획', weekly: '주간 계획' };
 const PARENT_TYPE = { weekly: 'monthly', monthly: 'yearly' };
 
-let onCloseKeydown = null;
-
-function closeModal() {
-  document.querySelector('.modal-backdrop')?.remove();
-  if (onCloseKeydown) { document.removeEventListener('keydown', onCloseKeydown); onCloseKeydown = null; }
-}
-
-function mountModal(html, focusSelector) {
-  closeModal();
-  const back = document.createElement('div');
-  back.className = 'modal-backdrop';
-  back.innerHTML = html;
-  document.body.appendChild(back);
-  back.addEventListener('click', (e) => { if (e.target === back) closeModal(); });
-  onCloseKeydown = (e) => { if (e.key === 'Escape') closeModal(); };
-  document.addEventListener('keydown', onCloseKeydown);
-  back.querySelector(focusSelector)?.focus();
-  return back;
-}
+const mountModal = openModal;
 
 function parentField(planType, plans, currentParentId) {
   const parentType = PARENT_TYPE[planType];

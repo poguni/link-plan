@@ -92,6 +92,7 @@ function goalCard(year, s) {
 }
 
 function renderGoals(s) {
+  if (!s.ready) { els.goalList.innerHTML = ''; els.soloCount.textContent = ''; return; }
   const years = s.plans.filter((p) => p.plan_type === 'yearly');
   els.goalList.innerHTML = years.length
     ? years.map((y) => goalCard(y, s)).join('')
@@ -104,6 +105,7 @@ function renderGoals(s) {
 // ── 연결 사슬(클린·나이트): 선택한 기간의 주간 → 월간 → 연간 ─
 // 기간이 "연간"이면 목표 패널의 연간 카드 하나로 충분해 사슬은 비웁니다. "월간"이면 주간을 뺀 월→연만 보여 줍니다.
 function renderChain(s) {
+  if (!s.ready) { els.chain.innerHTML = ''; return; }
   const period = getPeriod();
   if (period === 'year') { els.chain.innerHTML = ''; return; }
 
@@ -237,8 +239,21 @@ function initDrag() {
   });
 }
 
+// 데이터를 아직 못 불러왔으면(loadState 진행 중) 카드 모양 스켈레톤을 보여 줍니다(DESIGN.md 7절).
+function skeletonColumnHtml(status) {
+  const { icon: iconId, label } = STATUSES[status];
+  return `<section class="column" data-status="${status}" aria-label="${label} 불러오는 중">
+    <div class="column-head"><span class="column-status">${icon(iconId, 18)}</span><span class="column-name">${label}</span></div>
+    <div class="column-list"><div class="skeleton-card" aria-hidden="true"></div><div class="skeleton-card" aria-hidden="true"></div></div>
+  </section>`;
+}
+
 function renderColumns(s) {
   closeStatusMenu();
+  if (!s.ready) {
+    els.board.innerHTML = STATUS_KEYS.map((st) => skeletonColumnHtml(st)).join('');
+    return;
+  }
   const tasks = visibleTasks(s);
   els.board.innerHTML = STATUS_KEYS.map((st) => columnHtml(st, tasks.filter((t) => t.status === st), s)).join('');
   initDrag();
@@ -251,6 +266,7 @@ function renderColumns(s) {
 // ── 파스텔 응원 배너 ────────────────────────────────
 // 샘플 데이터에는 완료 시각이 없어서, 요일별 체크는 완료된 할 일의 수행일로 대신합니다(Phase 6 에서 완료 시각을 씁니다).
 function renderBanner(s) {
+  if (!s.ready) { els.banner.innerHTML = ''; return; }
   const total = s.tasks.length;
   const done = s.tasks.filter((t) => t.status === 'done').length;
   const title = total === 0 ? '이번 주 할 일을 만들어 볼까요?'
@@ -378,6 +394,15 @@ function render(s) {
   updatePeriodDisplay({ long, short, title: titleOf(period) });
 }
 
+// 600px 미만 전용 상태 탭(시작 전/진행 중/완료 한 열씩, DESIGN.md 9절). 탭 자체는 데이터와 무관해
+// 한 번만 그리고, 선택 상태만 클릭 때마다 갱신합니다(열 전환은 순수 CSS 속성 선택자로 처리, view-board.css).
+function renderStatusTabs(current) {
+  els.statusTabs.innerHTML = STATUS_KEYS.map((st) => {
+    const { icon: iconId, label } = STATUSES[st];
+    return `<button type="button" class="status-tab" data-status-tab="${st}" role="tab" aria-selected="${st === current}">${icon(iconId, 16)}<span>${label}</span></button>`;
+  }).join('');
+}
+
 export function mountBoard() {
   els = {
     goalList: document.getElementById('goal-list'),
@@ -386,7 +411,9 @@ export function mountBoard() {
     chain: document.getElementById('chain'),
     board: document.getElementById('board'),
     banner: document.getElementById('banner'),
+    statusTabs: document.getElementById('status-tabs'),
   };
+  renderStatusTabs(document.documentElement.dataset.mobileStatus || 'todo');
 
   document.addEventListener('click', (e) => {
     const planBtn = e.target.closest('[data-filter-plan]');
@@ -398,6 +425,13 @@ export function mountBoard() {
     if (taskEdit) return openTaskModal(getState().tasks.find((t) => t.id === taskEdit.dataset.taskEdit));
     const taskDelete = e.target.closest('[data-task-delete]');
     if (taskDelete) { const t = getState().tasks.find((x) => x.id === taskDelete.dataset.taskDelete); if (t) confirmDeleteTask(t); return; }
+
+    const statusTab = e.target.closest('[data-status-tab]');
+    if (statusTab) {
+      document.documentElement.dataset.mobileStatus = statusTab.dataset.statusTab;
+      els.statusTabs.querySelectorAll('[data-status-tab]').forEach((b) => b.setAttribute('aria-selected', String(b === statusTab)));
+      return;
+    }
 
     if (e.target.closest('[data-plan-add-year]')) return openPlanModal(null, { planType: 'yearly', anchor: getAnchor() });
     const planEdit = e.target.closest('[data-plan-edit]');

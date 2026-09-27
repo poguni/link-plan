@@ -115,6 +115,17 @@
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
 /* ══════════════════════════════════════════════════════════════════════
+ * Phase 8 반응형 폭 구간 — DESIGN.md 9절(시안 밖 규칙). 클린의 사이드바·나이트·파스텔의
+ * 좌측 패널은 좁아지면 기능(계획 필터)을 잃지 않도록 "완전 아이콘 레일"이 아니라 좁은 폭으로
+ * 줄입니다. 링크 뷰(전용 그래프가 있어 패널이 없어도 되는) 만 기존처럼 72px 레일/숨김을 유지합니다.
+ * ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 1199px) {
+  :root { --sidebar-w: 180px; --node-w: 200px; --node-pitch: 280px; }
+  :root[data-theme="night"]:not([data-view="link"]),
+  :root[data-theme="pastel"]:not([data-view="link"]) { --panel-w: 180px; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
  * Phase 1 보충 토큰 — 원본 블록에 없던 값을 시안(mockups/*.html)에서 추출해 추가했습니다.
  * 컴포넌트 CSS 에는 색 값을 직접 쓰지 않으므로, 컴포넌트가 필요로 하는 색은 모두 여기에 둡니다.
  * (원본과 다른 값은 시안이 기준이라는 규칙에 따라 시안 값으로 덮어썼습니다.)
@@ -146,6 +157,8 @@
   --avatar-bg: #ECEEF2; --avatar-fg: #4B5565;
   --tape-todo: transparent; --tape-doing: transparent; --tape-done: transparent;
   --danger: #B3261E;
+  --shadow-card-hover: 0 3px 8px rgba(20,28,45,.10), 0 2px 4px rgba(20,28,45,.06);
+  --shadow-card-active: 0 1px 1px rgba(20,28,45,.05);
 }
 
 /* 나이트 */
@@ -177,6 +190,8 @@
   --glow: rgba(183,164,255,.10);
   --tape-todo: transparent; --tape-doing: transparent; --tape-done: transparent;
   --danger: #FF8A80;
+  --shadow-card-hover: none;   /* night 는 그림자 대신 배경(--surface-2)을 씀 */
+  --shadow-card-active: none;
 }
 
 /* 파스텔 */
@@ -208,6 +223,8 @@
   --dot: #F4E0CB; --blob-pink: #FFE1EA; --blob-blue: #DDF0FF;
   --panel-w: 312px;                      /* 시안 값(원본 248px 은 시안과 다름). 링크 뷰의 0px 규칙이 더 우선함 */
   --danger: #B83A4B;
+  --shadow-card-hover: 0 6px 0 #EED9C8;
+  --shadow-card-active: 0 2px 0 #EED9C8;
 }
 
 /* ══════════════════════════════════════════════════════════════════════

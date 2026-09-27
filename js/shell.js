@@ -75,6 +75,7 @@ export function renderShell(app) {
   app.innerHTML = `<div class="shell">
     <header class="topbar">
       ${brand(`<div class="brand-tagline">${icon('sparkles', 14)}<span>오늘도 한 칸씩, 차근차근 이어가요</span></div>`)}
+      <button type="button" class="icon-btn icon-btn--box menu-btn" id="menu-btn" aria-label="메뉴 열기" aria-expanded="false" aria-controls="goal-panel">${icon('menu', 20)}</button>
       ${viewSeg()}
       <div class="topbar-right">
         ${periodSeg()}
@@ -84,13 +85,18 @@ export function renderShell(app) {
       </div>
     </header>
 
-    <aside class="goal-panel" aria-label="목표 패널">
+    <aside class="goal-panel" id="goal-panel" aria-label="목표 패널">
       <div class="side-brand">${brand()}</div>
+      <button type="button" class="icon-btn drawer-close" id="drawer-close" aria-label="메뉴 닫기">${icon('x', 20)}</button>
       <nav class="side-nav" aria-label="뷰">
         <div class="side-label">뷰</div>
         ${navItem('board', 'dashboard', '보드 뷰')}
         ${navItem('link', 'link', '링크 뷰')}
       </nav>
+      <div class="mobile-controls" aria-label="기간 전환">
+        ${periodSeg()}
+        ${periodNav()}
+      </div>
       <section class="goal-section" aria-label="연간 목표">
         <div class="goal-heading" title="연간 목표">
           ${icon('flag', 14, 'gh-flag')}${icon('sprout', 20, 'gh-sprout')}<span class="gh-text">연간 목표</span>
@@ -125,6 +131,7 @@ export function renderShell(app) {
       </div>
       <section class="chain only-board" id="chain" aria-label="이번 주 계획이 이어지는 목표"></section>
       <section class="content" aria-label="본문">
+        <div class="status-tabs only-board" id="status-tabs" role="tablist" aria-label="상태"></div>
         <div class="board only-board" id="board"></div>
         <div class="linkview only-link" id="linkview">
           <div class="link-graph" id="link-graph">
@@ -225,11 +232,43 @@ function openUserMenu(anchor) {
   userMenu = { menu, anchor, onOutside };
 }
 
+// ── 600px 미만: 목표 패널이 햄버거로 여는 드로어가 됩니다(DESIGN.md 9절) ──
+// 닫혀 있을 때는 transform 으로 화면 밖에 둘 뿐이라 그대로 두면 키보드 포커스·스크린 리더가
+// 여전히 닿습니다. inert 로 닫힌 드로어를 완전히 비활성화합니다(DESIGN.md 8절 접근성).
+const mobileMQ = window.matchMedia('(max-width: 599px)');
+function syncPanelInert() {
+  const panel = document.getElementById('goal-panel');
+  if (!panel) return;
+  panel.toggleAttribute('inert', mobileMQ.matches && !root.classList.contains('is-menu-open'));
+}
+mobileMQ.addEventListener('change', syncPanelInert);
+
+function closeMenu() {
+  root.classList.remove('is-menu-open');
+  document.getElementById('menu-btn')?.setAttribute('aria-expanded', 'false');
+  document.getElementById('menu-backdrop')?.remove();
+  syncPanelInert();
+}
+function openMenu() {
+  root.classList.add('is-menu-open');
+  document.getElementById('menu-btn')?.setAttribute('aria-expanded', 'true');
+  const backdrop = document.createElement('div');
+  backdrop.id = 'menu-backdrop';
+  backdrop.className = 'menu-backdrop';
+  backdrop.addEventListener('click', closeMenu);
+  // .shell 이 자체 쌓임 맥락(position:relative + z-index)을 만들어서, body에 바로 붙이면
+  // .goal-panel(z-index:150) 보다 이 배경이 위로 뜹니다. .shell 안에 넣어 같은 맥락에서 비교되게 합니다.
+  document.querySelector('.shell').appendChild(backdrop);
+  syncPanelInert();
+}
+
 export function bindShell() {
   root.dataset.period = root.dataset.period || 'week';
+  root.dataset.mobileStatus = root.dataset.mobileStatus || 'todo';
+  syncPanelInert();
   document.addEventListener('click', (e) => {
     const viewBtn = e.target.closest('[data-view-btn]');
-    if (viewBtn && !viewBtn.disabled) { setView(viewBtn.dataset.viewBtn); persistSettings(); return; }
+    if (viewBtn && !viewBtn.disabled) { setView(viewBtn.dataset.viewBtn); persistSettings(); closeMenu(); return; }
     const periodBtn = e.target.closest('[data-period-btn]');
     if (periodBtn) {
       root.dataset.period = periodBtn.dataset.periodBtn;
@@ -244,8 +283,12 @@ export function bindShell() {
       return;
     }
     const userBtn = e.target.closest('#user-menu-btn');
-    if (userBtn) openUserMenu(userBtn);
+    if (userBtn) return openUserMenu(userBtn);
+    if (e.target.closest('#menu-btn')) return root.classList.contains('is-menu-open') ? closeMenu() : openMenu();
+    if (e.target.closest('#drawer-close')) return closeMenu();
+    if (e.target.closest('[data-filter-plan], [data-filter-solo]')) closeMenu();
   });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && root.classList.contains('is-menu-open')) closeMenu(); });
   document.addEventListener('linkplan:change', () => { syncPressed(); enforceLinkAvailability(); });
   window.addEventListener('resize', enforceLinkAvailability);
   syncPressed();

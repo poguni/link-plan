@@ -1,7 +1,7 @@
 // 인증 화면(로그인·가입·승인 대기·비밀번호 변경)과 화면 전환을 맡습니다(PRD P0-14~P0-17, 3-4, DESIGN.md 10절).
 // 승인 후에는 기존 셸(js/shell.js)·보드/링크 뷰를 그대로 불러와 앱을 보여 줍니다.
 import { icon } from './icons.js';
-import { showToast } from './ui.js';
+import { showToast, openModal, closeModal } from './ui.js';
 import {
   signIn, signUp, signOut, changePassword,
   getSession, onAuthChange, getProfile, mustChangePassword, passwordOk,
@@ -188,16 +188,10 @@ function renderForcedPasswordChange() {
 }
 
 // ── 「내 계정」 메뉴에서 여는 비밀번호 변경(모달, 앱은 그대로 유지) ──
-function closePasswordModal() {
-  document.querySelector('.modal-backdrop')?.remove();
-  document.removeEventListener('keydown', onModalKeydown);
-}
-function onModalKeydown(e) { if (e.key === 'Escape') closePasswordModal(); }
+const closePasswordModal = closeModal;
 
 function openPasswordModal() {
-  const back = document.createElement('div');
-  back.className = 'modal-backdrop';
-  back.innerHTML = `<div class="auth-card" role="dialog" aria-modal="true" aria-label="비밀번호 바꾸기">
+  const back = openModal(`<div class="auth-card" role="dialog" aria-modal="true" aria-label="비밀번호 바꾸기">
     <div class="auth-status-title">비밀번호 바꾸기</div>
     <form class="auth-form" id="modal-pw-form" novalidate>
       ${fieldHtml({ id: 'modal-new-password', label: '새 비밀번호', type: 'password', autocomplete: 'new-password', withRule: true })}
@@ -208,10 +202,7 @@ function openPasswordModal() {
         <button type="button" class="btn btn-ghost" id="modal-pw-cancel">취소</button>
       </div>
     </form>
-  </div>`;
-  document.body.appendChild(back);
-  back.addEventListener('click', (e) => { if (e.target === back) closePasswordModal(); });
-  document.addEventListener('keydown', onModalKeydown);
+  </div>`, '#modal-new-password');
   bindPwToggles(back);
   bindRuleLive('modal-new-password', back);
   back.querySelector('#modal-pw-cancel').addEventListener('click', closePasswordModal);
@@ -230,7 +221,6 @@ function openPasswordModal() {
       setError('modal-pw-error', err.message, back);
     }
   });
-  back.querySelector('#modal-new-password').focus();
 }
 
 // ── 앱(보드·링크 뷰) ─────────────────────────────
@@ -250,11 +240,12 @@ async function renderApp() {
     } catch (err) {
       console.error('설정을 불러오지 못했어요. 이전에 저장된 값으로 계속해요.', err);
     }
-    await loadState();
+    // 셸을 먼저 그려서(카드 스켈레톤 포함, DESIGN.md 7절) loadState() 가 끝나는 동안 빈 화면이 아니게 합니다.
     renderShell(root());
     bindShell();
     mountBoard();
     mountLink();
+    await loadState();
   }
   setUser({ email: session.user.email, isAdmin: Boolean(profile?.is_admin) });
 }
@@ -263,10 +254,17 @@ async function renderApp() {
 // signUp() 이 내부에서 바로 signOut() 하듯, 인증 이벤트가 연달아 일어나면 route() 도 겹쳐 불립니다.
 // 프로필 조회(네트워크)가 느린 낡은 호출이 나중에 끝나 최신 화면을 덮어쓰지 않도록 순번으로 막습니다.
 let routeSeq = 0;
+let explicitLogout = false;
 async function route(nextSession) {
   const mySeq = ++routeSeq;
+  const hadSession = Boolean(session);
   session = nextSession;
-  if (!session) { renderAuthCard(); return; }
+  if (!session) {
+    // 로그아웃 버튼이 아니라 세션 자체가(예: 토큰 갱신 실패로) 사라진 경우만 이유를 알려 줍니다.
+    if (hadSession && !explicitLogout) showToast('세션이 만료됐어요. 다시 로그인해 주세요.');
+    renderAuthCard();
+    return;
+  }
   let nextProfile;
   try {
     nextProfile = await getProfile(session.user.id);
@@ -283,6 +281,7 @@ async function route(nextSession) {
 
 export async function startAuthGate() {
   document.addEventListener('linkplan:logout', async () => {
+    explicitLogout = true;
     await signOut();
     // 셸·보드·링크 뷰가 document 에 걸어 둔 리스너를 깔끔히 정리하기 위해 새로고침합니다.
     window.location.reload();

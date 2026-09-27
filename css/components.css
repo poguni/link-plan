@@ -138,7 +138,15 @@
   border: var(--card-bw) solid var(--border);
   border-radius: var(--card-radius);
   box-shadow: var(--shadow-card);
+  transition: box-shadow var(--dur) var(--ease), translate var(--dur) var(--ease), background var(--dur) var(--ease);
 }
+/* ── hover·active(DESIGN.md 7절 상태 표) ─────────────── */
+.task-card:hover { box-shadow: var(--shadow-card-hover); }
+.task-card:active { box-shadow: var(--shadow-card-active); }
+[data-theme="night"] .task-card:hover { background: var(--surface-2); }
+[data-theme="night"] .task-card:active { background: color-mix(in srgb, var(--surface-2), white 8%); }
+[data-theme="pastel"] .task-card:hover { translate: 0 -2px; }
+[data-theme="pastel"] .task-card:active { translate: 0 2px; }
 .card-head { display: flex; align-items: flex-start; gap: 6px; }
 .grip { display: flex; margin-top: 2px; color: var(--grip); }
 .card-title {
@@ -226,6 +234,16 @@
 }
 .empty-text { font-size: 14px; }
 .empty-title { color: var(--text); font-family: var(--font-display); font-size: 16px; font-weight: var(--fw-strong); }
+
+/* ── 로딩 스켈레톤(DESIGN.md 7절: 카드 모양 회색 막대) ──── */
+.skeleton-card {
+  height: 84px; border-radius: var(--card-radius); border: var(--card-bw) solid var(--border);
+  background: linear-gradient(90deg, var(--column) 25%, var(--surface) 50%, var(--column) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .skeleton-card { animation: none; opacity: .7; } }
 
 /* ── 토스트 ──────────────────────────────────────── */
 .toast-host {

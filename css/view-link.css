@@ -22,9 +22,16 @@
   background: var(--surface); border: var(--card-bw) solid var(--border); border-radius: var(--card-radius);
   box-shadow: var(--node-shadow);
   pointer-events: auto;
+  transition: box-shadow var(--dur) var(--ease), translate var(--dur) var(--ease), background var(--dur) var(--ease);
 }
 .lnode:focus-visible { outline: none; box-shadow: var(--focus-ring); z-index: 2; }
 .lnode.is-link-target { box-shadow: 0 0 0 2px var(--primary); }
+/* hover·active(DESIGN.md 7절, task-card 와 같은 규칙) */
+.lnode:hover { box-shadow: var(--shadow-card-hover); }
+.lnode:active { box-shadow: var(--shadow-card-active); }
+[data-theme="night"] .lnode:hover { background: var(--surface-2); }
+[data-theme="pastel"] .lnode:hover { translate: 0 -2px; }
+[data-theme="pastel"] .lnode:active { translate: 0 2px; }
 
 /* 계획 노드(연간·월간·주간) */
 .lnode-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }

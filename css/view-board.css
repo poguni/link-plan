@@ -69,7 +69,7 @@
 .goal-edit, .pill-edit { flex-shrink: 0; color: var(--muted); }
 .chain-actions { margin-left: auto; display: flex; }
 .chain-item--empty { align-items: center; justify-content: center; }
-.goal-title { display: block; }
+.goal-title { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; min-width: 0; }
 .goal-pct { flex-shrink: 0; white-space: nowrap; }
 .goal-dot, .goal-ic, .goal-sub, .goal-bar, .goal-count, .goal-children { display: none; }
 .goal-text { flex-grow: 1; min-width: 0; }
@@ -157,3 +157,34 @@
 .dot.is-today { border: 2px dashed var(--text); }
 .dl { color: var(--solo-fg); font-size: 12px; }
 .dl.is-today { color: var(--text); font-weight: 700; }
+
+/* ══════════════════════════════════════════════════════════════════════
+ * Phase 8 반응형(DESIGN.md 9절) — 600~1023: 열 3개를 가로 스크롤 스냅.
+ * 600 미만: 상태 탭으로 한 열씩(링크 뷰는 이미 1024px 미만에서 꺼짐, view-link.css).
+ * ══════════════════════════════════════════════════════════════════════ */
+.status-tabs { display: none; }
+
+@media (min-width: 600px) and (max-width: 1023px) {
+  .board { overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 4px; }
+  .board .column { flex: 0 0 82%; scroll-snap-align: start; }
+}
+
+@media (max-width: 599px) {
+  [data-theme="pastel"] .banner { height: auto; flex-wrap: wrap; padding: 14px 16px; }
+  [data-theme="pastel"] .week-dots { flex-wrap: wrap; gap: 6px; }
+  [data-theme="pastel"] .dot { width: 24px; height: 24px; }
+  .chain-row { flex-wrap: wrap; gap: 10px; }
+  .chain-item, .chain-item--empty { flex: 1 1 100%; }
+  .status-tabs { display: flex; gap: 8px; padding: 2px 0 12px; }
+  .status-tab {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+    height: 40px; border: 1px solid var(--btn-border); border-radius: var(--btn-radius);
+    background: var(--btn-bg); color: var(--btn-fg); font-size: 13px; font-weight: var(--fw-strong);
+  }
+  .status-tab[aria-selected="true"] { background: var(--seg-on-bg); color: var(--seg-on-fg); box-shadow: var(--seg-on-shadow); }
+  .board { flex-direction: column; }
+  .board .column { display: none; }
+  :root[data-mobile-status="todo"] .board .column[data-status="todo"],
+  :root[data-mobile-status="doing"] .board .column[data-status="doing"],
+  :root[data-mobile-status="done"] .board .column[data-status="done"] { display: flex; }
+}

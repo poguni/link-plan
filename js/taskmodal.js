@@ -2,31 +2,13 @@
 // (마우스로 끌지 않아도 되는 키보드 대안, PRD P0-1 "저장 전에 연결 방식을 반드시 고릅니다"는 0개 이상 선택도 허용해
 // "독립 할 일"을 그대로 표현합니다).
 import { icon } from './icons.js';
-import { esc, chip, showToast } from './ui.js';
+import { esc, chip, showToast, openModal, closeModal } from './ui.js';
 import { getState, createTask, updateTask, updateTaskLinks, deleteTask } from './state.js';
 
 const LEVEL_OF = { yearly: 'year', monthly: 'month', weekly: 'week' };
 const LEVEL_RANK = { week: 0, month: 1, year: 2 };
 
-let onCloseKeydown = null;
-
-function closeModal() {
-  document.querySelector('.modal-backdrop')?.remove();
-  if (onCloseKeydown) { document.removeEventListener('keydown', onCloseKeydown); onCloseKeydown = null; }
-}
-
-function mountModal(html, focusSelector) {
-  closeModal();
-  const back = document.createElement('div');
-  back.className = 'modal-backdrop';
-  back.innerHTML = html;
-  document.body.appendChild(back);
-  back.addEventListener('click', (e) => { if (e.target === back) closeModal(); });
-  onCloseKeydown = (e) => { if (e.key === 'Escape') closeModal(); };
-  document.addEventListener('keydown', onCloseKeydown);
-  back.querySelector(focusSelector)?.focus();
-  return back;
-}
+const mountModal = openModal;
 
 function planCheckList(plans, linkedIds) {
   const sorted = [...plans].sort((a, b) => LEVEL_RANK[LEVEL_OF[a.plan_type]] - LEVEL_RANK[LEVEL_OF[b.plan_type]]);

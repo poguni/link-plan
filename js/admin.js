@@ -3,12 +3,13 @@
 import { SUPABASE_URL } from '../config.js';
 import { loadIcons, icon } from './icons.js';
 import { initTheme } from './theme.js';
-import { esc, showToast } from './ui.js';
+import { esc, showToast, openModal, closeModal } from './ui.js';
 import { supabase } from './api.js';
 import { getSession, getProfile } from './auth.js';
 
 const FN_URL = `${SUPABASE_URL}/functions/v1/admin-api`;
 const root = () => document.getElementById('admin-root');
+const mountModal = openModal;
 
 async function callAdmin(action, payload = {}) {
   const { data: { session } } = await supabase.auth.getSession();
@@ -42,24 +43,6 @@ function visibleUsers() {
 }
 
 // ── 모달(할 일·계획 모달과 같은 방식: .modal-backdrop, Esc·바깥 클릭으로 닫기) ──
-let onCloseKeydown = null;
-function closeModal() {
-  document.querySelector('.modal-backdrop')?.remove();
-  if (onCloseKeydown) { document.removeEventListener('keydown', onCloseKeydown); onCloseKeydown = null; }
-}
-function mountModal(html, focusSelector) {
-  closeModal();
-  const back = document.createElement('div');
-  back.className = 'modal-backdrop';
-  back.innerHTML = html;
-  document.body.appendChild(back);
-  back.addEventListener('click', (e) => { if (e.target === back) closeModal(); });
-  onCloseKeydown = (e) => { if (e.key === 'Escape') closeModal(); };
-  document.addEventListener('keydown', onCloseKeydown);
-  back.querySelector(focusSelector)?.focus();
-  return back;
-}
-
 // 대상 이메일을 다시 입력해야 활성화되는 위험 작업 확인 모달(DESIGN.md 10절: 삭제·데이터 삭제 공통).
 function confirmByEmail({ title, text, confirmLabel, email, onConfirm }) {
   const back = mountModal(`<div class="modal-card" role="alertdialog" aria-modal="true" aria-label="${esc(title)}">
