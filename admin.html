@@ -12,16 +12,17 @@
       if (t === 'clean' || t === 'night' || t === 'pastel') document.documentElement.dataset.theme = t;
     } catch (e) { /* 저장소를 못 쓰면 기본값(clean)을 씁니다. */ }
   </script>
-  <link rel="stylesheet" href="css/tokens.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/auth.css">
-  <link rel="stylesheet" href="css/admin.css">
+  <!-- ?v= 는 배포 때마다 올리는 캐시 무효화 값입니다(index.html과 맞춰 둡니다). -->
+  <link rel="stylesheet" href="css/tokens.css?v=9">
+  <link rel="stylesheet" href="css/base.css?v=9">
+  <link rel="stylesheet" href="css/components.css?v=9">
+  <link rel="stylesheet" href="css/auth.css?v=9">
+  <link rel="stylesheet" href="css/admin.css?v=9">
 </head>
 <body>
   <div id="admin-root"></div>
   <!-- Supabase 클라이언트(CDN). window.supabase.createClient 로 js/api.js 가 씁니다. -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="js/admin.js"></script>
+  <script type="module" src="js/admin.js?v=9"></script>
 </body>
 </html>

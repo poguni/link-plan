@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko" data-theme="clean">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>페이지를 찾을 수 없어요 · 링크 플랜</title>
+  <link rel="icon" href="data:,">
+  <script>
+    try {
+      var t = localStorage.getItem('linkplan_theme');
+      if (t === 'clean' || t === 'night' || t === 'pastel') document.documentElement.dataset.theme = t;
+    } catch (e) { /* 기본값(clean)을 씁니다. */ }
+  </script>
+  <link rel="stylesheet" href="css/tokens.css?v=9">
+  <link rel="stylesheet" href="css/base.css?v=9">
+  <link rel="stylesheet" href="css/components.css?v=9">
+  <link rel="stylesheet" href="css/auth.css?v=9">
+  <style>
+    /* 이 페이지 전용(다른 곳에서 재사용 안 함): 아이콘 스프라이트를 따로 불러오지 않고 인라인 SVG 하나만 씁니다. */
+    .nf-ic { width: 48px; height: 48px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="auth-shell">
+    <div class="auth-card" style="align-items:center; text-align:center;">
+      <svg class="nf-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5"/><path d="M12 17h.01"/>
+      </svg>
+      <div class="auth-status-title">페이지를 찾을 수 없어요</div>
+      <p class="auth-status-text">주소가 바뀌었거나 잘못 입력됐을 수 있어요.</p>
+      <a class="btn btn-primary" href="index.html" style="width:100%; justify-content:center;">앱으로 돌아가기</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,46 @@
+# GitHub Pages 배포. 빌드 도구는 쓰지 않습니다(번들·트랜스파일 없음) — 이 워크플로는 배포에
+# 필요 없는 폴더(docs/, design/, supabase/ 등)를 빼고 그대로 올리기만 합니다(CLAUDE.md 기술 스택 규칙 유지).
+#
+# docs/·design/ 을 빼는 이유: docs/ 에는 PRD·프롬프트 같은 내부 기획 문서가, design/ 에는 시안·검수용
+# 스크린샷이 들어 있어 공개 배포 대상이 아닙니다(Phase 9). 저장소 자체(git)에는 그대로 남아 있고,
+# 이 워크플로는 "배포되는 정적 사이트"에서만 뺍니다.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 배포용 폴더 구성(필요한 파일만)
+        run: |
+          mkdir -p site
+          cp index.html admin.html 404.html config.js site/
+          cp -r css js assets site/
+          # 배포 대상에서 빼는 것: docs/, design/, supabase/, dev.html(개발용), check-layout.mjs(검수용),
+          # README·문서류, .github/. site/ 안에는 절대 넣지 않습니다.
+          find site -name '*.map' -delete
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
