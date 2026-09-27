@@ -1,0 +1,115 @@
+/* 링크 플랜 디자인 토큰 — 기준 문서: DESIGN.md
+ * 사용법: <html data-theme="clean|night|pastel" data-view="board|link">
+ * 테마는 색·서체·모서리·그림자만, 뷰는 배치만 바꿉니다. 컴포넌트 CSS 에는 색 값을 직접 쓰지 말고 var(--...) 만 씁니다.
+ * 값은 6개 시안(mockups/*.html)에서 추출했고, 대비율은 DESIGN.md 의 접근성 절을 따릅니다.
+ */
+
+/* ── 공통(테마 무관) ─────────────────────────────── */
+:root {
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px;
+  --topbar-h: 64px;
+  --node-h-task: 56px; --node-h-week: 84px; --node-h-month: 84px; --node-h-year: 104px;
+  --ease: cubic-bezier(.2,.7,.2,1); --dur: 160ms;
+  --focus-ring: 0 0 0 3px var(--focus);
+}
+
+/* ── 클린 ────────────────────────────────────────── */
+:root, :root[data-theme="clean"] {
+  --font-body: 'IBM Plex Sans KR', system-ui, sans-serif;
+  --font-num: 'IBM Plex Sans KR', system-ui, sans-serif;
+  --font-display: 'IBM Plex Sans KR', system-ui, sans-serif;
+
+  --bg: #F6F7F9;  --surface: #FFFFFF;  --column: #EFF1F5;
+  --text: #1B1F29; --muted: #5B6474; --border: #E6E8EC;
+  --primary: #2557D6; --primary-soft: #EEF3FF; --primary-ink: #1B47B8; --on-primary: #FFFFFF;
+  --focus: rgba(37,87,214,.45);
+  --grip: #9AA3B2;                       /* 장식용(대비 3:1 미만 허용) */
+
+  --lv-year-bg: #EEF0FF;  --lv-year-fg: #3730A3;  --lv-year-bar: #4F46E5;
+  --lv-month-bg: #E6F4F1; --lv-month-fg: #0F5F55; --lv-month-bar: #0F8A7A;
+  --lv-week-bg: #FFF1E0;  --lv-week-fg: #8A4B08;  --lv-week-bar: #C26A0B;
+  --lv-solo-bg: #EFF1F5;  --lv-solo-fg: #4B5565;
+  --ring-track-week: #FAE9CF;            /* 링 주간 트랙: 링(#C26A0B)과 3.29:1 */
+
+  --st-todo: #6B7382; --st-doing: #2557D6; --st-done: #17794C;
+
+  --radius: 12px; --radius-lg: 12px; --radius-pill: 999px;
+  --shadow-card: 0 1px 2px rgba(20,28,45,.06), 0 1px 1px rgba(20,28,45,.04);
+  --shadow-drag: 0 14px 28px rgba(20,28,45,.18);
+  --sidebar-w: 232px; --rail-w: 72px;
+  --node-w: 224px; --node-pitch: 304px; --node-x0: 96px;
+  --link-line: #9AA7C7;
+}
+
+/* ── 나이트 ──────────────────────────────────────── */
+:root[data-theme="night"] {
+  --font-body: 'Noto Sans KR', system-ui, sans-serif;
+  --font-num: 'Space Grotesk', 'Noto Sans KR', sans-serif;
+  --font-display: 'Noto Sans KR', system-ui, sans-serif;
+
+  --bg: #0D1017;  --surface: #1B2233;  --column: #141926;
+  --text: #F1F4FA; --text-2: #C5CEE0; --muted: #9CA8BF; --muted-2: #8E9AB3; --border: #2C364B; --surface-2: #232B3B;
+  --primary: #F1F4FA; --primary-soft: #28324A; --primary-ink: #F1F4FA; --on-primary: #0D1017;
+  --focus: rgba(183,164,255,.6);
+  --grip: #9CA8BF;
+
+  --lv-year-bg: #2A2450;  --lv-year-fg: #CFC3FF;  --lv-year-bar: #B7A4FF;
+  --lv-month-bg: #12303A; --lv-month-fg: #8FE3F0; --lv-month-bar: #5CD6E8;
+  --lv-week-bg: #3A2C12;  --lv-week-fg: #FFD58F;  --lv-week-bar: #FFC46B;
+  --lv-solo-bg: #1B2233;  --lv-solo-fg: #9CA8BF;
+  --ring-track-week: #4A3B1E;
+  --lv-solo-info-bg: #22344F; --lv-solo-info-fg: #9CC4FF;
+
+  --st-todo: #8A95AB; --st-doing: #FF9F80; --st-done: #7BE0A0;
+
+  --radius: 14px; --radius-lg: 14px; --radius-pill: 999px;
+  --shadow-card: none;
+  --shadow-drag: 0 16px 32px rgba(0,0,0,.5);
+  --panel-w: 248px;
+  --node-w: 240px; --node-pitch: 320px; --node-x0: 40px;
+  --link-line: #6C7A99;
+}
+
+/* ── 파스텔 ──────────────────────────────────────── */
+:root[data-theme="pastel"] {
+  --font-body: 'Gowun Dodum', system-ui, sans-serif;
+  --font-num: 'Jua', 'Gowun Dodum', sans-serif;
+  --font-display: 'Jua', 'Gowun Dodum', sans-serif;
+
+  --bg: #FFF7EC;  --surface: #FFFFFF;  --column: #FFE6EE;   /* 열 배경: 시작 전 #FFE6EE / 진행 중 #E0F0FF / 완료 #E2F6EA */
+  --column-todo: #FFE6EE; --column-doing: #E0F0FF; --column-done: #E2F6EA;
+  --text: #4B3B3B; --muted: #7A6262; --muted-2: #8A7373; --border: #F0E0D2;
+  --primary: #FFC2D4; --primary-soft: #FFE6EE; --primary-ink: #A23F62; --on-primary: #4B3B3B;
+  --focus: rgba(162,63,98,.5);
+  --grip: #A59292;
+
+  --lv-year-bg: #E6DEFF;  --lv-year-fg: #4B3A8F;  --lv-year-bar: #7A69D8;
+  --lv-month-bg: #D3F2E5; --lv-month-fg: #1F5C49; --lv-month-bar: #1F9C73;
+  --lv-week-bg: #FFE0CF;  --lv-week-fg: #8A4322;  --lv-week-bar: #D9692A;
+  --lv-solo-bg: #FFF0B0;  --lv-solo-fg: #6E5300;
+  --ring-track-week: #FFE0CF;
+
+  
+
+  --radius: 20px; --radius-lg: 24px; --radius-pill: 999px;
+  --shadow-card: 0 4px 0 rgba(75,59,59,.12);     /* 번짐 없는 단단한 그림자 */
+  --shadow-drag: 0 12px 24px rgba(75,59,59,.2);
+  --panel-w: 248px;
+  --node-w: 240px; --node-pitch: 320px; --node-x0: 40px;
+  --link-line: #7A69D8;
+}
+
+/* ── 뷰(배치만 담당) ─────────────────────────────── */
+:root[data-view="board"] .only-link { display: none !important; }
+:root[data-view="link"]  .only-board { display: none !important; }
+
+/* 셸 프리셋: 클린=사이드바, 나이트·파스텔=상단바. 링크 뷰에서 클린은 72px 레일, 나이트·파스텔은 좌측 패널 숨김 */
+:root[data-theme="clean"][data-view="link"]  .goal-panel { width: var(--rail-w); }
+:root[data-theme="night"][data-view="link"],
+:root[data-theme="pastel"][data-view="link"] { --panel-w: 0px; }
+:root[data-theme="night"][data-view="link"] .goal-panel,
+:root[data-theme="pastel"][data-view="link"] .goal-panel { display: none; }
+
+/* 접근성 */
+:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

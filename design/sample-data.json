@@ -1,0 +1,35 @@
+{
+  "_설명": "링크 뷰 시안(1280x820, 9월 4주차)을 그대로 재현하는 샘플 데이터. 스키마는 PRD.md 의 plans / tasks / task_plan_links 와 같은 필드명을 씁니다. progress·count 는 화면 표시용 예시값이며 실제 앱은 view plan_progress 로 계산합니다.",
+  "period": { "label": "9월 4주차", "unit": "week" },
+  "plans": [
+    { "id": "y1", "plan_type": "year",  "title": "바이브 코딩 앱 개발", "parent_id": null, "done": 21, "total": 50, "progress": 42 },
+    { "id": "y2", "plan_type": "year",  "title": "매일 운동 습관 만들기", "parent_id": null, "done": 11, "total": 35, "progress": 31 },
+    { "id": "m1", "plan_type": "month", "title": "클로드 코드 기능 습득", "parent_id": "y1", "done": 1, "total": 4, "progress": 25 },
+    { "id": "m2", "plan_type": "month", "title": "앱 아이디어 검증", "parent_id": "y1", "done": 1, "total": 2, "progress": 50 },
+    { "id": "m3", "plan_type": "month", "title": "주 3회 운동", "parent_id": "y2", "done": 8, "total": 12, "progress": 67 },
+    { "id": "w1", "plan_type": "week",  "title": "책 1~3장 읽기", "parent_id": "m1", "done": 1, "total": 3, "progress": 33 },
+    { "id": "w2", "plan_type": "week",  "title": "앱 프로토타입", "parent_id": "m2", "done": 1, "total": 2, "progress": 50 },
+    { "id": "w3", "plan_type": "week",  "title": "이번 주 운동", "parent_id": "m3", "done": 1, "total": 1, "progress": 100 }
+  ],
+  "tasks": [
+    { "id": "t0", "title": "클로드 코드 책 읽기", "status": "doing", "due_date": "2026-09-24", "note": "오늘 · 월간 + 연간 연결" },
+    { "id": "t1", "title": "1장 요약 노트 쓰기", "status": "done",  "due_date": "2026-09-24" },
+    { "id": "t2", "title": "2장 실습 따라 하기", "status": "doing", "due_date": "2026-09-26" },
+    { "id": "t3", "title": "슬래시 명령어 정리", "status": "todo",  "due_date": "2026-09-27" },
+    { "id": "t4", "title": "프로토타입 화면 스케치", "status": "done",  "due_date": "2026-09-23" },
+    { "id": "t5", "title": "DB 테이블 만들기", "status": "doing", "due_date": "2026-09-27" },
+    { "id": "t6", "title": "30분 러닝", "status": "done",  "due_date": "2026-09-25" },
+    { "id": "t7", "title": "스마트폰 케이스 구입", "status": "todo",  "due_date": null }
+  ],
+  "task_plan_links": [
+    { "task_id": "t0", "plan_id": "m1" },
+    { "task_id": "t0", "plan_id": "y1" },
+    { "task_id": "t1", "plan_id": "w1" },
+    { "task_id": "t2", "plan_id": "w1" },
+    { "task_id": "t3", "plan_id": "w1" },
+    { "task_id": "t4", "plan_id": "w2" },
+    { "task_id": "t5", "plan_id": "w2" },
+    { "task_id": "t6", "plan_id": "w3" }
+  ],
+  "_검증": "독립 할 일은 t7 하나(링크 없음). 트레이 개수: 시작 전 2(t3,t7) / 진행 중 3(t0,t2,t5) / 완료 3(t1,t4,t6)."
+}

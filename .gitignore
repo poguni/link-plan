@@ -1,0 +1,15 @@
+# 비밀 값
+.env
+.env.*
+*.local
+
+# 운영체제·편집기
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# 도구
+node_modules/
+.omc/
+.playwright-mcp/

@@ -1,0 +1,350 @@
+<!--
+  링크 플랜 디자인 시안: 나이트 · 링크 뷰
+  파일: night-link.html  (테마=night, 뷰=link, 캔버스 1280x820)
+  정적 시안입니다. 값과 규칙은 DESIGN.md 가 기준입니다.
+-->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>링크 플랜 링크 뷰 시안</title>
+
+<meta name="viewport" content="width=1280">
+<meta name="linkplan-theme" content="night">
+<meta name="linkplan-view" content="link">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0D1017}
+.ic{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+button{font-family:inherit}
+</style>
+</head>
+<body>
+
+
+<div style="position:relative;width:1280px;height:820px;background:#0D1017;color:#F1F4FA;font-family:'Noto Sans KR',system-ui,sans-serif">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<defs>
+<symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+<symbol id="i-unlink" viewBox="0 0 24 24"><path d="m18.84 12.25 1.72-1.71h-.02a5.004 5.004 0 0 0-.12-7.07 5.006 5.006 0 0 0-6.95 0l-1.72 1.71"/><path d="m5.17 11.75-1.71 1.71a5.004 5.004 0 0 0 .12 7.07 5.006 5.006 0 0 0 6.95 0l1.71-1.71"/><line x1="8" x2="8" y1="2" y2="5"/><line x1="2" x2="5" y1="8" y2="8"/><line x1="16" x2="16" y1="19" y2="22"/><line x1="19" x2="22" y1="16" y2="16"/></symbol>
+<symbol id="i-grip" viewBox="0 0 24 24"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></symbol>
+<symbol id="i-calendar" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></symbol>
+<symbol id="i-calendar-days" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></symbol>
+<symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></symbol>
+<symbol id="i-dashboard" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="i-chev-l" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+<symbol id="i-chev-r" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+<symbol id="i-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+<symbol id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+<symbol id="i-layers" viewBox="0 0 24 24"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></symbol>
+<symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></symbol>
+</defs>
+</svg>
+
+<!-- 배경 은은한 빛 -->
+<div style="position:absolute;left:120px;top:60px;width:760px;height:560px;background:radial-gradient(closest-side, rgba(183,164,255,0.10), rgba(13,16,23,0));z-index:0"></div>
+
+<!-- 상단 바 -->
+<header style="position:absolute;left:0;top:0;width:1280px;height:64px;box-sizing:border-box;padding:0 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1F2635;z-index:3">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#B7A4FF,#5CD6E8);color:#0D1017;display:flex;align-items:center;justify-content:center"><svg class="ic" width="18" height="18" viewBox="0 0 24 24"><use href="#i-link"/></svg></div>
+    <div style="font-size:17px;font-weight:700;letter-spacing:-0.01em">링크 플랜</div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:500;color:#8E9AB3;padding-left:2px">Link Plan</div>
+  </div>
+
+  <div role="group" aria-label="보기 방식" style="display:flex;padding:3px;background:#161B26;border:1px solid #232B3B;border-radius:12px">
+    <button style="height:34px;padding:0 16px;border:0;border-radius:9px;background:transparent;color:#9CA8BF;font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;cursor:pointer"><svg class="ic" width="15" height="15" viewBox="0 0 24 24"><use href="#i-dashboard"/></svg>보드 뷰</button>
+    <button style="height:34px;padding:0 16px;border:0;border-radius:9px;background:#28324A;color:#FFFFFF;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;cursor:pointer"><svg class="ic" width="15" height="15" viewBox="0 0 24 24"><use href="#i-link"/></svg>링크 뷰</button>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:12px">
+    <div role="group" aria-label="기간 전환" style="display:flex;padding:3px;background:#161B26;border:1px solid #232B3B;border-radius:12px">
+      <button style="height:34px;padding:0 14px;border:0;border-radius:9px;background:transparent;color:#9CA8BF;font-size:13px;font-weight:500;cursor:pointer">일일</button>
+      <button style="height:34px;padding:0 14px;border:0;border-radius:9px;background:#28324A;color:#FFFFFF;font-size:13px;font-weight:700;cursor:pointer">주간</button>
+      <button style="height:34px;padding:0 14px;border:0;border-radius:9px;background:transparent;color:#9CA8BF;font-size:13px;font-weight:500;cursor:pointer">월간</button>
+      <button style="height:34px;padding:0 14px;border:0;border-radius:9px;background:transparent;color:#9CA8BF;font-size:13px;font-weight:500;cursor:pointer">연간</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:4px;color:#C5CEE0;font-size:13px;font-weight:500">
+      <button aria-label="이전 주" style="width:32px;height:32px;border:0;border-radius:8px;background:transparent;color:#9CA8BF;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg class="ic" width="16" height="16" viewBox="0 0 24 24"><use href="#i-chev-l"/></svg></button>
+      <span>9월 4주차</span>
+      <button aria-label="다음 주" style="width:32px;height:32px;border:0;border-radius:8px;background:transparent;color:#9CA8BF;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg class="ic" width="16" height="16" viewBox="0 0 24 24"><use href="#i-chev-r"/></svg></button>
+    </div>
+    <button aria-label="검색" style="width:44px;height:44px;border:1px solid #232B3B;border-radius:12px;background:#161B26;color:#C5CEE0;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg class="ic" width="18" height="18" viewBox="0 0 24 24"><use href="#i-search"/></svg></button>
+    <button style="height:44px;padding:0 18px;border:0;border-radius:12px;background:#F1F4FA;color:#0D1017;font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;cursor:pointer"><svg class="ic" width="18" height="18" viewBox="0 0 24 24"><use href="#i-plus"/></svg>새 할 일</button>
+  </div>
+</header>
+
+<!-- 열 머리글 -->
+<div style="position:absolute;left:40px;top:80px;width:240px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#B7A4FF;z-index:1"><svg class="ic" width="14" height="14" viewBox="0 0 24 24"><use href="#i-flag"/></svg>연간 목표 · 2</div>
+<div style="position:absolute;left:360px;top:80px;width:240px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#5CD6E8;z-index:1"><svg class="ic" width="14" height="14" viewBox="0 0 24 24"><use href="#i-calendar"/></svg>월간 계획 · 3</div>
+<div style="position:absolute;left:680px;top:80px;width:240px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#FFC46B;z-index:1"><svg class="ic" width="14" height="14" viewBox="0 0 24 24"><use href="#i-calendar-days"/></svg>주간 계획 · 3</div>
+<div style="position:absolute;left:1000px;top:80px;width:240px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#9CA8BF;z-index:1"><svg class="ic" width="14" height="14" viewBox="0 0 24 24"><use href="#i-circle-check"/></svg>연결된 할 일 · 7</div>
+
+<!-- 연결선 (노드 아래 층) -->
+<svg width="1280" height="640" viewBox="0 0 1280 640" style="position:absolute;left:0;top:0;z-index:0" aria-hidden="true">
+  <g style="fill:none;stroke:#B7A4FF;stroke-width:2;stroke-opacity:0.65">
+    <path d="M280 337 C 320 337, 320 232, 360 232"/>
+    <path d="M280 337 C 320 337, 320 442, 360 442"/>
+    <path d="M280 554 H 360"/>
+  </g>
+  <g style="fill:none;stroke:#5CD6E8;stroke-width:2;stroke-opacity:0.65">
+    <path d="M600 232 C 640 232, 640 266, 680 266"/>
+    <path d="M600 442 H 680"/>
+    <path d="M600 554 H 680"/>
+  </g>
+  <g style="fill:none;stroke:#FFC46B;stroke-width:2;stroke-opacity:0.65">
+    <path d="M920 266 C 960 266, 960 202, 1000 202"/>
+    <path d="M920 266 H 1000"/>
+    <path d="M920 266 C 960 266, 960 330, 1000 330"/>
+    <path d="M920 442 C 960 442, 960 410, 1000 410"/>
+    <path d="M920 442 C 960 442, 960 474, 1000 474"/>
+    <path d="M920 554 H 1000"/>
+  </g>
+  <g style="fill:none;stroke:#7FB2FF;stroke-width:2;stroke-opacity:0.85">
+    <path d="M1000 138 C 800 138, 800 232, 600 232"/>
+  </g>
+  <g style="fill:none;stroke:#7FB2FF;stroke-width:1.5;stroke-opacity:0.6;stroke-dasharray:5 6">
+    <path d="M1000 138 H 336 Q 320 138 320 154 V 321 Q 320 337 304 337 H 280"/>
+  </g>
+</svg>
+
+<!-- 연간 목표 -->
+<div style="position:absolute;left:40px;top:285px;width:240px;height:104px;box-sizing:border-box;padding:14px 14px 14px 16px;border-radius:16px;background:#1E1B33;border:1px solid #453F73;display:flex;align-items:center;gap:12px;z-index:1">
+  <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+    <div style="display:flex;align-items:center;gap:6px;color:#B7A4FF;font-size:11.5px;font-weight:700"><svg class="ic" width="13" height="13" viewBox="0 0 24 24"><use href="#i-flag"/></svg>연간 목표</div>
+    <div style="font-size:15.5px;font-weight:700;line-height:1.3">바이브 코딩 앱 개발</div>
+    <div style="font-size:12px;color:#B4AEE0">21/50 완료</div>
+  </div>
+  <div style="position:relative;width:48px;height:48px;flex-shrink:0">
+    <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" style="fill:none;stroke:#2E2A52;stroke-width:5"/><circle cx="24" cy="24" r="19" transform="rotate(-90 24 24)" style="fill:none;stroke:#B7A4FF;stroke-width:5;stroke-linecap:round;stroke-dasharray:50.14 119.38"/></svg>
+    <div style="position:absolute;left:0;top:0;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:700">42%</div>
+  </div>
+</div>
+<div style="position:absolute;left:40px;top:502px;width:240px;height:104px;box-sizing:border-box;padding:14px 14px 14px 16px;border-radius:16px;background:#1E1B33;border:1px solid #453F73;display:flex;align-items:center;gap:12px;z-index:1">
+  <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+    <div style="display:flex;align-items:center;gap:6px;color:#B7A4FF;font-size:11.5px;font-weight:700"><svg class="ic" width="13" height="13" viewBox="0 0 24 24"><use href="#i-flag"/></svg>연간 목표</div>
+    <div style="font-size:15.5px;font-weight:700;line-height:1.3">매일 운동 습관 만들기</div>
+    <div style="font-size:12px;color:#B4AEE0">11/35 완료</div>
+  </div>
+  <div style="position:relative;width:48px;height:48px;flex-shrink:0">
+    <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" style="fill:none;stroke:#2E2A52;stroke-width:5"/><circle cx="24" cy="24" r="19" transform="rotate(-90 24 24)" style="fill:none;stroke:#B7A4FF;stroke-width:5;stroke-linecap:round;stroke-dasharray:37.01 119.38"/></svg>
+    <div style="position:absolute;left:0;top:0;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:700">31%</div>
+  </div>
+</div>
+
+<!-- 월간 계획 -->
+<div style="position:absolute;left:360px;top:190px;width:240px;height:84px;box-sizing:border-box;padding:12px 14px 12px 16px;border-radius:16px;background:#12262C;border:1px solid #245560;display:flex;align-items:center;gap:12px;z-index:1">
+  <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+    <div style="display:flex;align-items:center;gap:6px;color:#5CD6E8;font-size:11.5px;font-weight:700"><svg class="ic" width="13" height="13" viewBox="0 0 24 24"><use href="#i-calendar"/></svg>월간 계획</div>
+    <div style="font-size:14.5px;font-weight:700;line-height:1.3">클로드 코드 기능 습득</div>
+    <div style="font-size:12px;color:#8FCFDA">1/4 완료</div>
+  </div>
+  <div style="position:relative;width:48px;height:48px;flex-shrink:0">
+    <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" style="fill:none;stroke:#1F3D45;stroke-width:5"/><circle cx="24" cy="24" r="19" transform="rotate(-90 24 24)" style="fill:none;stroke:#5CD6E8;stroke-width:5;stroke-linecap:round;stroke-dasharray:29.85 119.38"/></svg>
+    <div style="position:absolute;left:0;top:0;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:700">25%</div>
+  </div>
+</div>
+<div style="position:absolute;left:360px;top:400px;width:240px;height:84px;box-sizing:border-box;padding:12px 14px 12px 16px;border-radius:16px;background:#12262C;border:1px solid #245560;display:flex;align-items:center;gap:12px;z-index:1">
+  <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+    <div style="display:flex;align-items:center;gap:6px;color:#5CD6E8;font-size:11.5px;font-weight:700"><svg class="ic" width="13" height="13" viewBox="0 0 24 24"><use href="#i-calendar"/></svg>월간 계획</div>
+    <div style="font-size:14.5px;font-weight:700;line-height:1.3">앱 아이디어 검증</div>
+    <div style="font-size:12px;color:#8FCFDA">1/2 완료</div>
+  </div>
+  <div style="position:relative;width:48px;height:48px;flex-shrink:0">
+    <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" style="fill:none;stroke:#1F3D45;stroke-width:5"/><circle cx="24" cy="24" r="19" transform="rotate(-90 24 24)" style="fill:none;stroke:#5CD6E8;stroke-width:5;stroke-linecap:round;stroke-dasharray:59.69 119.38"/></svg>
+    <div style="position:absolute;left:0;top:0;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:700">50%</div>
+  </div>
+</div>
+<div style="position:absolute;left:360px;top:512px;width:240px;height:84px;box-sizing:border-box;padding:12px 14px 12px 16px;border-radius:16px;background:#12262C;border:1px solid #245560;display:flex;align-items:center;gap:12px;z-index:1">
+  <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+    <div style="display:flex;align-items:center;gap:6px;color:#5CD6E8;font-size:11.5px;font-weight:700"><svg class="ic" width="13" height="13" viewBox="0 0 24 24"><use href="#i-calendar"/></svg>월간 계획</div>
+    <div style="font-size:14.5px;font-weight:700;line-height:1.3">주 3회 운동</div>
+    <div style="font-size:12px;color:#8FCFDA">8/12 완료</div>
+  </div>
+  <div style="position:relative;width:48px;height:48px;flex-shrink:0">
+    <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" style="fill:none;stroke:#1F3D45;stroke-width:5"/><circle cx="24" cy="24" r="19" transform="rotate(-90 24 24)" style="fill:none;stroke:#5CD6E8;stroke-width:5;stroke-linecap:round;stroke-dasharray:79.98 119.38"/></svg>
+    <div style="position:absolute;left:0;top:0;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:700">67%</div>
+  </div>
+</div>
+
+<!-- 주간 계획 -->
+<div style="position:absolute;left:680px;top:224px;width:240px;height:84px;box-sizing:border-box;padding:12px 14px 12px 16px;border-radius:16px;background:#2A2216;border:1px solid #6B5427;display:flex;align-items:center;gap:12px;z-index:1">
+  <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+    <div style="display:flex;align-items:center;gap:6px;color:#FFC46B;font-size:11.5px;font-weight:700"><svg class="ic" width="13" height="13" viewBox="0 0 24 24"><use href="#i-calendar-days"/></svg>주간 계획</div>
+    <div style="font-size:14.5px;font-weight:700;line-height:1.3">책 1~3장 읽기</div>
+    <div style="font-size:12px;color:#D9B77A">1/3 완료</div>
+  </div>
+  <div style="position:relative;width:48px;height:48px;flex-shrink:0">
+    <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" style="fill:none;stroke:#4A3B1E;stroke-width:5"/><circle cx="24" cy="24" r="19" transform="rotate(-90 24 24)" style="fill:none;stroke:#FFC46B;stroke-width:5;stroke-linecap:round;stroke-dasharray:39.4 119.38"/></svg>
+    <div style="position:absolute;left:0;top:0;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:700">33%</div>
+  </div>
+</div>
+<div style="position:absolute;left:680px;top:400px;width:240px;height:84px;box-sizing:border-box;padding:12px 14px 12px 16px;border-radius:16px;background:#2A2216;border:1px solid #6B5427;display:flex;align-items:center;gap:12px;z-index:1">
+  <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+    <div style="display:flex;align-items:center;gap:6px;color:#FFC46B;font-size:11.5px;font-weight:700"><svg class="ic" width="13" height="13" viewBox="0 0 24 24"><use href="#i-calendar-days"/></svg>주간 계획</div>
+    <div style="font-size:14.5px;font-weight:700;line-height:1.3">앱 프로토타입</div>
+    <div style="font-size:12px;color:#D9B77A">1/2 완료</div>
+  </div>
+  <div style="position:relative;width:48px;height:48px;flex-shrink:0">
+    <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" style="fill:none;stroke:#4A3B1E;stroke-width:5"/><circle cx="24" cy="24" r="19" transform="rotate(-90 24 24)" style="fill:none;stroke:#FFC46B;stroke-width:5;stroke-linecap:round;stroke-dasharray:59.69 119.38"/></svg>
+    <div style="position:absolute;left:0;top:0;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:700">50%</div>
+  </div>
+</div>
+<div style="position:absolute;left:680px;top:512px;width:240px;height:84px;box-sizing:border-box;padding:12px 14px 12px 16px;border-radius:16px;background:#2A2216;border:1px solid #FFC46B;display:flex;align-items:center;gap:12px;z-index:1">
+  <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+    <div style="display:flex;align-items:center;gap:6px;color:#FFC46B;font-size:11.5px;font-weight:700"><svg class="ic" width="13" height="13" viewBox="0 0 24 24"><use href="#i-calendar-days"/></svg>주간 계획 · 달성</div>
+    <div style="font-size:14.5px;font-weight:700;line-height:1.3">이번 주 운동</div>
+    <div style="font-size:12px;color:#D9B77A">1/1 완료</div>
+  </div>
+  <div style="position:relative;width:48px;height:48px;flex-shrink:0">
+    <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" style="fill:none;stroke:#4A3B1E;stroke-width:5"/><circle cx="24" cy="24" r="19" transform="rotate(-90 24 24)" style="fill:none;stroke:#FFC46B;stroke-width:5;stroke-linecap:round;stroke-dasharray:119.38 119.38"/></svg>
+    <div style="position:absolute;left:0;top:0;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:700">100%</div>
+  </div>
+</div>
+
+<!-- 할 일 -->
+<div style="position:absolute;left:1000px;top:110px;width:240px;height:56px;box-sizing:border-box;padding:0 12px;border-radius:12px;background:#1B2233;border:1px solid #3B5A8F;display:flex;align-items:center;gap:10px;z-index:1">
+  <span style="color:#FF9F80;display:flex"><svg class="ic" width="20" height="20" viewBox="0 0 24 24"><use href="#i-clock"/></svg></span>
+  <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+    <div style="font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">클로드 코드 책 읽기</div>
+    <div style="font-size:11.5px;color:#9CA8BF">오늘 · 월간 + 연간 연결</div>
+  </div>
+  <span style="display:flex;align-items:center;gap:3px;padding:2px 7px;border-radius:99px;background:#22344F;color:#9CC4FF;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700"><svg class="ic" width="12" height="12" viewBox="0 0 24 24"><use href="#i-link"/></svg>2</span>
+</div>
+<div style="position:absolute;left:1000px;top:174px;width:240px;height:56px;box-sizing:border-box;padding:0 12px;border-radius:12px;background:#1B2233;border:1px solid #2C364B;display:flex;align-items:center;gap:10px;z-index:1">
+  <span style="color:#7BE0A0;display:flex"><svg class="ic" width="20" height="20" viewBox="0 0 24 24"><use href="#i-circle-check"/></svg></span>
+  <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+    <div style="font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">1장 요약 노트 쓰기</div>
+    <div style="font-size:11.5px;color:#9CA8BF">9/24 (목)</div>
+  </div>
+  <span style="color:#6B778F;display:flex"><svg class="ic" width="16" height="16" viewBox="0 0 24 24"><use href="#i-grip"/></svg></span>
+</div>
+<div style="position:absolute;left:1000px;top:238px;width:240px;height:56px;box-sizing:border-box;padding:0 12px;border-radius:12px;background:#1B2233;border:1px dashed #FF9F80;opacity:0.45;display:flex;align-items:center;gap:10px;z-index:1">
+  <span style="color:#FF9F80;display:flex"><svg class="ic" width="20" height="20" viewBox="0 0 24 24"><use href="#i-clock"/></svg></span>
+  <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+    <div style="font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">2장 실습 따라 하기</div>
+    <div style="font-size:11.5px;color:#9CA8BF">옮기는 중</div>
+  </div>
+</div>
+<div style="position:absolute;left:1000px;top:302px;width:240px;height:56px;box-sizing:border-box;padding:0 12px;border-radius:12px;background:#1B2233;border:1px solid #2C364B;display:flex;align-items:center;gap:10px;z-index:1">
+  <span style="color:#8A95AB;display:flex"><svg class="ic" width="20" height="20" viewBox="0 0 24 24"><use href="#i-circle"/></svg></span>
+  <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+    <div style="font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">슬래시 명령어 정리</div>
+    <div style="font-size:11.5px;color:#9CA8BF">9/27 (일)</div>
+  </div>
+  <span style="color:#6B778F;display:flex"><svg class="ic" width="16" height="16" viewBox="0 0 24 24"><use href="#i-grip"/></svg></span>
+</div>
+<div style="position:absolute;left:1000px;top:382px;width:240px;height:56px;box-sizing:border-box;padding:0 12px;border-radius:12px;background:#1B2233;border:1px solid #2C364B;display:flex;align-items:center;gap:10px;z-index:1">
+  <span style="color:#7BE0A0;display:flex"><svg class="ic" width="20" height="20" viewBox="0 0 24 24"><use href="#i-circle-check"/></svg></span>
+  <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+    <div style="font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">프로토타입 화면 스케치</div>
+    <div style="font-size:11.5px;color:#9CA8BF">9/23 (화)</div>
+  </div>
+  <span style="color:#6B778F;display:flex"><svg class="ic" width="16" height="16" viewBox="0 0 24 24"><use href="#i-grip"/></svg></span>
+</div>
+<div style="position:absolute;left:1000px;top:446px;width:240px;height:56px;box-sizing:border-box;padding:0 12px;border-radius:12px;background:#1B2233;border:1px solid #2C364B;display:flex;align-items:center;gap:10px;z-index:1">
+  <span style="color:#FF9F80;display:flex"><svg class="ic" width="20" height="20" viewBox="0 0 24 24"><use href="#i-clock"/></svg></span>
+  <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+    <div style="font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">DB 테이블 만들기</div>
+    <div style="font-size:11.5px;color:#9CA8BF">9/27 (일)</div>
+  </div>
+  <span style="color:#6B778F;display:flex"><svg class="ic" width="16" height="16" viewBox="0 0 24 24"><use href="#i-grip"/></svg></span>
+</div>
+<div style="position:absolute;left:1000px;top:526px;width:240px;height:56px;box-sizing:border-box;padding:0 12px;border-radius:12px;background:#1B2233;border:1px solid #2C364B;display:flex;align-items:center;gap:10px;z-index:1">
+  <span style="color:#7BE0A0;display:flex"><svg class="ic" width="20" height="20" viewBox="0 0 24 24"><use href="#i-circle-check"/></svg></span>
+  <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+    <div style="font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">30분 러닝</div>
+    <div style="font-size:11.5px;color:#9CA8BF">9/25 (금)</div>
+  </div>
+  <span style="color:#6B778F;display:flex"><svg class="ic" width="16" height="16" viewBox="0 0 24 24"><use href="#i-grip"/></svg></span>
+</div>
+
+<!-- 독립 할 일 -->
+<div style="position:absolute;left:1000px;top:606px;width:240px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#9CA8BF;z-index:1"><svg class="ic" width="13" height="13" viewBox="0 0 24 24"><use href="#i-unlink"/></svg>연결 없음 · 독립 할 일</div>
+<div style="position:absolute;left:1000px;top:632px;width:240px;height:56px;box-sizing:border-box;padding:0 12px;border-radius:12px;background:#141926;border:1px dashed #3A455C;display:flex;align-items:center;gap:10px;z-index:1">
+  <span style="color:#8A95AB;display:flex"><svg class="ic" width="20" height="20" viewBox="0 0 24 24"><use href="#i-circle"/></svg></span>
+  <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+    <div style="font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">스마트폰 케이스 구입</div>
+    <div style="font-size:11.5px;color:#9CA8BF">기한 없음</div>
+  </div>
+  <span style="color:#6B778F;display:flex"><svg class="ic" width="16" height="16" viewBox="0 0 24 24"><use href="#i-grip"/></svg></span>
+</div>
+<div style="position:absolute;left:1000px;top:700px;width:240px;font-size:12px;line-height:1.5;color:#9CA8BF;z-index:1">독립 할 일도 같은 방식으로 상태를 바꾸고, 원하면 나중에 계획에 이을 수 있어요.</div>
+
+<!-- 상태 트레이 -->
+<section aria-label="상태 트레이" style="position:absolute;left:40px;top:632px;width:880px;height:164px;box-sizing:border-box;padding:14px 16px;border-radius:18px;background:#141926;border:1px solid #232B3B;display:flex;flex-direction:column;gap:10px;z-index:1">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700"><svg class="ic" width="15" height="15" viewBox="0 0 24 24"><use href="#i-layers"/></svg>상태 트레이</div>
+    <div style="font-size:12px;color:#9CA8BF">카드를 끌어다 놓으면 상태가 바뀌고, 이어진 목표의 진행률이 바로 갱신돼요</div>
+  </div>
+  <div style="display:flex;gap:16px;flex-grow:1">
+    <div style="flex:1 1 0;box-sizing:border-box;border-radius:14px;border:1.5px dashed #2E384D;background:#0F141E;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="color:#8A95AB;display:flex"><svg class="ic" width="18" height="18" viewBox="0 0 24 24"><use href="#i-circle"/></svg></span>
+        <span style="font-size:14px;font-weight:700">시작 전</span>
+        <span style="flex-grow:1"></span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#C5CEE0">2</span>
+      </div>
+      <div style="font-size:12px;color:#8E9AB3">끌어다 놓아 되돌리기</div>
+    </div>
+    <div style="flex:1 1 0;box-sizing:border-box;border-radius:14px;border:1.5px dashed #2E384D;background:#0F141E;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="color:#FF9F80;display:flex"><svg class="ic" width="18" height="18" viewBox="0 0 24 24"><use href="#i-clock"/></svg></span>
+        <span style="font-size:14px;font-weight:700">진행 중</span>
+        <span style="flex-grow:1"></span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#FF9F80">3</span>
+      </div>
+      <div style="font-size:12px;color:#8E9AB3">지금 손대고 있는 일</div>
+    </div>
+    <div style="flex:1 1 0;box-sizing:border-box;border-radius:14px;border:1.5px dashed #7BE0A0;background:#10241C;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="color:#7BE0A0;display:flex"><svg class="ic" width="18" height="18" viewBox="0 0 24 24"><use href="#i-circle-check"/></svg></span>
+        <span style="font-size:14px;font-weight:700">완료</span>
+        <span style="flex-grow:1"></span>
+        <span style="padding:2px 8px;border-radius:99px;background:#17402E;color:#8CF0B4;font-size:11.5px;font-weight:700">주간 33% → 67%</span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#7BE0A0">3</span>
+      </div>
+      <div style="font-size:12px;color:#8CF0B4">여기에 놓으면 완료</div>
+    </div>
+  </div>
+</section>
+
+<!-- 드래그 중인 카드 -->
+<div style="position:absolute;left:770px;top:730px;width:214px;height:46px;box-sizing:border-box;padding:0 12px;border-radius:12px;background:#28324A;border:1px solid #FF9F80;box-shadow:0 16px 32px rgba(0,0,0,0.55);transform:rotate(-3deg);display:flex;align-items:center;gap:10px;z-index:4">
+  <span style="color:#FF9F80;display:flex"><svg class="ic" width="18" height="18" viewBox="0 0 24 24"><use href="#i-clock"/></svg></span>
+  <span style="flex-grow:1;font-size:13.5px;font-weight:700;white-space:nowrap">2장 실습 따라 하기</span>
+  <span style="color:#9CA8BF;display:flex"><svg class="ic" width="16" height="16" viewBox="0 0 24 24"><use href="#i-grip"/></svg></span>
+</div>
+
+<!-- 연결 포트 (노드 위 층) -->
+<svg width="1280" height="640" viewBox="0 0 1280 640" style="position:absolute;left:0;top:0;z-index:2" aria-hidden="true">
+  <g style="fill:#0D1017;stroke:#B7A4FF;stroke-width:2">
+    <circle cx="280" cy="337" r="4.5"/><circle cx="280" cy="554" r="4.5"/>
+    <circle cx="360" cy="232" r="4.5"/><circle cx="360" cy="442" r="4.5"/><circle cx="360" cy="554" r="4.5"/>
+  </g>
+  <g style="fill:#0D1017;stroke:#5CD6E8;stroke-width:2">
+    <circle cx="600" cy="232" r="4.5"/><circle cx="600" cy="442" r="4.5"/><circle cx="600" cy="554" r="4.5"/>
+    <circle cx="680" cy="266" r="4.5"/><circle cx="680" cy="442" r="4.5"/><circle cx="680" cy="554" r="4.5"/>
+  </g>
+  <g style="fill:#0D1017;stroke:#FFC46B;stroke-width:2">
+    <circle cx="920" cy="266" r="4.5"/><circle cx="920" cy="442" r="4.5"/><circle cx="920" cy="554" r="4.5"/>
+    <circle cx="1000" cy="202" r="4.5"/><circle cx="1000" cy="266" r="4.5"/><circle cx="1000" cy="330" r="4.5"/>
+    <circle cx="1000" cy="410" r="4.5"/><circle cx="1000" cy="474" r="4.5"/><circle cx="1000" cy="554" r="4.5"/>
+  </g>
+  <g style="fill:#0D1017;stroke:#7FB2FF;stroke-width:2">
+    <circle cx="1000" cy="138" r="4.5"/>
+  </g>
+</svg>
+
+<!-- 도움말 -->
+<div style="position:absolute;left:40px;top:610px;display:flex;align-items:center;gap:8px;font-size:12px;color:#9CA8BF;z-index:1"><svg class="ic" width="14" height="14" viewBox="0 0 24 24"><use href="#i-sparkles"/></svg>노드의 점을 다른 계획으로 끌어다 놓으면 새로 이어져요</div>
+
+</div>
+
+
+</body>
+</html>
