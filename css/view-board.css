@@ -148,13 +148,16 @@
 .banner-sub { color: var(--solo-fg); font-size: 14px; }
 .week-dots { display: flex; gap: 10px; }
 .week-day { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.dot {
+/* 클래스 이름을 week-dot 로 씁니다(그냥 .dot 이면 view-link.css 의 링크 뷰 연결점 .dot 과 이름이
+   겹칩니다. 두 파일이 항상 함께 로드되는데, 이름이 같으면 나중에 로드되는 쪽이 이겨서 이 요일
+   동그라미가 연결점용 position:absolute 규칙을 물려받아 엉뚱한 자리로 튀는 버그가 있었습니다). */
+.week-dot {
   display: flex; align-items: center; justify-content: center;
   width: 30px; height: 30px; border-radius: 999px;
   background: var(--surface); border: 2px solid var(--solo-border);
 }
-.dot.is-done { background: var(--banner-done); border-color: var(--text); color: var(--text); }
-.dot.is-today { border: 2px dashed var(--text); }
+.week-dot.is-done { background: var(--banner-done); border-color: var(--text); color: var(--text); }
+.week-dot.is-today { border: 2px dashed var(--text); }
 .dl { color: var(--solo-fg); font-size: 12px; }
 .dl.is-today { color: var(--text); font-weight: 700; }
 
@@ -172,7 +175,7 @@
 @media (max-width: 599px) {
   [data-theme="pastel"] .banner { height: auto; flex-wrap: wrap; padding: 14px 16px; }
   [data-theme="pastel"] .week-dots { flex-wrap: wrap; gap: 6px; }
-  [data-theme="pastel"] .dot { width: 24px; height: 24px; }
+  [data-theme="pastel"] .week-dot { width: 24px; height: 24px; }
   .chain-row { flex-wrap: wrap; gap: 10px; }
   .chain-item, .chain-item--empty { flex: 1 1 100%; }
   .status-tabs { display: flex; gap: 8px; padding: 2px 0 12px; }

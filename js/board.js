@@ -283,7 +283,7 @@ function renderBanner(s) {
     const isToday = iso === isoOf(now);
     const isDone = s.tasks.some((t) => t.status === 'done' && t.due_date === iso);
     return `<div class="week-day">
-      <span class="dot${isDone ? ' is-done' : ''}${isToday ? ' is-today' : ''}">${isDone ? icon('check', 16) : ''}</span>
+      <span class="week-dot${isDone ? ' is-done' : ''}${isToday ? ' is-today' : ''}">${isDone ? icon('check', 16) : ''}</span>
       <span class="dl${isToday ? ' is-today' : ''}">${isToday ? '오늘' : WEEKDAYS[day.getDay()]}</span>
     </div>`;
   }).join('');
