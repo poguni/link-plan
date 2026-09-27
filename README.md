@@ -10,10 +10,12 @@
 | 경로 | 내용 |
 |---|---|
 | `index.html` | 앱 진입점 |
+| `admin.html` | 관리자 페이지 진입점(관리자가 아니면 index.html로 돌려보냄) |
 | `dev.html` | 컴포넌트·테마·뷰 확인용 임시 페이지(개발 전용, 배포 대상 아님) |
 | `config.js` | Supabase URL·anon 키 자리(service_role 키는 넣지 않음) |
-| `css/` | `tokens.css`(디자인 토큰), `base.css`, `components.css`, `shell.css`(셸 배치), `view-board.css`, `view-link.css` |
+| `css/` | `tokens.css`(디자인 토큰), `base.css`, `components.css`, `shell.css`(셸 배치), `view-board.css`, `view-link.css`, `auth.css`, `admin.css` |
 | `js/` | `app.js`, `theme.js`, `shell.js`, `icons.js`, `ui.js`, `state.js`, `progress.js`, `layout.js`, `period.js`, `api.js`, `auth.js`, `authview.js`, `board.js`, `link.js`, `taskmodal.js`, `planmodal.js`, `admin.js` |
+| `supabase/functions/admin-api/` | 관리자 전용 Edge Function(TypeScript, Deno). service_role 키는 여기서만 씀 |
 | `check-layout.mjs` | 링크 뷰 좌표 검증 스크립트(검수용, 배포 대상 아님). `node check-layout.mjs` |
 | `docs/screenshots/` | 검수용 스크린샷(1280×820). 시안 미리보기는 `design/previews/` |
 | `assets/` | `icons.svg`(Lucide 스프라이트) |
@@ -80,7 +82,7 @@ await supabase.from('plans').select('*');
 
 ## 진행 상황
 
-단계별(Phase) 계획은 `docs/PROMPTS.md` 를 따릅니다. 현재는 Phase 6(Supabase 연동과 P0 기능 완성)까지 끝났습니다. `supabase/` 폴더의 SQL은 사용자가 대시보드에서 직접 실행합니다(`supabase/README.md` 참고).
+단계별(Phase) 계획은 `docs/PROMPTS.md` 를 따릅니다. 현재는 Phase 7(관리자 페이지와 admin-api Edge Function)까지 끝났습니다. `supabase/` 폴더의 SQL은 사용자가 대시보드에서 직접 실행합니다(`supabase/README.md` 참고). `admin-api` Edge Function 배포·시크릿 설정은 `supabase/functions/README.md` 를 참고하세요 — **`ALLOWED_ORIGIN` 시크릿은 아직 사용자가 대시보드에서 직접 설정해야 합니다**(MCP·CLI로 자동화할 수 없는 부분).
 
 Phase 6 범위와 관련해 미리 알아 둘 점 두 가지:
 - **링크 뷰는 기간별로 필터링하지 않습니다.** 기간(일일·주간·월간·연간) 전환은 보드 뷰의 칸반·목표 요약에만 적용됩니다. 링크 뷰는 Phase 3 설계 그대로 전체 계획·할 일 그래프를 항상 보여 줍니다(연결 구조를 한눈에 보는 화면이라는 원래 목적을 유지하기 위한 선택입니다).

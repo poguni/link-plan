@@ -1,0 +1,42 @@
+/* 관리자 페이지(PRD 5-7, P0-18~P0-23). 시안이 없어 세 테마 토큰만 적용합니다(DESIGN.md 10절).
+ * 뷰 전환은 없고, 셸은 현재 테마(색·글꼴)만 따릅니다. */
+
+.admin-shell {
+  min-height: 100vh; max-width: 960px; margin: 0 auto;
+  padding: 32px 24px 64px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+
+.admin-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.admin-title { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 22px; font-weight: var(--fw-bold); }
+.admin-title .logo-mark { width: 34px; height: 34px; border-radius: 10px; }
+
+.admin-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.admin-search { flex: 1 1 220px; min-width: 200px; margin: 0; }
+.admin-search .field-input { height: 40px; }
+
+.admin-table-wrap { overflow-x: auto; border: var(--card-bw) solid var(--border); border-radius: var(--card-radius); background: var(--surface); }
+.admin-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.admin-table th, .admin-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+.admin-table th { color: var(--muted); font-weight: 600; font-size: 12px; white-space: nowrap; }
+.admin-table tr:last-child td { border-bottom: 0; }
+.admin-cell-email { display: flex; align-items: center; gap: 8px; }
+.admin-admin-badge { flex-shrink: 0; }
+.admin-actions { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+
+.admin-status { display: inline-flex; align-items: center; white-space: nowrap; padding: 3px 10px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 600; }
+.admin-status--approved { background: var(--lv-week-bg); color: var(--lv-week-fg); }
+.admin-status--pending { background: var(--column-todo); color: var(--muted); }
+
+.btn-danger { color: var(--danger); border-color: var(--danger); }
+
+.admin-empty { padding: 48px; text-align: center; color: var(--muted); }
+
+/* 임시 비밀번호 표시(복사 후 창을 닫으면 다시 못 봄, PRD P0-21) */
+.admin-secret-row { display: flex; gap: 8px; }
+.admin-secret-row .field-input { font-family: var(--font-num); letter-spacing: .02em; }
+
+@media (max-width: 640px) {
+  .admin-shell { padding: 20px 16px 48px; }
+  .admin-table th, .admin-table td { padding: 10px; }
+}

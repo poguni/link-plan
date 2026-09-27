@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ko" data-theme="clean">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>관리자 · 링크 플랜</title>
+  <link rel="icon" href="data:,">
+  <!-- 저장된 테마를 첫 화면이 그려지기 전에 적용해 깜빡임을 막습니다(index.html과 같은 처리, js/theme.js 참고). -->
+  <script>
+    try {
+      var t = localStorage.getItem('linkplan_theme');
+      if (t === 'clean' || t === 'night' || t === 'pastel') document.documentElement.dataset.theme = t;
+    } catch (e) { /* 저장소를 못 쓰면 기본값(clean)을 씁니다. */ }
+  </script>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div id="admin-root"></div>
+  <!-- Supabase 클라이언트(CDN). window.supabase.createClient 로 js/api.js 가 씁니다. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

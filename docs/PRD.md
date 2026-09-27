@@ -631,7 +631,7 @@ flowchart LR
 }
 ```
 
-파일 이름은 `linkplan-export-<이메일 앞부분>-YYYYMMDD.json`입니다. 설정 테이블(P1-10)이 없는 동안 `settings`는 `null`입니다.
+파일 이름은 `링크플랜_<이메일 앞부분>_YYYYMMDD.json`입니다. 설정 테이블(P1-10)이 없는 동안 `settings`는 `null`입니다.
 
 **첫 관리자 지정**
 
