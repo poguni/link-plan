@@ -68,7 +68,7 @@ planProgress('없는계획', getState()); // { total: 0, done: 0, pct: null }
 
 ## 진행 상황
 
-단계별(Phase) 계획은 `docs/PROMPTS.md` 를 따릅니다. 현재는 Phase 3(링크 뷰, 정적 데이터)까지 끝났습니다.
+단계별(Phase) 계획은 `docs/PROMPTS.md` 를 따릅니다. 현재는 Phase 4(Supabase 스키마·RLS SQL)까지 끝났습니다. `supabase/` 폴더의 SQL은 사용자가 대시보드에서 직접 실행합니다(`supabase/README.md` 참고).
 
 - 앱: http://localhost:8000/index.html (보드 뷰·링크 뷰 모두 동작합니다)
 - 컴포넌트 확인: http://localhost:8000/dev.html (테마·뷰 전환 버튼 포함)
