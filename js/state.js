@@ -63,8 +63,8 @@ export async function setTaskStatus(taskId, status) {
 // ── 할 일 만들기·수정·삭제(P0-1, P0-2) ──────────────
 // 서버가 만들어 준 id 가 있어야 화면에 그릴 수 있어서, 만들기는 저장을 먼저 마친 뒤에 화면에 반영합니다
 // (다른 낙관적 함수들과 달리 "먼저 보여주고 되돌리기"가 적용되지 않습니다).
-export async function createTask({ title, memo, due_date, planIds = [] }) {
-  const row = await api.createTask({ title, memo, due_date });
+export async function createTask({ title, memo, due_date, planIds = [], is_favorite = false }) {
+  const row = await api.createTask({ title, memo, due_date, is_favorite });
   const results = await Promise.allSettled(planIds.map((planId) => api.addLink(row.id, planId)));
   const linked = planIds.filter((_, i) => results[i].status === 'fulfilled');
   commit({ ...state, tasks: [...state.tasks, row], links: [...state.links, ...linked.map((planId) => ({ task_id: row.id, plan_id: planId }))] });

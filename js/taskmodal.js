@@ -35,7 +35,10 @@ export function openTaskModal(task = null) {
     <div class="modal-title">${isEdit ? '할 일 수정' : '새 할 일'}</div>
     <form id="task-form" novalidate>
       <div class="field">
-        <label class="field-label" for="task-title">제목</label>
+        <div class="field-label-row">
+          <label class="field-label" for="task-title">제목</label>
+          <button type="button" class="icon-btn icon-btn--favorite" id="task-favorite" aria-pressed="${task?.is_favorite ? 'true' : 'false'}" aria-label="${task?.is_favorite ? '중요 표시 해제' : '중요 표시'}">${icon('heart', 16)}</button>
+        </div>
         <input class="field-input" id="task-title" maxlength="100" required value="${esc(task?.title ?? '')}">
       </div>
       <div class="field">
@@ -61,22 +64,29 @@ export function openTaskModal(task = null) {
 
   back.querySelector('#task-cancel').addEventListener('click', closeModal);
   back.querySelector('#task-delete')?.addEventListener('click', () => confirmDeleteTask(task));
+  back.querySelector('#task-favorite').addEventListener('click', () => {
+    const btn = back.querySelector('#task-favorite');
+    const next = btn.getAttribute('aria-pressed') !== 'true';
+    btn.setAttribute('aria-pressed', String(next));
+    btn.setAttribute('aria-label', next ? '중요 표시 해제' : '중요 표시');
+  });
   back.querySelector('#task-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const title = back.querySelector('#task-title').value.trim();
     const due_date = back.querySelector('#task-due').value || null;
     const memo = back.querySelector('#task-memo').value.trim() || null;
+    const is_favorite = back.querySelector('#task-favorite').getAttribute('aria-pressed') === 'true';
     const planIds = [...back.querySelectorAll('input[name="plan"]:checked')].map((i) => i.value);
     setError(back, '');
     if (!title) return setError(back, '제목을 입력해 주세요.');
     if (title.length > 100) return setError(back, '제목은 100자 이내로 써 주세요.');
     try {
       if (isEdit) {
-        await updateTask(task.id, { title, due_date, memo });
+        await updateTask(task.id, { title, due_date, memo, is_favorite });
         await updateTaskLinks(task.id, planIds);
         showToast('할 일을 수정했어요.');
       } else {
-        await createTask({ title, due_date, memo, planIds });
+        await createTask({ title, due_date, memo, planIds, is_favorite });
         showToast('할 일을 만들었어요.');
       }
       closeModal();

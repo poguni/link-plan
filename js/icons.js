@@ -3,7 +3,7 @@
 
 export async function loadIcons() {
   if (document.getElementById('icon-sprite')) return;
-  const res = await fetch('assets/icons.svg?v=9'); // 배포 캐시 무효화 값(index.html·admin.html의 ?v= 와 맞춤)
+  const res = await fetch('assets/icons.svg?v=17'); // 배포 캐시 무효화 값(index.html·admin.html의 ?v= 와 맞춤)
   if (!res.ok) throw new Error('아이콘 파일을 불러오지 못했어요.');
   const holder = document.createElement('div');
   holder.id = 'icon-sprite';

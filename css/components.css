@@ -28,6 +28,10 @@
   background: transparent; color: var(--icon-btn-fg);
 }
 .icon-btn--md { width: 32px; height: 32px; }
+/* 할 일 중요 표시(하트). 켜지면 danger 색으로 채웁니다(전용 색 토큰이 없어 기존 빨간 계열을 재사용). */
+.icon-btn--favorite { flex-shrink: 0; }
+.icon-btn--favorite[aria-pressed="true"] { color: var(--danger); }
+.icon-btn--favorite[aria-pressed="true"] .ic { fill: currentColor; }
 .icon-btn--box {
   width: 44px; height: 44px;
   border: 1px solid var(--btn-border); border-radius: var(--btn-radius);

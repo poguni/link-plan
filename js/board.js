@@ -2,7 +2,7 @@
 // 상태가 바뀔 때마다 통째로 다시 그립니다(할 일이 500개여도 충분히 빠른 규모). 상태 변경은 state.js 의 함수로만 합니다.
 import { icon } from './icons.js';
 import { chip, esc, progressBar, showToast, openModal, closeModal, LEVELS, STATUSES } from './ui.js';
-import { getState, subscribe, setTaskStatus, reorderTask, carryOverTasks } from './state.js';
+import { getState, subscribe, setTaskStatus, updateTask, reorderTask, carryOverTasks } from './state.js';
 import { planProgress } from './progress.js';
 import { openTaskModal, confirmDeleteTask } from './taskmodal.js';
 import { openPlanModal } from './planmodal.js';
@@ -163,7 +163,9 @@ function taskDate(task) {
 function taskCard(task, s) {
   return `<article class="task-card" data-task-id="${esc(task.id)}" data-status="${task.status}" tabindex="0" aria-keyshortcuts="Enter"
       aria-label="${esc(task.title)}, ${STATUSES[task.status].label}. Enter 키를 누르면 상태를 바꿀 수 있어요.">
-    <div class="card-head"><span class="grip" aria-hidden="true">${icon('grip', 16)}</span><div class="card-title">${esc(task.title)}</div></div>
+    <div class="card-head"><span class="grip" aria-hidden="true">${icon('grip', 16)}</span><div class="card-title">${esc(task.title)}</div>
+      <button type="button" class="icon-btn icon-btn--favorite" data-task-favorite="${esc(task.id)}" aria-pressed="${task.is_favorite ? 'true' : 'false'}" aria-label="${task.is_favorite ? '중요 표시 해제' : '중요 표시'}">${icon('heart', 15)}</button>
+    </div>
     <div class="card-chips">${taskChips(task, s)}</div>
     <div class="card-foot">
       ${taskDate(task)}
@@ -477,6 +479,12 @@ export function mountBoard() {
     if (taskEdit) return openTaskModal(getState().tasks.find((t) => t.id === taskEdit.dataset.taskEdit));
     const taskDelete = e.target.closest('[data-task-delete]');
     if (taskDelete) { const t = getState().tasks.find((x) => x.id === taskDelete.dataset.taskDelete); if (t) confirmDeleteTask(t); return; }
+    const taskFav = e.target.closest('[data-task-favorite]');
+    if (taskFav) {
+      const t = getState().tasks.find((x) => x.id === taskFav.dataset.taskFavorite);
+      if (t) updateTask(t.id, { is_favorite: !t.is_favorite }).catch((err) => showToast(err.message));
+      return;
+    }
 
     const statusTab = e.target.closest('[data-status-tab]');
     if (statusTab) {
