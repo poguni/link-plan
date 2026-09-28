@@ -299,6 +299,8 @@
   box-shadow: var(--shadow-card);
 }
 .modal-title { font-family: var(--font-display); font-size: 18px; font-weight: var(--fw-bold); }
+/* task-form·plan-form 처럼 <form> 태그 자체에는 class 가 없어서, 안의 .field 들이 gap 없이 딱 붙어 보였습니다. */
+.modal-card form { display: flex; flex-direction: column; gap: 16px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
 .modal-actions .btn-ghost:first-child { margin-right: auto; }
 
