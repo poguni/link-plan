@@ -64,6 +64,9 @@
   background: var(--btn-bg); border: 1px solid var(--btn-border); border-radius: var(--btn-radius);
   color: var(--text); font-size: 14px;
 }
+/* 파스텔의 --btn-radius(999px)는 알약 모양 버튼용이라, 텍스트 입력창에 그대로 쓰면 캡슐처럼 과하게
+   둥글어집니다. 입력창은 모서리만 둥근 사각형이 되도록 별도 값을 씁니다. */
+[data-theme="pastel"] .field-input { border-radius: 14px; }
 .field-input.has-toggle { padding-right: 44px; }
 .field-textarea { height: 88px; padding: 10px 14px; resize: none; line-height: 1.4; }
 .field-toggle {

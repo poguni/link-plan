@@ -136,7 +136,6 @@
 /* ── 할 일 카드 ──────────────────────────────────── */
 .task-card {
   position: relative;
-  display: flex; flex-direction: column; gap: 10px;
   padding: var(--card-pad);
   background: var(--surface);
   border: var(--card-bw) solid var(--border);
@@ -144,6 +143,9 @@
   box-shadow: var(--shadow-card);
   transition: box-shadow var(--dur) var(--ease), translate var(--dur) var(--ease), background var(--dur) var(--ease);
 }
+/* 긴 제목이 카드 테두리를 뚫고 나가지 않도록, 실제 내용은 이 안쪽 래퍼에서 자릅니다.
+   ::before 마스킹테이프(파스텔)는 .task-card 자체에 그려서 이 클리핑의 영향을 받지 않습니다. */
+.card-body { display: flex; flex-direction: column; gap: 10px; min-width: 0; overflow: hidden; }
 /* ── hover·active(DESIGN.md 7절 상태 표) ─────────────── */
 .task-card:hover { box-shadow: var(--shadow-card-hover); }
 .task-card:active { box-shadow: var(--shadow-card-active); }
@@ -164,7 +166,7 @@
 .task-card[data-status="done"] .card-title { color: var(--muted); text-decoration: line-through; }
 .task-card[data-status="done"] .card-date { color: var(--st-done); }
 
-[data-theme="pastel"] .task-card { gap: 10px; }
+[data-theme="pastel"] .card-body { gap: 10px; }
 [data-theme="pastel"] .grip { display: none; }
 [data-theme="pastel"] .card-title { font-size: 17px; line-height: 1.35; }
 [data-theme="pastel"] .card-foot { font-size: 13px; }

@@ -40,14 +40,16 @@
 
     const card = (status, title, chips, dateIcon, date) => `
       <article class="task-card" data-status="${status}">
-        <div class="card-head"><span class="grip">${icon('grip', 16)}</span><div class="card-title">${title}</div></div>
-        <div class="card-chips">${chips}</div>
-        <div class="card-foot">
-          <span class="card-date">${icon(dateIcon, 14)}${date}</span>
-          <span class="card-actions">
-            <button type="button" class="icon-btn" aria-label="수정">${icon('pencil', 15)}</button>
-            <button type="button" class="icon-btn" aria-label="삭제">${icon('trash', 15)}</button>
-          </span>
+        <div class="card-body">
+          <div class="card-head"><span class="grip">${icon('grip', 16)}</span><div class="card-title">${title}</div></div>
+          <div class="card-chips">${chips}</div>
+          <div class="card-foot">
+            <span class="card-date">${icon(dateIcon, 14)}${date}</span>
+            <span class="card-actions">
+              <button type="button" class="icon-btn" aria-label="수정">${icon('pencil', 15)}</button>
+              <button type="button" class="icon-btn" aria-label="삭제">${icon('trash', 15)}</button>
+            </span>
+          </div>
         </div>
       </article>`;
 

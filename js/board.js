@@ -163,16 +163,18 @@ function taskDate(task) {
 function taskCard(task, s) {
   return `<article class="task-card" data-task-id="${esc(task.id)}" data-status="${task.status}" tabindex="0" aria-keyshortcuts="Enter"
       aria-label="${esc(task.title)}, ${STATUSES[task.status].label}. Enter 키를 누르면 상태를 바꿀 수 있어요.">
-    <div class="card-head"><span class="grip" aria-hidden="true">${icon('grip', 16)}</span><div class="card-title">${esc(task.title)}</div>
-      <button type="button" class="icon-btn icon-btn--favorite" data-task-favorite="${esc(task.id)}" aria-pressed="${task.is_favorite ? 'true' : 'false'}" aria-label="${task.is_favorite ? '중요 표시 해제' : '중요 표시'}">${icon('heart', 15)}</button>
-    </div>
-    <div class="card-chips">${taskChips(task, s)}</div>
-    <div class="card-foot">
-      ${taskDate(task)}
-      <span class="card-actions">
-        <button type="button" class="icon-btn" data-task-edit="${esc(task.id)}" aria-label="수정">${icon('pencil', 15)}</button>
-        <button type="button" class="icon-btn" data-task-delete="${esc(task.id)}" aria-label="삭제">${icon('trash', 15)}</button>
-      </span>
+    <div class="card-body">
+      <div class="card-head"><span class="grip" aria-hidden="true">${icon('grip', 16)}</span><div class="card-title">${esc(task.title)}</div>
+        <button type="button" class="icon-btn icon-btn--favorite" data-task-favorite="${esc(task.id)}" aria-pressed="${task.is_favorite ? 'true' : 'false'}" aria-label="${task.is_favorite ? '중요 표시 해제' : '중요 표시'}">${icon('heart', 15)}</button>
+      </div>
+      <div class="card-chips">${taskChips(task, s)}</div>
+      <div class="card-foot">
+        ${taskDate(task)}
+        <span class="card-actions">
+          <button type="button" class="icon-btn" data-task-edit="${esc(task.id)}" aria-label="수정">${icon('pencil', 15)}</button>
+          <button type="button" class="icon-btn" data-task-delete="${esc(task.id)}" aria-label="삭제">${icon('trash', 15)}</button>
+        </span>
+      </div>
     </div>
   </article>`;
 }
