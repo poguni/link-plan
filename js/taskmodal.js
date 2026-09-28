@@ -44,7 +44,7 @@ export function openTaskModal(task = null) {
       </div>
       <div class="field">
         <label class="field-label" for="task-memo">메모(선택)</label>
-        <input class="field-input" id="task-memo" value="${esc(task?.memo ?? '')}">
+        <textarea class="field-input field-textarea" id="task-memo">${esc(task?.memo ?? '')}</textarea>
       </div>
       <div class="field">
         <span class="field-label">연결할 계획(0개 이상, 없으면 개별 할 일)</span>

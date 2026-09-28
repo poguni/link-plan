@@ -76,9 +76,9 @@
 
 /* ── 단계 칩 ──────────────────────────────────────── */
 .chip {
-  display: inline-flex; align-items: center; gap: 4px;
+  display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
   padding: 3px 8px; border-radius: var(--radius-pill);
-  font-size: 12px; font-weight: 500; line-height: 1.4;
+  font-size: 12px; font-weight: 500; line-height: 1.4; white-space: nowrap;
 }
 .chip--year  { background: var(--lv-year-bg);  color: var(--lv-year-fg); }
 .chip--month { background: var(--lv-month-bg); color: var(--lv-month-fg); }

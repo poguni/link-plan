@@ -64,6 +64,7 @@
   color: var(--text); font-size: 14px;
 }
 .field-input.has-toggle { padding-right: 44px; }
+.field-textarea { height: 88px; padding: 10px 14px; resize: none; line-height: 1.4; }
 .field-toggle {
   position: absolute; right: 4px;
   display: flex; align-items: center; justify-content: center;
