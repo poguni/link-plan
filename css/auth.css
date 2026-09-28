@@ -5,6 +5,12 @@
   min-height: 100vh;
   display: flex; align-items: center; justify-content: center;
   padding: 24px;
+  background: url('../assets/splash_screen_1.jpg') center / cover no-repeat;
+}
+/* 스플래시 이미지는 가로 16:9 시안이라, 세로로 긴 좁은 화면에서는 cover 로 인해 제목 글자가
+   과하게 확대·잘려 보입니다. 좁은 화면에서는 이미지를 빼고 기본 배경색만 씁니다. */
+@media (max-width: 640px) {
+  .auth-shell { background: var(--bg); }
 }
 
 .auth-card {
