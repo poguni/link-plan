@@ -74,6 +74,7 @@ function taskNodeHtml(task, pos, s) {
     <span class="lstatus-ic">${icon(STATUSES[task.status].icon, 18)}</span>
     <div class="ltask-text"><span class="ltask-title">${esc(task.title)}</span><span class="ltask-sub">${sub}</span></div>
     ${badge}
+    <button type="button" class="icon-btn" data-task-edit="${esc(task.id)}" aria-label="수정">${icon('pencil', 13)}</button>
     <span class="grip" aria-hidden="true">${icon('grip', 15)}</span>
   </div>`;
 }
@@ -99,6 +100,15 @@ function orthogonalPath(x1, y1, x2, y2, railX, r = 16) {
 function rightPoint(pos) { return { x: pos.x + pos.width, y: pos.top + pos.height / 2 }; }
 function leftPoint(pos) { return { x: pos.x, y: pos.top + pos.height / 2 }; }
 
+// 연간 목표가 여러 개일 때, 연간→할일 직접 연결(점선)이 전부 같은 세로 레일을 쓰면 서로 다른
+// 연간 목표의 선이 같은 위치에서 겹쳐 보입니다. 연간 목표별로(위쪽부터 차례로) 레일을 조금씩 옆으로 벌립니다.
+const DIRECT_RAIL_GAP = 14;
+function buildRailMap(edges, byId) {
+  const ids = [...new Set(edges.filter((e) => e.kind === 'direct-dashed').map((e) => e.nodeA))];
+  ids.sort((a, b) => byId.get(a).top - byId.get(b).top);
+  return new Map(ids.map((id, i) => [id, i]));
+}
+
 // 그릴 선 목록을 만듭니다: (a) 계획 트리 간선(부모→자식, 부모 색), (b) 할일-계획 연결(주간은 주간 색, 월간·연간 직접은 --line-direct).
 // 모든 선에 양 끝 노드의 id(nodeA·nodeB)를 넣어 둡니다. 호버·포커스 강조가 이 값으로 "이 노드에 이어진 선"을 찾습니다.
 // 지울 수 있는 선(할일-계획 연결)에는 taskId·planId 도 함께 넣어 클릭 삭제에 씁니다(계획 트리 간선은 지울 수 없음).
@@ -123,10 +133,11 @@ function buildEdges(s, byId) {
   return edges;
 }
 
-function edgeSvg(edge, columns) {
+function edgeSvg(edge, columns, railMap) {
   const a = rightPoint(edge.from), b = leftPoint(edge.to);
   const cls = `edge edge--${edge.kind}${edge.level ? ` edge--${edge.level}` : ''}`;
-  const d = edge.kind === 'direct-dashed' ? orthogonalPath(b.x, b.y, a.x, a.y, columns.x0[0] + columns.width + 16) : bezierPath(a.x, a.y, b.x, b.y);
+  const railX = columns.x0[0] + columns.width + 16 + (railMap.get(edge.nodeA) ?? 0) * DIRECT_RAIL_GAP;
+  const d = edge.kind === 'direct-dashed' ? orthogonalPath(b.x, b.y, a.x, a.y, railX) : bezierPath(a.x, a.y, b.x, b.y);
   const nodeAttrs = ` data-node-a="${esc(edge.nodeA)}" data-node-b="${esc(edge.nodeB)}"`;
   const delAttrs = edge.taskId ? ` data-task-id="${esc(edge.taskId)}" data-plan-id="${esc(edge.planId)}"` : '';
   const hit = edge.taskId ? `<path class="edge-hit" d="${d}"${delAttrs}></path>` : '';
@@ -187,7 +198,9 @@ function render(s) {
       ${icon('unlink', 14)}<span>연결 없음 · 개별 할 일</span></div>`;
 
   els.nodes.innerHTML = headers + nodes + soloHtml;
-  els.svg.innerHTML = buildEdges(s, byId).map((e) => edgeSvg(e, columns)).join('');
+  const edges = buildEdges(s, byId);
+  const railMap = buildRailMap(edges, byId);
+  els.svg.innerHTML = edges.map((e) => edgeSvg(e, columns, railMap)).join('');
   els.svg.setAttribute('width', graphWidth);
   els.svg.setAttribute('height', graphHeight);
 
