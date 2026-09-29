@@ -149,7 +149,7 @@ function edgeSvg(edge, columns, railMap) {
 // ── 상태 트레이 ─────────────────────────────────────
 function trayCellHtml(status, tasks) {
   const { icon: iconId, label } = STATUSES[status];
-  const hint = { todo: '끌어다 놓아 되돌리기', doing: '지금 손대고 있는 일', done: '여기에 놓으면 완료' }[status];
+  const hint = { todo: '끌어다 놓아 되돌리기', doing: '지금 하고 있는 일', done: '여기에 놓으면 완료' }[status];
   return `<div class="tray-cell" data-tray-status="${status}">
     <div class="tray-cell-head">
       <span class="tray-ic">${icon(iconId, 18)}</span><span class="tray-name">${label}</span>
