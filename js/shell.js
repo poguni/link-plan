@@ -118,6 +118,7 @@ export function renderShell(app) {
         <span class="user-name" id="user-email">내 계정</span>
       </button>
     </aside>
+    <div class="panel-resize only-board" id="panel-resize" aria-hidden="true"></div>
 
     <main class="main">
       <div class="main-head">
@@ -347,9 +348,50 @@ function openMenu() {
   syncPanelInert();
 }
 
+// ── 목표 패널 폭 조절(테두리 드래그) ────────────────
+// 테마마다 패널 폭을 담는 변수가 달라서(클린 --sidebar-w, 나이트·파스텔 --panel-w) 둘 다 같이 바꿉니다.
+// :root 인라인 스타일이라 tokens.css 의 좁은 화면 규칙(@media 1199px 이하)보다 항상 우선하므로, 한 번
+// 손으로 정한 폭은 창 크기를 바꿔도 유지됩니다. 링크 뷰(클린은 레일 고정, 나이트·파스텔은 패널 숨김)와
+// 600px 미만 드로어(패널이 grid 밖으로 나가 고정폭 vw 를 씁니다)에서는 손잡이를 숨겨 둡니다(CSS).
+const PANEL_W_MIN = 200, PANEL_W_MAX = 420, PANEL_W_KEY = 'linkplan_panel_w';
+
+function applyPanelWidth(px) {
+  root.style.setProperty('--sidebar-w', `${px}px`);
+  root.style.setProperty('--panel-w', `${px}px`);
+}
+
+function restorePanelWidth() {
+  const saved = Number(localStorage.getItem(PANEL_W_KEY));
+  if (saved >= PANEL_W_MIN && saved <= PANEL_W_MAX) applyPanelWidth(saved);
+}
+
+function bindPanelResize() {
+  const handle = document.getElementById('panel-resize');
+  const panel = document.getElementById('goal-panel');
+  if (!handle || !panel) return;
+  handle.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    handle.setPointerCapture(e.pointerId);
+    handle.classList.add('is-active');
+    const startX = e.clientX;
+    const startW = panel.getBoundingClientRect().width;
+    const onMove = (ev) => applyPanelWidth(Math.min(PANEL_W_MAX, Math.max(PANEL_W_MIN, startW + (ev.clientX - startX))));
+    const onUp = () => {
+      handle.removeEventListener('pointermove', onMove);
+      handle.removeEventListener('pointerup', onUp);
+      handle.classList.remove('is-active');
+      try { localStorage.setItem(PANEL_W_KEY, String(Math.round(panel.getBoundingClientRect().width))); } catch { /* 저장 안 돼도 화면은 그대로 씁니다. */ }
+    };
+    handle.addEventListener('pointermove', onMove);
+    handle.addEventListener('pointerup', onUp, { once: true });
+  });
+}
+
 export function bindShell() {
   root.dataset.period = root.dataset.period || 'week';
   root.dataset.mobileStatus = root.dataset.mobileStatus || 'todo';
+  restorePanelWidth();
+  bindPanelResize();
   syncPanelInert();
   document.addEventListener('click', (e) => {
     const viewBtn = e.target.closest('[data-view-btn]');

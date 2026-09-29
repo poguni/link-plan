@@ -74,7 +74,7 @@ function goalCard(year, s) {
       <button type="button" class="goal-main" data-filter-plan="${esc(year.id)}" aria-pressed="${active}">
         <span class="goal-dot" aria-hidden="true"></span>
         <span class="goal-ic" aria-hidden="true">${icon('sprout', 22)}</span>
-        <span class="goal-text"><span class="goal-title">${esc(year.title)}</span><span class="goal-sub">연간 목표</span></span>
+        <span class="goal-text"><span class="goal-title" title="${esc(year.title)}">${esc(year.title)}</span><span class="goal-sub">연간 목표</span></span>
         <span class="goal-pct num">${pctLabel(pr)}</span>
       </button>
       <button type="button" class="icon-btn goal-edit" data-plan-edit="${esc(year.id)}" aria-label="연간 목표 수정">${icon('pencil', 14)}</button>
