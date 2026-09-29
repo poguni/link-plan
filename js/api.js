@@ -21,7 +21,7 @@ function dbThrow(error) { console.error(error); throw new Error(friendlyDbError(
 // ── 전체 불러오기 ───────────────────────────────────
 export async function loadAll() {
   const [plansRes, tasksRes, linksRes] = await Promise.all([
-    supabase.from('plans').select('id, plan_type, title, period_start, period_end, parent_id').order('created_at'),
+    supabase.from('plans').select('id, plan_type, title, period_start, period_end, parent_id, sort_order').order('sort_order'),
     supabase.from('tasks').select('id, title, memo, due_date, status, completed_at, sort_order, is_favorite').order('sort_order'),
     supabase.from('task_plan_links').select('task_id, plan_id'),
   ]);
@@ -71,7 +71,7 @@ export async function updateTaskStatus(taskId, status) {
 // ── 계획 CRUD(P0-5, P0-6) ───────────────────────────
 export async function createPlan({ plan_type, title, period_start, period_end, parent_id }) {
   const { data, error } = await supabase.from('plans').insert({ plan_type, title, period_start, period_end, parent_id: parent_id || null })
-    .select('id, plan_type, title, period_start, period_end, parent_id').single();
+    .select('id, plan_type, title, period_start, period_end, parent_id, sort_order').single();
   if (error) dbThrow(error);
   return data;
 }

@@ -67,7 +67,14 @@
 
 /* ── 좌측 목표 패널 내용 ─────────────────────────── */
 .goal-list { display: flex; flex-direction: column; gap: 12px; }
-.goal-card { display: flex; flex-direction: column; gap: 8px; }
+.goal-card { display: flex; flex-direction: column; gap: 8px; cursor: grab; }
+/* 끌기: 연간 목표 순서 바꾸기(task-card 와 같은 규칙, DESIGN.md 5·7절). */
+.goal-card.is-dragging {
+  rotate: 1deg; opacity: 1 !important; cursor: grabbing; z-index: 1000;
+  background: var(--drag-bg); border-color: var(--drag-border); box-shadow: var(--shadow-drag);
+}
+.goal-card.is-ghost { background: transparent; border-style: dashed; box-shadow: none; opacity: .6; }
+.goal-card.is-ghost > * { visibility: hidden; }
 .goal-main {
   display: flex; align-items: center; gap: 10px;
   flex: 1; min-width: 0; padding: 0; border: 0; background: transparent;

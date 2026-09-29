@@ -143,6 +143,20 @@ export async function updatePlan(planId, patch) {
   }
 }
 
+// 목표 패널·링크 뷰에서 연간 목표를 끌어 순서를 바꿀 때 씁니다. reorderTask 와 같은 방식으로, 순서 값은
+// 호출하는 쪽(board.js·link.js)이 이웃 계획들 사이의 중간값으로 계산해 넘겨줍니다.
+export async function reorderPlan(planId, sortOrder) {
+  const before = state.plans.find((p) => p.id === planId);
+  if (!before) return;
+  commit({ ...state, plans: state.plans.map((p) => (p.id === planId ? { ...p, sort_order: sortOrder } : p)) });
+  try {
+    await api.updatePlan(planId, { sort_order: sortOrder });
+  } catch (err) {
+    commit({ ...state, plans: state.plans.map((p) => (p.id === planId ? before : p)) });
+    throw err;
+  }
+}
+
 // 계획을 지워도 연결된 할 일과 하위 계획은 남고, 연결만 해제됩니다(PRD P0-5). 서버가 하위 계획의
 // parent_id 를 비우고(on delete set null) 연결 행만 지우므로, 화면 상태도 같은 규칙으로 맞춥니다.
 export async function deletePlan(planId) {

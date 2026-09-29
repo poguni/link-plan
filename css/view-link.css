@@ -48,6 +48,10 @@
 /* 할 일 노드 */
 .lnode--task { gap: 8px; padding: 0 12px; cursor: grab; }
 .lnode--task.is-dragging { cursor: grabbing; box-shadow: var(--shadow-drag); z-index: 5; }
+
+/* 연간 목표 노드: 위아래로 끌어 순서를 바꿀 수 있습니다. */
+.lnode--year { cursor: grab; }
+.lnode--year.is-dragging { cursor: grabbing; box-shadow: var(--shadow-drag); z-index: 5; }
 .lstatus-ic { display: flex; flex-shrink: 0; color: var(--muted); }
 .lnode--task[data-status="doing"] .lstatus-ic { color: var(--st-doing); }
 .lnode--task[data-status="done"] .lstatus-ic { color: var(--st-done); }

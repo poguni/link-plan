@@ -95,7 +95,8 @@ export function computeLayout({ plans, tasks, links, columns, pastelOffset = fal
   // ── 4) 연간: 하위 월간들의 범위에만 맞춥니다(직접 연결된 할 일은 시안 기준으로 영향을 주지 않음) ──
   const yearPos = new Map();
   let lastYearBottom = null;
-  plans.filter((p) => p.plan_type === 'yearly').forEach((year) => {
+  // 드래그로 순서를 바꾼 직후에도(sort_order 값만 바뀌고 배열 순서는 그대로) 바로 반영되도록 정렬해서 돕니다.
+  plans.filter((p) => p.plan_type === 'yearly').sort((a, b) => a.sort_order - b.sort_order).forEach((year) => {
     const children = plans.filter((p) => p.plan_type === 'monthly' && p.parent_id === year.id).map((m) => monthPos.get(m.id)).filter(Boolean);
     const center = children.length ? centerOf(children) : (lastYearBottom ?? TASK_TOP0) + off + GROUP_GAP + YEAR_H / 2;
     const top = center - YEAR_H / 2;

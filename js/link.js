@@ -2,8 +2,8 @@
 // 좌표 계산은 layout.js(DOM 없는 순수 함수)가 하고, 이 파일은 그 결과를 DOM/SVG 로 그리고 상호작용을 답니다.
 import { icon } from './icons.js';
 import { chip, esc, progressRing, showToast, LEVELS, STATUSES } from './ui.js';
-import { getState, subscribe, addLink, removeLink } from './state.js';
-import { moveTask, openStatusMenu, closeStatusMenu } from './board.js';
+import { getState, subscribe, addLink, removeLink, reorderPlan } from './state.js';
+import { moveTask, openStatusMenu, closeStatusMenu, orderBetween } from './board.js';
 import { computeLayout, checkPlanParent } from './layout.js';
 import { planProgress } from './progress.js';
 import { openPlanModal } from './planmodal.js';
@@ -246,6 +246,44 @@ function openEdgeDelete(hitPath, x, y) {
   edgeDelete = btn;
 }
 
+// ── 상호작용: 연간 목표 노드를 위아래로 끌어 순서 바꾸기 ─
+// 절대 좌표로 그려지는 그래프라 SortableJS(목록 기반)를 그대로 쓸 수 없어, 할 일→트레이 드래그와
+// 같은 포인터 이벤트 방식을 씁니다. 놓은 지점 아래에 있는 다른 연간 목표 노드를 찾아, 그 노드의 위/아래
+// 절반 중 어디에 놓였는지로 앞뒤를 정하고, 이웃 노드들의 sort_order 중간값을 새 값으로 저장합니다.
+function startYearDrag(node, pointerId, startClientY) {
+  const planId = node.dataset.planId;
+  node.setPointerCapture(pointerId);
+  node.classList.add('is-dragging');
+
+  const onMove = (e) => {
+    node.style.translate = `0 ${e.clientY - startClientY}px`;
+  };
+  const onUp = (e) => {
+    node.removeEventListener('pointermove', onMove);
+    node.removeEventListener('pointerup', onUp);
+    node.classList.remove('is-dragging');
+    node.style.translate = '';
+    const under = document.elementFromPoint(e.clientX, e.clientY);
+    const target = under?.closest('.lnode--year');
+    if (!target || target === node) return;
+    const rect = target.getBoundingClientRect();
+    reorderYear(planId, target.dataset.planId, e.clientY < rect.top + rect.height / 2);
+  };
+  node.addEventListener('pointermove', onMove);
+  node.addEventListener('pointerup', onUp, { once: true });
+}
+
+function reorderYear(planId, targetId, placeBefore) {
+  const years = getState().plans.filter((p) => p.plan_type === 'yearly')
+    .filter((p) => p.id !== planId)
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const targetIdx = years.findIndex((p) => p.id === targetId);
+  if (targetIdx === -1) return;
+  const insertIdx = placeBefore ? targetIdx : targetIdx + 1;
+  const order = orderBetween(years[insertIdx - 1]?.sort_order ?? null, years[insertIdx]?.sort_order ?? null);
+  reorderPlan(planId, order).catch((err) => { console.error(err); showToast('순서를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.'); });
+}
+
 // ── 상호작용: 할 일을 트레이로 끌어 상태 변경 ────────
 function startTaskDrag(node, pointerId) {
   const taskId = node.dataset.taskId;
@@ -348,6 +386,8 @@ export function mountLink() {
     const taskNode = e.target.closest('.lnode--task');
     if (dot && taskNode) return startLinkDrag(dot, e.pointerId, taskNode.dataset.taskId);
     if (taskNode && !e.target.closest('.icon-btn')) return startTaskDrag(taskNode, e.pointerId);
+    const yearNode = e.target.closest('.lnode--year');
+    if (yearNode && !e.target.closest('.icon-btn, .dot')) return startYearDrag(yearNode, e.pointerId, e.clientY);
   });
 
   els.nodes.addEventListener('mouseover', (e) => { const n = e.target.closest('.lnode'); if (n) highlight(n); });

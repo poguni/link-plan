@@ -2,7 +2,7 @@
 // 상태가 바뀔 때마다 통째로 다시 그립니다(할 일이 500개여도 충분히 빠른 규모). 상태 변경은 state.js 의 함수로만 합니다.
 import { icon } from './icons.js';
 import { chip, esc, progressBar, showToast, openModal, closeModal, LEVELS, STATUSES } from './ui.js';
-import { getState, subscribe, setTaskStatus, updateTask, reorderTask, carryOverTasks } from './state.js';
+import { getState, subscribe, setTaskStatus, updateTask, reorderTask, reorderPlan, carryOverTasks } from './state.js';
 import { planProgress } from './progress.js';
 import { openTaskModal, confirmDeleteTask } from './taskmodal.js';
 import { openPlanModal } from './planmodal.js';
@@ -25,6 +25,7 @@ const shortDate = (iso) => { const d = parseISO(iso); return `${d.getMonth() + 1
 // ── 화면 상태(메모리) ───────────────────────────────
 let els = {};
 let sortables = [];
+let goalSortable = null;
 let pendingFocus = null;    // 다시 그린 뒤 포커스를 돌려줄 할 일 id(키보드 조작용)
 let openMenu = null;
 
@@ -68,7 +69,7 @@ function goalCard(year, s) {
     .filter((p) => p.parent_id === year.id)
     .map((m) => planPill(m, 1, s) + s.plans.filter((p) => p.parent_id === m.id).map((w) => planPill(w, 2, s)).join(''))
     .join('');
-  return `<div class="goal-card${active ? ' is-active' : ''}">
+  return `<div class="goal-card${active ? ' is-active' : ''}" data-plan-id="${esc(year.id)}">
     <div class="goal-head-row">
       <button type="button" class="goal-main" data-filter-plan="${esc(year.id)}" aria-pressed="${active}">
         <span class="goal-dot" aria-hidden="true"></span>
@@ -86,13 +87,50 @@ function goalCard(year, s) {
 
 function renderGoals(s) {
   if (!s.ready) { els.goalList.innerHTML = ''; els.soloCount.textContent = ''; return; }
-  const years = s.plans.filter((p) => p.plan_type === 'yearly');
+  const years = s.plans.filter((p) => p.plan_type === 'yearly').sort((a, b) => a.sort_order - b.sort_order);
   els.goalList.innerHTML = years.length
     ? years.map((y) => goalCard(y, s)).join('')
     : '<p class="goal-empty">아직 연간 목표가 없어요.</p>';
   const linked = linkedTaskIds(s);
   els.soloCount.textContent = s.tasks.filter((t) => !linked.has(t.id)).length;
   els.soloRow.setAttribute('aria-pressed', String(getFilter().scope?.type === 'solo'));
+  initGoalDrag();
+}
+
+// 목표 패널의 연간 목표 순서를 끌어서 바꿉니다. 카드 안의 월간·주간 알약(파스텔의 펼친 트리, goal-branch)은
+// 하위 계획이라 여기서 함께 끌리면 안 되므로 드래그 시작에서 제외합니다.
+function initGoalDrag() {
+  goalSortable?.destroy();
+  goalSortable = null;
+  if (!window.Sortable || !els.goalList) return;
+  goalSortable = window.Sortable.create(els.goalList, {
+    draggable: '.goal-card',
+    filter: '.icon-btn, .goal-branch',
+    preventOnFilter: false,
+    animation: 150,
+    forceFallback: true,
+    fallbackOnBody: true,
+    fallbackClass: 'is-dragging',
+    ghostClass: 'is-ghost',
+    chosenClass: 'is-chosen',
+    delay: 400,
+    delayOnTouchOnly: true,
+    touchStartThreshold: 6,
+    onEnd(evt) {
+      if (evt.oldIndex !== evt.newIndex) reorderGoal(evt.item.dataset.planId, els.goalList);
+    },
+  });
+}
+
+function reorderGoal(planId, listEl) {
+  const cards = [...listEl.querySelectorAll(':scope > .goal-card')];
+  const idx = cards.findIndex((c) => c.dataset.planId === planId);
+  if (idx === -1) return;
+  const byId = new Map(getState().plans.map((p) => [p.id, p]));
+  const prevOrder = idx > 0 ? byId.get(cards[idx - 1].dataset.planId)?.sort_order ?? null : null;
+  const nextOrder = idx < cards.length - 1 ? byId.get(cards[idx + 1].dataset.planId)?.sort_order ?? null : null;
+  reorderPlan(planId, orderBetween(prevOrder, nextOrder))
+    .catch((err) => { console.error(err); showToast('순서를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.'); });
 }
 
 // 왼쪽 목표 패널에서 계획을 하나 골라 둔 상태(스코프)면, 사슬도 그 계획의 갈래를 따라갑니다.
@@ -261,7 +299,7 @@ function initDrag() {
 
 // 같은 열 안에서 순서를 바꿉니다(P1-1). 드롭 직후의 실제 DOM 순서(cards)에서 이웃 카드를 찾고,
 // 그 이웃들의 저장된 sort_order 사이의 중간값을 새 값으로 씁니다(같은 열의 다른 카드는 건드리지 않음).
-function orderBetween(before, after) {
+export function orderBetween(before, after) {
   if (before == null && after == null) return 0;
   if (before == null) return after - 1;
   if (after == null) return before + 1;
