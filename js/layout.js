@@ -56,9 +56,14 @@ export function computeLayout({ plans, tasks, links, columns, pastelOffset = fal
     taskPos.set(task.id, { id: task.id, kind: 'task', top: cursor + off, height: TASK_H, x: x0[3], width, weekId });
     prevWeekId = weekId;
   });
+  // 연결된 할 일이 많아 고정된 SOLO_HEADER_Y(606)보다 아래로 내려가면 "연결 없음" 머리글이 마지막 카드와
+  // 겹칩니다. 연결된 할 일 목록의 실제 끝 지점을 기준으로 아래로 밀어냅니다(짧을 때는 기존 고정값 그대로).
+  const connectedBottom = connectedTasks.length ? cursor + off + TASK_H : null;
+  const soloHeaderY = connectedBottom !== null ? Math.max(SOLO_HEADER_Y + off, connectedBottom + GROUP_GAP) : SOLO_HEADER_Y + off;
+  const soloNodeY = soloHeaderY + (SOLO_NODE_Y - SOLO_HEADER_Y);
   soloTasks.forEach((task, i) => {
-    const top = SOLO_NODE_Y + i * (TASK_H + SIB_GAP);
-    taskPos.set(task.id, { id: task.id, kind: 'task', top: top + off, height: TASK_H, x: x0[3], width, weekId: null });
+    const top = soloNodeY + i * (TASK_H + SIB_GAP);
+    taskPos.set(task.id, { id: task.id, kind: 'task', top, height: TASK_H, x: x0[3], width, weekId: null });
   });
 
   // ── 2) 주간: 자신에게 연결된 할 일들의 세로 중앙에 맞춥니다 ──
@@ -99,6 +104,6 @@ export function computeLayout({ plans, tasks, links, columns, pastelOffset = fal
   });
 
   const nodes = [...yearPos.values(), ...monthPos.values(), ...weekPos.values(), ...taskPos.values()];
-  const graphBottom = Math.max(SOLO_NODE_Y + off + soloTasks.length * (TASK_H + SIB_GAP), ...nodes.map(bottom));
-  return { nodes, byId: new Map(nodes.map((n) => [n.id, n])), soloHeaderY: SOLO_HEADER_Y + off, graphBottom };
+  const graphBottom = Math.max(soloNodeY + soloTasks.length * (TASK_H + SIB_GAP), ...nodes.map(bottom));
+  return { nodes, byId: new Map(nodes.map((n) => [n.id, n])), soloHeaderY, graphBottom };
 }
