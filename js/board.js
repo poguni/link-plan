@@ -6,7 +6,7 @@ import { getState, subscribe, setTaskStatus, updateTask, reorderTask, carryOverT
 import { planProgress } from './progress.js';
 import { openTaskModal, confirmDeleteTask } from './taskmodal.js';
 import { openPlanModal } from './planmodal.js';
-import { rangeOf, planForRange, getPeriod, getAnchor, labelOf, titleOf } from './period.js';
+import { rangeOf, planForRange, overlaps, getPeriod, getAnchor, labelOf, titleOf } from './period.js';
 import { updatePeriodDisplay } from './shell.js';
 import { getFilter, setScope, matchTask, subscribe as subscribeFilter } from './filter.js';
 
@@ -95,6 +95,37 @@ function renderGoals(s) {
   els.soloRow.setAttribute('aria-pressed', String(getFilter().scope?.type === 'solo'));
 }
 
+// 왼쪽 목표 패널에서 계획을 하나 골라 둔 상태(스코프)면, 사슬도 그 계획의 갈래를 따라갑니다.
+// 스코프가 없으면 기존처럼 날짜 범위로만 고릅니다(planForRange) — 그런데 같은 기간에 서로 다른 연간
+// 목표 아래 계획이 함께 있으면 날짜만으로는 항상 같은 계획만 골라져서, 다른 연간 목표를 골라도 사슬이
+// 안 바뀌는 문제가 있었습니다.
+function resolveChainPlans(s, period) {
+  const scope = getFilter().scope;
+  const scoped = scope?.type === 'plan' ? s.plans.find((p) => p.id === scope.id) : null;
+  const parentOf = (plan) => plan && s.plans.find((p) => p.id === plan.parent_id);
+
+  if (scoped) {
+    let week = scoped.plan_type === 'weekly' ? scoped : null;
+    let month = scoped.plan_type === 'monthly' ? scoped : (week ? parentOf(week) : null);
+    let year = scoped.plan_type === 'yearly' ? scoped : (month ? parentOf(month) : null);
+    if (scoped.plan_type === 'yearly' && year) {
+      month = s.plans.find((p) => p.plan_type === 'monthly' && p.parent_id === year.id && overlaps(p, rangeOf('month', getAnchor())));
+      week = period !== 'month' && month ? s.plans.find((p) => p.plan_type === 'weekly' && p.parent_id === month.id && overlaps(p, rangeOf('week', getAnchor()))) : null;
+    } else if (scoped.plan_type === 'monthly' && period !== 'month') {
+      week = s.plans.find((p) => p.plan_type === 'weekly' && p.parent_id === month.id && overlaps(p, rangeOf('week', getAnchor())));
+    }
+    return { week, month, year };
+  }
+
+  if (period === 'month') {
+    const month = planForRange(s.plans, 'monthly', rangeOf('month', getAnchor()));
+    return { week: null, month, year: month ? parentOf(month) : planForRange(s.plans, 'yearly', rangeOf('year', getAnchor())) };
+  }
+  const week = planForRange(s.plans, 'weekly', rangeOf('week', getAnchor()));
+  const month = week ? parentOf(week) : planForRange(s.plans, 'monthly', rangeOf('month', getAnchor()));
+  return { week, month, year: month ? parentOf(month) : planForRange(s.plans, 'yearly', rangeOf('year', getAnchor())) };
+}
+
 // ── 연결 사슬(클린·나이트): 선택한 기간의 주간 → 월간 → 연간 ─
 // 기간이 "연간"이면 목표 패널의 연간 카드 하나로 충분해 사슬은 비웁니다. "월간"이면 주간을 뺀 월→연만 보여 줍니다.
 function renderChain(s) {
@@ -102,16 +133,7 @@ function renderChain(s) {
   const period = getPeriod();
   if (period === 'year') { els.chain.innerHTML = ''; return; }
 
-  let week = null, month = null, year = null;
-  if (period === 'month') {
-    month = planForRange(s.plans, 'monthly', rangeOf('month', getAnchor()));
-    year = month ? s.plans.find((p) => p.id === month.parent_id) : planForRange(s.plans, 'yearly', rangeOf('year', getAnchor()));
-  } else {
-    const weekRange = rangeOf('week', getAnchor());
-    week = planForRange(s.plans, 'weekly', weekRange);
-    month = week ? s.plans.find((p) => p.id === week.parent_id) : planForRange(s.plans, 'monthly', rangeOf('month', getAnchor()));
-    year = month ? s.plans.find((p) => p.id === month.parent_id) : planForRange(s.plans, 'yearly', rangeOf('year', getAnchor()));
-  }
+  const { week, month, year } = resolveChainPlans(s, period);
 
   // 있는 단계만 보여 주고 끝내지 않습니다 — 예를 들어 연간만 있고 월간·주간이 없으면, 그 자리에
   // "만들기" 버튼을 둬서 클린·나이트에서도 (파스텔의 펼친 트리 없이) 계속 만들어 나갈 수 있게 합니다.
